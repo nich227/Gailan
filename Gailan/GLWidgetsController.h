@@ -11,7 +11,7 @@
 @class GLWidgetsStore;
 @class GLPreferencesController;
 
-@interface GLWidgetsController : NSController
+@interface GLWidgetsController : NSController <NSMenuDelegate>
 
 - (id)initWithMenu:(NSMenu*)menu
            widgets:(GLWidgetsStore*)theWidgets

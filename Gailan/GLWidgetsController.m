@@ -153,8 +153,22 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     ];
     
     
-    NSMenu* widgetMenu = [[NSMenu alloc] init];
+    // the submenu is populated by menuNeedsUpdate: when it is about to be
+    // displayed, so its contents are always read from current state. The
+    // menu title carries the widget id, it is never shown for submenus.
+    NSMenu* widgetMenu = [[NSMenu alloc] initWithTitle:widgetId];
     [widgetMenu setAutoenablesItems: NO];
+    [widgetMenu setDelegate:self];
+
+    [newItem setSubmenu:widgetMenu];
+    [menu insertItem:newItem atIndex:currentIndex];
+}
+
+- (void)menuNeedsUpdate:(NSMenu*)widgetMenu
+{
+    NSString* widgetId = [widgetMenu title];
+    [widgetMenu removeAllItems];
+
     [widgetMenu insertItem:[NSMenuItem separatorItem] atIndex:0];
     [self addHideOptionToMenu:widgetMenu forWidget:widgetId];
     [self addBackgroundOptionToMenu:widgetMenu forWidget:widgetId];
@@ -174,10 +188,16 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     
     [self addEditMenuItemToMenu:widgetMenu forWidget:widgetId];
     [widgetMenu insertItem:[NSMenuItem separatorItem] atIndex:1];
-    
-    
-    [newItem setSubmenu:widgetMenu];
-    [menu insertItem:newItem atIndex:currentIndex];
+}
+
+// without this, AppKit would call menuNeedsUpdate: on every submenu while
+// scanning for key equivalents
+- (BOOL)menuHasKeyEquivalent:(NSMenu*)menu
+                    forEvent:(NSEvent*)event
+                      target:(id*)target
+                      action:(SEL*)action
+{
+    return NO;
 }
 
 - (void)addEditMenuItemToMenu:(NSMenu*)menu forWidget:(NSString*)widgetId

@@ -106,7 +106,9 @@ verified on macOS. Say so rather than implying it was tested.
 ## Known rough edges
 
   - `GLWidgetsStore deselectScreen` compares NSNumbers by pointer.
-  - the status menu rebuild is deferred: store changes set a dirty flag and the menu is
-    rebuilt when tracking starts (`NSMenuDidBeginTrackingNotification`). Changes arriving
-    while the menu is open render immediately, and widget error notifications stay on the
-    eager path in `render`. Keep that split if you touch `GLWidgetsController`.
+  - the status menu is built lazily: store changes set a dirty flag, the top-level
+    items are rebuilt when tracking starts (`NSMenuDidBeginTrackingNotification`), and
+    each widget's submenu is populated by `menuNeedsUpdate:` when it is about to be
+    displayed (the submenu's title carries the widget id). Changes arriving while the
+    menu is open render immediately, and widget error notifications stay on the eager
+    path in `render`. Keep those splits if you touch `GLWidgetsController`.
