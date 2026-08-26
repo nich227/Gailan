@@ -1,19 +1,23 @@
 {
-  "name": "uebersicht-server",
+  "name": "gailan-server",
   "version": "0.0.0",
-  "description": "Node.js backend for Übersicht",
+  "description": "Node.js backend for Gailan",
   "main": "server.coffee",
   "scripts": {
     "test": "npm run-script test-local && npm run-script test-browser",
     "test-local": "tape -r coffee-script/register spec/backend/**/* | tap-spec",
     "test-browser": "browserify -t coffeeify  spec/frontend/*.*  | tape-run | tap-spec",
     "start": "coffee server.coffee",
-    "release": "npm run-script build-client && npm run-script build-server",
-    "build-client": "browserify -i ws -t coffeeify -t babelify -r ./src/uebersicht.js:uebersicht client.coffee | uglifyjs -c > release/public/client.js",
-    "build-server": "browserify -t coffeeify --node --detect-globals false --no-bundle-external server.coffee > release/server.js && cd release && npm prune --production && npm install --production --no-progress"
+    "release": "npm run-script fetch-node && npm run-script build-client && npm run-script build-server",
+    "build-client": "browserify -i ws -t coffeeify -t babelify -r ./src/gailan.js:gailan -r ./src/gailan.js:uebersicht client.coffee | uglifyjs -c > release/public/client.js",
+    "build-server": "browserify -t coffeeify --node --detect-globals false --no-bundle-external server.coffee > release/server.js && cd release && npm prune --production && npm install --production --no-progress",
+    "fetch-node": "../scripts/fetch-node.sh"
   },
   "author": "Felix Hageloh",
   "license": "GPL v3 <http://www.gnu.org/licenses/>",
+  "engines": {
+    "node": ">=26.0.0"
+  },
   "private": true,
   "devDependencies": {
     "coffee-script": "^1.12.7",

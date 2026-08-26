@@ -23,3 +23,8 @@ server/node_modules
 server/release/server.js
 server/release/public/client.js
 server/release/node_modules
+
+# bundled node runtime, fetched by scripts/fetch-node.sh
+# (a single darwin node binary is ~145MB, over GitHub's 100MB file limit)
+server/release/node-x64
+server/release/node-arm64

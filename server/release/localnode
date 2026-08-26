@@ -3,14 +3,27 @@
 arch_name="$(uname -m)"
 current_dir="$(dirname $0)"
 
+run_node() {
+  if [ ! -x "$1" ]; then
+    echo "missing node runtime: $1" >&2
+    echo "run scripts/fetch-node.sh first" >&2
+    exit 1
+  fi
+  local binary="$1"
+  shift
+  exec "$binary" "$@"
+}
+
 if [ "${arch_name}" = "x86_64" ]; then
+  # under rosetta, run the arm64 build natively
   if [ "$(sysctl -in sysctl.proc_translated)" = "1" ]; then
-    $current_dir/node-arm64 $@
+    run_node "$current_dir/node-arm64" "$@"
   else
-    $current_dir/node-x64 $@
+    run_node "$current_dir/node-x64" "$@"
   fi
 elif [ "${arch_name}" = "arm64" ]; then
-  $current_dir/node-arm64 $@
+  run_node "$current_dir/node-arm64" "$@"
 else
-  echo "Unknown architecture: ${arch_name}"
+  echo "Unknown architecture: ${arch_name}" >&2
+  exit 1
 fi
