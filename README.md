@@ -21,17 +21,17 @@ upgrading it:
   - the widget API module is imported as `gailan`; `uebersicht` still resolves, so existing
     widgets keep working
   - the container element is `#gailan`, so user CSS targeting `#uebersicht` needs updating
-  - requires macOS 13.5 or later, because the bundled node runtime does
+  - requires macOS 13.5 or later, because the bundled Node runtime does
 
-The node runtime is Node 26 and is no longer checked into git; see [Building Gailan](#building-gailan).
+The Node runtime is Node 26 and is no longer checked into git; see [Building Gailan](#building-gailan).
 
 ## Writing Widgets
 
-In essence, widgets are JavaScript modules that expose a few key properties and methods. They need to be defined in a single file with a `.jsx` extension for Gailan to pick them up. Previously, widgets could be written in CoffeeScript and are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan will listen to file changes inside your widget directory, so you can edit widgets and see the result live.
+In essence, widgets are JavaScript modules that expose a few key properties and methods. They need to be defined in a single file with a `.jsx` extension for Gailan to pick them up. Widgets could previously be written in CoffeeScript, and those are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
 
-Widget rendering is done using [React](https://react.dev) and its [JSX](https://react.dev/learn/writing-markup-with-jsx) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which get processed by a single `updateState` function which returns the new state, which is passed to the render function of your widget.
+Widget rendering is done using [React](https://react.dev) and its [JSX](https://react.dev/learn/writing-markup-with-jsx) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which are processed by a single `updateState` function that returns the new state, which is then passed to your widget's render function.
 
-State is kept when you modify your widget, which allows for live coding. Any changes to the UI of your widget will be immediately visible.  One drawback (at least with the current implementation) is that if you change the shape of your state you might have to 'Refresh all Widgets' from the app menu for your widget to work.
+State is kept when you modify your widget, which allows for live coding. Any changes to the UI of your widget will be immediately visible. One drawback (at least with the current implementation) is that if you change the shape of your state you might have to 'Refresh all Widgets' from the app menu for your widget to work.
 
 You can also include node modules and split your widget into separate files using [ESM syntax](http://2ality.com/2014/09/es6-modules-final.html). Any file that is in a directory called `/node_modules`, `/lib` or `/src` will be treated as a module and will not show up as a separate widget.
 
@@ -41,7 +41,7 @@ The following properties and methods are supported:
 
 A **string** containing the shell command to be executed, or<br>
 a **function(dispatch : function)** which eventually dispatches an event,
-or **undefined** meaning that no command will be executed for this widget.
+or **undefined**, meaning that no command will be executed for this widget.
 
 For example:
 
@@ -49,7 +49,7 @@ For example:
 export const command = "echo Hello World";
 ```
 
-Watch out for quotes inside commands. Often they need to properly escaped, like:
+Watch out for quotes inside commands. Often they need to be properly escaped, like:
 
 ```jsx
 export const command = "ps axo \"rss,pid,ucomm\" | sort -nr | head -n3";
@@ -59,23 +59,23 @@ Example using a command function:
 
 ```jsx
 export const command = (dispatch) =>
-  fetch('some/url.json)')
+  fetch('some/url.json')
     .then((response) => {
-      dispatch({ type: 'FETCH_SUCCEDED', data: response.json() });
+      dispatch({ type: 'FETCH_SUCCEEDED', data: response.json() });
     })
     .catch((error) => {
       dispatch({ type: 'FETCH_FAILED', error: error });
     });
 ```
 
-The first and only argument passed to a command function is a `dispatch` function, which you can use to dispatch plain JasvaScript objects, called events, to be picked up by your `updateState` function.
+The first and only argument passed to a command function is a `dispatch` function, which you can use to dispatch plain JavaScript objects, called events, to be picked up by your `updateState` function.
 
 
 ### refreshFrequency
 
-An **number** specifying how often the above command is executed.
+A **number** specifying how often the above command is executed.
 
-It defines the delay in milliseconds between consecutive commands executions. Example:
+It defines the delay in milliseconds between consecutive command executions. Example:
 
 ```jsx
 export const refreshFrequency = 1000; // widget will run command once a second
@@ -85,9 +85,9 @@ The default is 1000 (1s). If set to `false` the widget won't refresh automatical
 
 ### className
 
-An **object** or **string** defining the CSS rules to applied to the root of your widget.
+An **object** or **string** defining the CSS rules to be applied to the root of your widget.
 
-It is most commonly used control the position of your widget. It is converted to a CSS class name using the [Emotion CSS-in-JS library](https://emotion.sh/docs/css). Read more about [styling your widgets here](#styling-widgets).
+It is most commonly used to control the position of your widget. It is converted to a CSS class name using the [Emotion CSS-in-JS library](https://emotion.sh/docs/css). Read more about [styling your widgets](#styling-widgets).
 
 ```jsx
 export const className = {
@@ -107,13 +107,13 @@ export const className = `
 `
 ```
 
-Note that widgets are positioned absolute in relation to the screen (minus the menu bar), so a widget with `top: 0` and `left: 0` will be positioned in the top left corner of the screen, just below the menu bar.
+Note that widgets are positioned absolutely in relation to the screen (minus the menu bar), so a widget with `top: 0` and `left: 0` will be positioned in the top left corner of the screen, just below the menu bar.
 
 ### render : props
 
 A **function(props : object)** to render your widget.
 
-If you know [React functional components](https://react.dev/learn/your-first-component) you know how render works. The `props` passed to this function is whatever state your `updateState` function returns. If you don't provide your own `updateState` function, the default props that are passed are `output` and `error`, containing the output your command produced and any error that might have occurred.
+If you know [React functional components](https://react.dev/learn/your-first-component), you know how render works. The `props` passed to this function is whatever state your `updateState` function returns. If you don't provide your own `updateState` function, the default props that are passed are `output` and `error`, containing the output your command produced and any error that might have occurred.
 
 ```jsx
 export const render = ({output, error}) => {
@@ -170,7 +170,7 @@ This example also shows that you can make use of functions to further break down
 
 An **object** with the initial state of your widget.
 
-If you provide a custom `updateState` function you might need to define the initial state that gets passed on initial render of the widget. before any command has been run.
+If you provide a custom `updateState` function you might need to define the initial state that gets passed on the initial render of the widget, before any command has been run.
 
 ```jsx
 export const initialState = { output: 'fetching data...' };
@@ -244,7 +244,7 @@ export const render = ({ colors }) => {
 }
 ```
 
-Alternatively, you can also make use of Emotion's styles components:
+Alternatively, you can also make use of Emotion's styled components:
 
 ```jsx
 import { styled } from "gailan"
@@ -294,9 +294,9 @@ Finally, since you can also install and import any module you like, you can use 
 
 ## Running Shell Commands
 
-If need to run extra shell commands without using the [command](#command) property, you can import the `run` function from the `gailan` module.
+If you need to run extra shell commands without using the [command](#command) property, you can import the `run` function from the `gailan` module.
 
-It returns a Promise, which will resolve to the output of the command (stdout) or reject if any error occurred.
+It returns a Promise, which will resolve to the output of the command (stdout) or reject if an error occurred.
 
 ```jsx
 import { run } from 'gailan'
@@ -314,11 +314,11 @@ export const render = (props, dispatch) => {
   );
 }
 ```
-> Note that in order to receive click events you need to configure an interaction shortcut and give Gailan accessibility access.
+> Note that in order to receive click events, you need to configure an interaction shortcut and give Gailan accessibility access.
 
 ## Geolocation API
 
-While the WebView used by Gailan seems to provide the standard HTML5 geolocation API, it is not functional and there seems to be no way to enable it. Gailan now provides a custom implementation, which tries to follow the standard implementation as closely as possible. However, so far it provides only the basics and might still be somewhat unstable. The api can be found under `window.geolocation` (instead of `window.navigator.geolocation`). And supports the following methods
+While the WebView used by Gailan seems to provide the standard HTML5 geolocation API, it is not functional and there seems to be no way to enable it. Gailan provides its own implementation, which tries to follow the standard implementation as closely as possible. However, so far it provides only the basics and might still be somewhat unstable. The API can be found under `window.geolocation` (instead of `window.navigator.geolocation`), and supports the following methods:
 
 ```js
 geolocation.getCurrentPosition(callback)
@@ -332,9 +332,9 @@ geolocation.watchPosition(callback)
 geolocation.clearWatch(watchId)
 ```
 
-Check the [documentation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation) for details on how to use these methods. The main difference to the standard API is that none of them accept options (the accuracy for position data is always set to the highest) and error reporting has not be implemented yet.
+Check the [documentation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation) for details on how to use these methods. The main differences from the standard API are that none of them accept options (position accuracy is always set to the highest) and that error reporting has not been implemented yet.
 
-However, in a addition to the standard `Position` object provided by the standard API, Gailan provides an extra `address` property with the following fields:
+In addition to the standard `Position` object, Gailan provides an extra `address` property with the following fields:
 
   - Street
   - City
@@ -344,9 +344,9 @@ However, in a addition to the standard `Position` object provided by the standar
   - CountryCode
 
 
-## Built In Proxy Server
+## Built-in Proxy Server
 
-If you like you make Ajax requests to an external site without using a command, you can make use of the built in proxy server. It is running on `http://127.0.0.1:41417` and can be used as follows:
+If you'd like to make Ajax requests to an external site without using a command, you can use the built-in proxy server. It is running on `http://127.0.0.1:41417` and can be used as follows:
 
     command: (callback) ->
       proxy = "http://127.0.0.1:41417/"
@@ -365,7 +365,7 @@ refreshes all widgets.
 
     tell application id "com.nich227.Gailan" to refresh widget id "my-widget"
 
-refreshes widget with id "my-widget".
+refreshes the widget with id "my-widget".
 
     tell application id "com.nich227.Gailan" to every widget
 
@@ -373,16 +373,16 @@ lists all widgets.
 
     tell application id "com.nich227.Gailan" to set hidden of widget id "top-cpu-coffee" to false
 
-hides the widget with ID "top-cpu-coffee"
+shows the widget with id "top-cpu-coffee"
 
 
 ## Building Gailan
 
-To build Gailan you will need to have NodeJS and a few dependencies installed:
+To build Gailan you need Node.js and a few dependencies:
 
 ### setup
 
-Gailan bundles Node 26 into the app and the server code expects it, so build with node 26.
+Gailan bundles Node 26 into the app, and the server code expects it, so build with Node 26.
 Homebrew's unversioned formula is on 26 (there is no `node@26`):
 
 ```
@@ -395,7 +395,7 @@ Or pin it with a version manager, `nvm install 26`. Then:
 cd server && npm install
 ```
 
-### the bundled node runtime
+### the bundled Node runtime
 
 The `node` binaries that ship inside `Gailan.app` are not checked into git — a single darwin
 build is around 145MB, which is over GitHub's 100MB file limit. `scripts/fetch-node.sh`
@@ -406,14 +406,14 @@ drops them in `server/release/`:
 ./scripts/fetch-node.sh
 ```
 
-`npm run release` (and therefore an Xcode build) calls it for you. To move to a newer node,
+`npm run release` (and therefore an Xcode build) calls it for you. To move to a newer Node,
 change `NODE_VERSION` and the two checksums at the top of that script.
 
 ### building
 
-The code base consists of two parts, a cocoa app and a NodeJS app inside `server/`. To build the node app separately, use `npm run release`. This happens automatically every time you build using XCode.
+The codebase consists of two parts: a Cocoa app, and a Node.js app inside `server/`. To build the Node app separately, use `npm run release`. This happens automatically every time you build with Xcode.
 
-The node app can be run standalone using
+The Node app can be run standalone using
 
 ```
 cd server && npx coffee server.coffee -d <path/to/widget/dir> -p <port>
@@ -424,11 +424,11 @@ login shell. `npm start` does the same with the defaults.
 
 # Building in Xcode
 
-The first time opening the project in Xcode you might see this message when trying to build: "The run destination My Mac is not valid for Running the scheme 'Gailan'."
+The first time you open the project in Xcode, you might see this message when trying to build: "The run destination My Mac is not valid for Running the scheme 'Gailan'."
 
 Click on `Gailan` in the project navigator and then select the menu `Editor > Validate Settings...` and click `Perform Changes`.
 
-You can then attempt to build, you may then be presented with code sign issues, click `Fix Issue` to continue.
+You can then attempt to build. If you are presented with code signing issues, click `Fix Issue` to continue.
 
 Now you need to remove the code signing shell script: select the `Gailan` target and, under `Build Phases`, empty out the phase called `Run Script`.
 
