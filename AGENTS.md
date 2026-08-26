@@ -57,6 +57,11 @@ Two things bite on non-macOS machines:
 be exercised anywhere; `directory_watcher_spec.js` uses the real thing and only reports
 properly on a Mac. Prefer the fake one when changing event logic.
 
+If a spec starts an http server, tear it down with `closeAllConnections()` and wait for
+`close()` to call back. `close()` on its own leaves established keep-alive sockets up,
+and a client holding one while the next server starts gets a hang-up mid-request, which
+takes the whole run down.
+
 Anything involving the cocoa app, the WKWebView, or real file-system events has to be
 verified on macOS. Say so rather than implying it was tested.
 

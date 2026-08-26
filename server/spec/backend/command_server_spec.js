@@ -75,22 +75,30 @@ test('forwarding stderr', (t) => {
 });
 
 test('closing', (t) => {
-  server.close();
-  t.pass('it closes');
-  t.end();
+  // close() only stops new connections; keep-alive sockets have to be dropped
+  // too, or a client can still be holding one when the next server starts
+  server.closeAllConnections();
+  server.close(() => {
+    t.pass('it closes');
+    t.end();
+  });
 });
 
 test('using a login shell', (t) => {
-  server = connect().use(commandServer(workingDir, true)).listen(port);
+  // its own port, so nothing can be pointing at the server that just closed
+  var loginPort = testPort(port + 1);
+  var loginServer = connect()
+    .use(commandServer(workingDir, true))
+    .listen(loginPort);
 
-  httpPost(url, 'echo $(shopt | grep login_shell)', (res, body) => {
+  httpPost('http://localhost:' + loginPort + '/run/', 'echo $(shopt | grep login_shell)', (res, body) => {
     const lines = body.trim().split('\n');
     t.equal(
       lines[lines.length - 1],
       'login_shell on',
       'it indeed runs in a login shell',
     );
-    server.close();
-    t.end();
+    loginServer.closeAllConnections();
+    loginServer.close(() => t.end());
   });
 });

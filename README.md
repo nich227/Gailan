@@ -4,7 +4,7 @@
 **Gailan** (概览 - Gàilǎn) is the exact translation of *Übersicht* ("Overview") — a clean, six-letter
 romanization that feels like a native developer tool in Latin script.
 
-Read it in Cantonese instead and you get 芥蘭, Chinese broccoli. That wasn't the plan, but a leafy
+Read it in Cantonese instead and you get 芥蘭 🥦, Chinese broccoli. That wasn't the plan, but a leafy
 green that sits there quietly and asks nothing of you is not the worst thing to name a desktop
 widget host after.
 
