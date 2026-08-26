@@ -37,7 +37,8 @@ module.exports = function bundleWidget(id, filePath) {
 
   bundle.plugin(watchify);
   bundle.require(filePath, {expose: id});
-  bundle.external('uebersicht');
+  bundle.external('gailan');
+  bundle.external('uebersicht'); // legacy alias
 
   if (filePath.match(/\.coffee$/)) {
     bundle.transform(coffeeify, {

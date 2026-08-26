@@ -7,9 +7,19 @@ romanization that feels like a native developer tool in Latin script.
 Gailan is a fork of [felixhageloh/uebersicht](https://github.com/felixhageloh/uebersicht). For general
 info on the original project, check out the [Übersicht website](http://tracesof.net/uebersicht).
 
-> **Note on identifiers:** the widget API module is still imported as `uebersicht` and the application
-> id is still `tracesOf.Uebersicht`, so existing widgets keep working unchanged. Only the project name
-> is different.
+## Differences from Übersicht
+
+Everything is renamed, which means Gailan installs and runs alongside Übersicht rather than
+upgrading it:
+
+  - bundle id is `com.nich227.Gailan` (AppleScript needs the new id)
+  - widgets live in `~/Library/Application Support/Gailan/widgets`
+  - the widget API module is imported as `gailan`; `uebersicht` still resolves, so existing
+    widgets keep working
+  - the container element is `#gailan`, so user CSS targeting `#uebersicht` needs updating
+  - requires macOS 13.5 or later, because the bundled node runtime does
+
+The node runtime is Node 26 and is no longer checked into git; see [Building Gailan](#building-gailan).
 
 ## Writing Widgets
 
@@ -180,12 +190,12 @@ export const init = (dispatch) => {
 
 ## Styling Widgets
 
-Gailan comes bundled with [Emotion ](https://emotion.sh) (version 9). It exposes it's `css` and `styled` functions via the `uebersicht` module.
+Gailan comes bundled with [Emotion](https://emotion.sh) (version 10). It exposes it's `css` and `styled` functions via the `gailan` module.
 
 As described above, you can use `className` to style and position the root node of your widget. For further styling you can do something like this:
 
 ```jsx
-import { css } from "uebersicht"
+import { css } from "gailan"
 
 const header = css`
   font-family: Ubuntu;
@@ -232,7 +242,7 @@ export const render = ({ colors }) => {
 Alternatively, you can also make use of Emotion's styles components:
 
 ```jsx
-import { styled } from "uebersicht"
+import { styled } from "gailan"
 
 const Header = styled("h1")`
   font-family: Ubuntu;
@@ -279,12 +289,12 @@ Finally, since you can also install and import any module you like, you can use 
 
 ## Running Shell Commands
 
-If need to run extra shell commands without using the [command](#command) property, you can import the `run` function from the `uebersicht` module.
+If need to run extra shell commands without using the [command](#command) property, you can import the `run` function from the `gailan` module.
 
 It returns a Promise, which will resolve to the output of the command (stdout) or reject if any error occurred.
 
 ```jsx
-import { run } from 'uebersicht'
+import { run } from 'gailan'
 
 export const render => (props, dispatch) {
   return (
@@ -342,21 +352,21 @@ If you like you make Ajax requests to an external site without using a command, 
 
 ## Scripting Support
 
-Gailan has AppleScript support since version 1.1.45. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name — the id is inherited from the upstream project and remains `tracesOf.Uebersicht`):
+Gailan has AppleScript support since version 1.1.45. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name):
 
-    tell application id "tracesOf.Uebersicht" to refresh
+    tell application id "com.nich227.Gailan" to refresh
 
 refreshes all widgets.
 
-    tell application id "tracesOf.Uebersicht" to refresh widget id "my-widget"
+    tell application id "com.nich227.Gailan" to refresh widget id "my-widget"
 
 refreshes widget with id "my-widget".
 
-    tell application id "tracesOf.Uebersicht" to every widget
+    tell application id "com.nich227.Gailan" to every widget
 
 lists all widgets.
 
-    tell application id "tracesOf.Uebersicht" to set hidden of widget id "top-cpu-coffee" to false
+    tell application id "com.nich227.Gailan" to set hidden of widget id "top-cpu-coffee" to false
 
 hides the widget with ID "top-cpu-coffee"
 
@@ -367,27 +377,29 @@ To build Gailan you will need to have NodeJS and a few dependencies installed:
 
 ### setup
 
-Currently, the project supports node 8.
+Gailan bundles Node 26 into the app, so you need Node 26 to build it:
 
-If you already have node, you'll have to
 ```
-brew unlink node
-```
-Now, install node 8 using homebrew
-```
-brew install node@8 && brew link --force node@8
+brew install node@26 && brew link --force node@26
 ```
 then run
 ```
-npm install
+cd server && npm install
 ```
-### git and unicode characters
 
-Some of the path names inherited from upstream still contain an umlaut (ü). Git might not like this and will constantly show those files as untracked. To get rid of this issue, I had to use
+### the bundled node runtime
 
-    git config core.precomposeunicode false
+The `node` binaries that ship inside `Gailan.app` are not checked into git — a single darwin
+build is around 145MB, which is over GitHub's 100MB file limit. `scripts/fetch-node.sh`
+downloads them, verifies them against the SHA256 sums published by the Node project, and
+drops them in `server/release/`:
 
-However, the common advice is to set this to `true`. It might depend on the OS and git version which one to use.
+```
+./scripts/fetch-node.sh
+```
+
+`npm run release` (and therefore an Xcode build) calls it for you. To move to a newer node,
+change `NODE_VERSION` and the two checksums at the top of that script.
 
 ### building
 
@@ -401,13 +413,13 @@ coffee server/server.coffee -d <path/to/widget/dir> -p <port>
 
 # Building in Xcode
 
-The first time opening the project in Xcode you might see this message when trying to build: "The run destination My Mac is not valid for Running the scheme 'Übersicht'." (the Xcode scheme and target names are still the upstream ones).
+The first time opening the project in Xcode you might see this message when trying to build: "The run destination My Mac is not valid for Running the scheme 'Gailan'."
 
-Click on `Uebersicht` in the project navigator and then select the menu `Editor > Validate Settings...` and click `Perform Changes`.
+Click on `Gailan` in the project navigator and then select the menu `Editor > Validate Settings...` and click `Perform Changes`.
 
 You can then attempt to build, you may then be presented with code sign issues, click `Fix Issue` to continue.
 
-Now you need to remove the code signing shell script, select the `Übersicht` target and under `Build Phases` remove the code in the `Code Sign Frameworks` section.
+Now you need to remove the code signing shell script, select the `Gailan` target and under `Build Phases` remove the code in the `Code Sign Frameworks` section.
 
 You should now be able to build successfully.
 
@@ -421,4 +433,4 @@ Gailan is a fork of [Übersicht](https://github.com/felixhageloh/uebersicht) by 
 
 The source is released under the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-© 2019 Felix Hageloh
+© 2026 Kevin Chen. Based on Übersicht, © 2019 Felix Hageloh.

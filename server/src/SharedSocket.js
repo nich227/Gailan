@@ -28,7 +28,7 @@ function handleError(err) {
 }
 
 exports.open = function open(url) {
-  ws = new WebSocket(url, ['ws'], {origin: 'Übersicht'});
+  ws = new WebSocket(url, ['ws'], {origin: 'Gailan'});
 
   if (ws.on) {
     ws.on('open', handleWSOpen);

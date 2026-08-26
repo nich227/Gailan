@@ -16,7 +16,7 @@ window.onload = ->
   screen =
     id: Number(path[1])
     layer: path[2]
-  contentEl = document.getElementById('uebersicht')
+  contentEl = document.getElementById('gailan')
   contentEl.innerHTML = ''
   userCssLink = Array.from(document.querySelectorAll('link'))
     .find((el) => el.href.match('userMain.css'))
@@ -53,7 +53,7 @@ window.onload = ->
     render(initialState, screen, contentEl, store.dispatch)
 
 # legacy
-window.uebersicht =
+window.gailan =
   makeBgSlice: (canvas) ->
     console.warn 'makeBgSlice has been deprecated. Please use CSS \
       backdrop-filter instead: \

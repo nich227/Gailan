@@ -93,7 +93,7 @@ module.exports = (port, widgetPath, settingsPath, publicPath, options, callback)
       messageBus = MessageBus(
         server: server,
         verifyClient: (info) ->
-          info.req.headers.host == allowedHost && (info.origin == allowedOrigin || info.origin == 'Übersicht')
+          info.req.headers.host == allowedHost && (info.origin == allowedOrigin || info.origin == 'Gailan')
       )
       sharedSocket.open("ws://#{host}:#{port}")
       callback?()

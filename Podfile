@@ -1,12 +1,12 @@
 # Uncomment the next line to define a global platform for your project
-platform :macos, '10.11'
+platform :macos, '13.5'
 
-target 'Uebersicht' do
-  # Pods for Uebersicht
+target 'Gailan' do
+  # Pods for Gailan
   pod 'SocketRocket'
   pod 'Sparkle',  '~> 2.0.0'  
 
-  target 'UebersichtTests' do
+  target 'GailanTests' do
     inherit! :search_paths
     # Pods for testing
   end
