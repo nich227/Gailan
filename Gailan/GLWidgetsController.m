@@ -22,6 +22,8 @@
     NSImage* statusIconVisible;
     NSImage* statusIconHidden;
     GLDispatcher* dispatcher;
+    BOOL menuDirty;
+    BOOL menuOpen;
 }
 
 static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
@@ -52,6 +54,22 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
         [menu insertItem:[NSMenuItem separatorItem] atIndex:currentIndex];
         
         dispatcher = [[GLDispatcher alloc] init];
+
+        // the menu contents are only observable while the menu is open, so
+        // store changes just mark it dirty and it is rebuilt when tracking
+        // starts. Changes that arrive while it is open still render live.
+        [[NSNotificationCenter defaultCenter]
+            addObserver: self
+               selector: @selector(menuDidBeginTracking:)
+                   name: NSMenuDidBeginTrackingNotification
+                 object: menu
+        ];
+        [[NSNotificationCenter defaultCenter]
+            addObserver: self
+               selector: @selector(menuDidEndTracking:)
+                   name: NSMenuDidEndTrackingNotification
+                 object: menu
+        ];
        
         statusIconVisible = [[NSBundle mainBundle]
             imageForResource:@"widget-status-visible"
@@ -69,6 +87,25 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
 
 - (void)render
 {
+    // error notifications must not wait for the menu to be opened
+    NSArray* sortedWidgets = widgets.sortedWidgets;
+    NSString* error;
+    for (NSInteger i = sortedWidgets.count - 1; i >= 0; i--) {
+        error = [widgets get:sortedWidgets[i]][@"error"];
+        if (error) {
+            [self notifyUser:error withTitle:@"Error"];
+        }
+    }
+
+    if (menuOpen) {
+        [self renderMenu];
+    } else {
+        menuDirty = YES;
+    }
+}
+
+- (void)renderMenu
+{
      for (NSMenuItem *item in [mainMenu itemArray]) {
         if (item.tag == WIDGET_MENU_ITEM_TAG) {
             [mainMenu removeItem: item];
@@ -76,17 +113,28 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     }
     
     NSArray* sortedWidgets = widgets.sortedWidgets;
-    NSString* widgetId;
-    NSString* error;
     for (NSInteger i = sortedWidgets.count - 1; i >= 0; i--) {
-        widgetId = sortedWidgets[i];
-        [self renderWidget:widgetId inMenu:mainMenu];
-        
-        error = [widgets get:widgetId][@"error"];
-        if (error) {
-            [self notifyUser:error withTitle:@"Error"];
-        }
+        [self renderWidget:sortedWidgets[i] inMenu:mainMenu];
     }
+}
+
+- (void)menuDidBeginTracking:(NSNotification*)notification
+{
+    menuOpen = YES;
+    if (menuDirty) {
+        menuDirty = NO;
+        [self renderMenu];
+    }
+}
+
+- (void)menuDidEndTracking:(NSNotification*)notification
+{
+    menuOpen = NO;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 

@@ -105,7 +105,8 @@ verified on macOS. Say so rather than implying it was tested.
 
 ## Known rough edges
 
-  - `findFiles` stats every directory entry; `readdir` with `withFileTypes` would cut
-    that down, but symlinked widget directories need the stat to keep working.
-  - `WidgetBundler` calls `fs.statSync` inside an async callback.
   - `GLWidgetsStore deselectScreen` compares NSNumbers by pointer.
+  - the status menu rebuild is deferred: store changes set a dirty flag and the menu is
+    rebuilt when tracking starts (`NSMenuDidBeginTrackingNotification`). Changes arriving
+    while the menu is open render immediately, and widget error notifications stay on the
+    eager path in `render`. Keep that split if you touch `GLWidgetsController`.
