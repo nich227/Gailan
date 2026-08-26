@@ -1,13 +1,21 @@
-# Übersicht
+# Gailan (概览 · Gàilǎn)
 *Keep an eye on what's happening on your machine and in the world.*
 
-For general info check out the [Übersicht website.](http://tracesof.net/uebersicht)
+**Gailan** (概览 - Gàilǎn) is the exact translation of *Übersicht* ("Overview") — a clean, six-letter
+romanization that feels like a native developer tool in Latin script.
+
+Gailan is a fork of [felixhageloh/uebersicht](https://github.com/felixhageloh/uebersicht). For general
+info on the original project, check out the [Übersicht website](http://tracesof.net/uebersicht).
+
+> **Note on identifiers:** the widget API module is still imported as `uebersicht` and the application
+> id is still `tracesOf.Uebersicht`, so existing widgets keep working unchanged. Only the project name
+> is different.
 
 ## Writing Widgets
 
-In essence, widgets are JavaScript modules that expose a few key properties and methods. They need to be defined in a single file with a `.jsx` extension for Übersicht to pick them up. Previously, widgets could be written in CoffeeScript and are still supported. Check [the old documentation](ClassicWidgets.md) for details. Übersicht will listen to file changes inside your widget directory, so you can edit widgets and see the result live.
+In essence, widgets are JavaScript modules that expose a few key properties and methods. They need to be defined in a single file with a `.jsx` extension for Gailan to pick them up. Previously, widgets could be written in CoffeeScript and are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan will listen to file changes inside your widget directory, so you can edit widgets and see the result live.
 
-Widget rendering is done using [React](https://reactjs.org) and its [JSX](https://reactjs.org/docs/introducing-jsx.html) syntax. Simple widget state is managed for you by Übersicht, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which get processed by a single `updateState` function which returns the new state, which is passed to the render function of your widget.
+Widget rendering is done using [React](https://reactjs.org) and its [JSX](https://reactjs.org/docs/introducing-jsx.html) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which get processed by a single `updateState` function which returns the new state, which is passed to the render function of your widget.
 
 State is kept when you modify your widget, which allows for live coding. Any changes to the UI of your widget will be immediately visible.  One drawback (at least with the current implementation) is that if you change the shape of your state you might have to 'Refresh all Widgets' from the app menu for your widget to work.
 
@@ -172,7 +180,7 @@ export const init = (dispatch) => {
 
 ## Styling Widgets
 
-Uebersicht comes bundled with [Emotion ](https://emotion.sh) (version 9). It exposes it's `css` and `styled` functions via the `uebersicht` module.
+Gailan comes bundled with [Emotion ](https://emotion.sh) (version 9). It exposes it's `css` and `styled` functions via the `uebersicht` module.
 
 As described above, you can use `className` to style and position the root node of your widget. For further styling you can do something like this:
 
@@ -291,11 +299,11 @@ export const render => (props, dispatch) {
   );
 }
 ```
-> Note that in order to receive click events you need to configure an interaction shortcut and give Übersicht accessibility access.
+> Note that in order to receive click events you need to configure an interaction shortcut and give Gailan accessibility access.
 
 ## Geolocation API
 
-While the WebView used by Übersicht seems to provide the standard HTML5 geolocation API, it is not functional and there seems to be no way to enable it. Übersicht now provides a custom implementation, which tries to follow the standard implementation as closely as possible. However, so far it provides only the basics and might still be somewhat unstable. The api can be found under `window.geolocation` (instead of `window.navigator.geolocation`). And supports the following methods
+While the WebView used by Gailan seems to provide the standard HTML5 geolocation API, it is not functional and there seems to be no way to enable it. Gailan now provides a custom implementation, which tries to follow the standard implementation as closely as possible. However, so far it provides only the basics and might still be somewhat unstable. The api can be found under `window.geolocation` (instead of `window.navigator.geolocation`). And supports the following methods
 
 ```js
 geolocation.getCurrentPosition(callback)
@@ -311,7 +319,7 @@ geolocation.clearWatch(watchId)
 
 Check the [documentation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation) for details on how to use these methods. The main difference to the standard API is that none of them accept options (the accuracy for position data is always set to the highest) and error reporting has not be implemented yet.
 
-However, in a addition to the standard `Position` object provided by the standard API, Übersicht provides an extra `address` property with the following fields:
+However, in a addition to the standard `Position` object provided by the standard API, Gailan provides an extra `address` property with the following fields:
 
   - Street
   - City
@@ -334,7 +342,7 @@ If you like you make Ajax requests to an external site without using a command, 
 
 ## Scripting Support
 
-Übersicht has AppleScript support since version 1.1.45. To get detailed information on what you can script, open the Script Editor and add Übersicht to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name. This is because typing the umlaut Ü can be tricky):
+Gailan has AppleScript support since version 1.1.45. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name — the id is inherited from the upstream project and remains `tracesOf.Uebersicht`):
 
     tell application id "tracesOf.Uebersicht" to refresh
 
@@ -353,9 +361,9 @@ lists all widgets.
 hides the widget with ID "top-cpu-coffee"
 
 
-## Building Übersicht
+## Building Gailan
 
-To build Übersicht you will need to have NodeJS and a few dependencies installed:
+To build Gailan you will need to have NodeJS and a few dependencies installed:
 
 ### setup
 
@@ -375,7 +383,7 @@ npm install
 ```
 ### git and unicode characters
 
-Git might not like the umlaut (ü) in some of the path names and will constantly show them as untracked files. To get rid of this issue, I had to use
+Some of the path names inherited from upstream still contain an umlaut (ü). Git might not like this and will constantly show those files as untracked. To get rid of this issue, I had to use
 
     git config core.precomposeunicode false
 
@@ -393,7 +401,7 @@ coffee server/server.coffee -d <path/to/widget/dir> -p <port>
 
 # Building in Xcode
 
-The first time opening the project in Xcode you might see this message when trying to build: "The run destination My Mac is not valid for Running the scheme 'Übersicht'."
+The first time opening the project in Xcode you might see this message when trying to build: "The run destination My Mac is not valid for Running the scheme 'Übersicht'." (the Xcode scheme and target names are still the upstream ones).
 
 Click on `Uebersicht` in the project navigator and then select the menu `Editor > Validate Settings...` and click `Perform Changes`.
 
@@ -409,6 +417,8 @@ http://stackoverflow.com/questions/31254725/transport-security-has-blocked-a-cle
 
 # Legal
 
-The source for Übersicht is released under the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Gailan is a fork of [Übersicht](https://github.com/felixhageloh/uebersicht) by Felix Hageloh.
+
+The source is released under the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 © 2019 Felix Hageloh
