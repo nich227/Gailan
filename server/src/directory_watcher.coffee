@@ -41,7 +41,7 @@ module.exports = (directoryPath, callback) ->
     foundPaths[filePath] = true
     callback({
       type: 'added',
-      filePath: filePath.normalize(),
+      filePath: filePath,
       rootPath: directoryPath,
     })
 
@@ -60,12 +60,16 @@ module.exports = (directoryPath, callback) ->
     if type == 'file'
       onFound path
     else
-      fs.readdir path, (err, subPaths) ->
+      fs.readdir path, {withFileTypes: true}, (err, entries) ->
         # the directory can be deleted while we are still walking it
         return logUnlessGone err if err
-        for subPath in subPaths
-          fullPath = paths.join(path, subPath)
-          getPathType fullPath, (p, t) -> findFiles(p, t, onFound)
+        for entry in entries
+          fullPath = paths.join(path, entry.name)
+          if entry.isSymbolicLink()
+            # stat follows the link, which is what the old walk always did
+            getPathType fullPath, (p, t) -> findFiles(p, t, onFound)
+          else
+            findFiles(fullPath, (if entry.isDirectory() then 'directory' else 'file'), onFound)
 
   # get type of path as either 'file' or 'directory'
   # callback gets called with (path, type) where path is the path passed in,

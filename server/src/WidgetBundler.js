@@ -60,9 +60,12 @@ module.exports = function WidgetBundler() {
             widget.body = srcBuffer.toString();
           }
 
-          widget.mtime = fs.statSync(paths[0] || filePath).mtime;
-          bundle.widget = widget;
-          callback(widget);
+          fs.stat(paths[0] || filePath, (statErr, stat) => {
+            if (statErr) throw statErr;
+            widget.mtime = stat.mtime;
+            bundle.widget = widget;
+            callback(widget);
+          });
         });
       });
     };
