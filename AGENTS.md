@@ -49,8 +49,13 @@ Two things bite on non-macOS machines:
 
   - `fsevents` is darwin-only. It sits in `optionalDependencies` so `npm install`
     works anywhere, but `directory_watcher_spec` cannot pass without it.
-  - the socket specs prefer ports 8888/8889 and fall back to a random free port
-    (`spec/helpers/testPort.js`), so a busy dev machine will not fail the run.
+  - the socket and command-server specs prefer their usual ports and fall back to a
+    random free one (`spec/helpers/testPort.js`), so a busy dev machine will not fail
+    the run.
+
+`directory_watcher_events_spec.js` fakes fsevents so the watcher's event handling can
+be exercised anywhere; `directory_watcher_spec.js` uses the real thing and only reports
+properly on a Mac. Prefer the fake one when changing event logic.
 
 Anything involving the cocoa app, the WKWebView, or real file-system events has to be
 verified on macOS. Say so rather than implying it was tested.
@@ -80,8 +85,6 @@ verified on macOS. Say so rather than implying it was tested.
 
 ## Known rough edges
 
-  - `directory_watcher.coffee` never removes paths from `foundPaths`, so it grows over
-    a long session and re-emits `removed` for files it already reported.
   - `findFiles` stats every directory entry; `readdir` with `withFileTypes` would cut
     that down, but symlinked widget directories need the stat to keep working.
   - `WidgetBundler` calls `fs.statSync` inside an async callback.

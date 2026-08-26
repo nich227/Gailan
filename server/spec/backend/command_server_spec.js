@@ -3,13 +3,15 @@ var connect = require('connect');
 var path = require('path');
 
 var httpGet = require('../helpers/httpGet');
+var testPort = require('../helpers/testPort');
 var httpPost = require('../helpers/httpPost');
 var commandServer = require('../../src/command_server.coffee');
 
 var workingDir = path.resolve(__dirname, path.join('..', 'test_widgets'));
-var server = connect().use(commandServer(workingDir)).listen(8887);
+var port = testPort(8887);
+var server = connect().use(commandServer(workingDir)).listen(port);
 
-var url = 'http://localhost:8887/run/';
+var url = 'http://localhost:' + port + '/run/';
 
 test('responding to POST /run/', (t) => {
   t.plan(3);
@@ -18,7 +20,7 @@ test('responding to POST /run/', (t) => {
     t.equal(res.statusCode, 200, 'it reponds');
   });
 
-  httpPost('http://localhost:8887/foo/', 'echo', (res) => {
+  httpPost('http://localhost:' + port + '/foo/', 'echo', (res) => {
     t.equal(res.statusCode, 404, 'it ignores requests to other paths');
   });
 
@@ -79,7 +81,7 @@ test('closing', (t) => {
 });
 
 test('using a login shell', (t) => {
-  server = connect().use(commandServer(workingDir, true)).listen(8887);
+  server = connect().use(commandServer(workingDir, true)).listen(port);
 
   httpPost(url, 'echo $(shopt | grep login_shell)', (res, body) => {
     const lines = body.trim().split('\n');

@@ -109,8 +109,61 @@ test('removing folders', (t) => {
   execSync('rm -rf ' + newPath);
 });
 
+// needs real fsevents, so this one only reports on macOS
+test('removing a folder next to one with the same first characters', (t) => {
+  t.timeoutAfter(2000);
+  var barPath = path.join(fixturePath, 'bar');
+  var barcodePath = path.join(fixturePath, 'barcode');
+  var barWidget = path.join(barPath, 'widget.js');
+  var barcodeWidget = path.join(barcodePath, 'widget.js');
+
+  [barPath, barcodePath].forEach((dir) => {
+    var staged = path.resolve(__dirname, '../' + path.basename(dir) + '-staged');
+    execSync('rm -rf ' + staged + ' ' + dir);
+    fs.mkdirSync(staged);
+    fs.writeFileSync(path.join(staged, 'widget.js'), "command: 'yay'");
+    fs.renameSync(staged, dir);
+  });
+
+  var seen = [];
+  callback = (event) => {
+    if (event.type === 'added') {
+      seen.push(event.filePath);
+      if (seen.indexOf(barWidget) > -1 && seen.indexOf(barcodeWidget) > -1) {
+        seen = [];
+        callback = collectRemovals;
+        execSync('rm -rf ' + barPath);
+      }
+    }
+  };
+
+  var collectRemovals = (event) => {
+    if (event.type === 'removed') {
+      seen.push(event.filePath);
+    }
+
+    if (seen.indexOf(barWidget) > -1) {
+      // give the sibling a chance to be wrongly reported
+      setTimeout(() => {
+        callback = () => {};
+        t.equal(
+          seen.indexOf(barcodeWidget),
+          -1,
+          'it leaves the sibling folder alone'
+        );
+        execSync('rm -rf ' + barcodePath);
+        t.end();
+      }, 200);
+    }
+  };
+});
+
 test('stopping', (t) => {
   stopWatching();
+  // in case a test above timed out before it could tidy up
+  execSync('rm -rf ' + path.join(fixturePath, 'bar'));
+  execSync('rm -rf ' + path.join(fixturePath, 'barcode'));
+  execSync('rm -rf ' + path.join(fixturePath, 'another'));
   t.pass('it can be stopped');
   t.end();
 });

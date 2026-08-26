@@ -1,6 +1,7 @@
 paths = require 'path'
 fs = require 'fs'
 fsevents = require('fsevents')
+isInsidePath = require './isInsidePath'
 
 module.exports = (directoryPath, callback) ->
   api = {}
@@ -46,7 +47,8 @@ module.exports = (directoryPath, callback) ->
 
   unregisterFiles = (path) ->
     path = path.normalize()
-    for filePath in Object.keys(foundPaths) when filePath.indexOf(path) == 0
+    for filePath in Object.keys(foundPaths) when isInsidePath(filePath, path)
+      delete foundPaths[filePath]
       callback({type: 'removed', filePath: filePath, rootPath: directoryPath})
 
   # recursively walks the directory tree and calls onFound for every file it
