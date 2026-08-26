@@ -51,6 +51,9 @@ module.exports = (directoryPath, callback) ->
       delete foundPaths[filePath]
       callback({type: 'removed', filePath: filePath, rootPath: directoryPath})
 
+  logUnlessGone = (err) ->
+    console.log err unless err.code == 'ENOENT'
+
   # recursively walks the directory tree and calls onFound for every file it
   # finds
   findFiles = (path, type, onFound) ->
@@ -58,7 +61,8 @@ module.exports = (directoryPath, callback) ->
       onFound path
     else
       fs.readdir path, (err, subPaths) ->
-        return console.log err if err
+        # the directory can be deleted while we are still walking it
+        return logUnlessGone err if err
         for subPath in subPaths
           fullPath = paths.join(path, subPath)
           getPathType fullPath, (p, t) -> findFiles(p, t, onFound)
@@ -68,7 +72,7 @@ module.exports = (directoryPath, callback) ->
   # for convenience
   getPathType = (path, callback) ->
     fs.stat path, (err, stat) ->
-      return console.log err if err
+      return logUnlessGone err if err
       type = if stat.isDirectory() then 'directory' else 'file'
       callback path, type
 
