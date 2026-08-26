@@ -75,10 +75,11 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
         }
     }
     
+    NSArray* sortedWidgets = widgets.sortedWidgets;
     NSString* widgetId;
     NSString* error;
-    for (NSInteger i = widgets.sortedWidgets.count - 1; i >= 0; i--) {
-        widgetId = widgets.sortedWidgets[i];
+    for (NSInteger i = sortedWidgets.count - 1; i >= 0; i--) {
+        widgetId = sortedWidgets[i];
         [self renderWidget:widgetId inMenu:mainMenu];
         
         error = [widgets get:widgetId][@"error"];

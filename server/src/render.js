@@ -13,7 +13,7 @@ function isVisibleOnScreen(widgetId, screenId, state) {
   ) {
     isVisible = true;
   } else if (settings.showOnMainScreen) {
-    isVisible = state.screens.indexOf(screenId) === 0;
+    isVisible = state.screens[0] === screenId;
   } else if (settings.showOnSelectedScreens) {
     isVisible = (settings.screens || []).indexOf(screenId) !== -1;
   }
@@ -50,7 +50,7 @@ function destroyWidget(id) {
 }
 
 function render(state, screen, domEl, dispatch) {
-  const remaining = Object.keys(rendered);
+  const remaining = new Set(Object.keys(rendered));
 
   for (var id in state.widgets) {
     const widget = state.widgets[id];
@@ -66,8 +66,7 @@ function render(state, screen, domEl, dispatch) {
     if (widget.error || widget.implementation)
       renderWidget(widget, domEl, dispatch);
 
-    const idx = remaining.indexOf(widget.id);
-    if (idx > -1) remaining.splice(idx, 1);
+    remaining.delete(widget.id);
   }
 
   remaining.forEach((obsolete) => destroyWidget(obsolete));
