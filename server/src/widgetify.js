@@ -1,4 +1,4 @@
-var through = require('through2');
+var {Transform} = require('stream');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 var stylus = require('stylus');
@@ -113,7 +113,7 @@ module.exports = function(file, options) {
   var src = '';
 
   function write(buf, enc, next) { src += buf; next(); }
-  function end(next) {
+  function flush(next) {
     var tree;
     try {
       tree = esprima.parse(src);
@@ -127,6 +127,6 @@ module.exports = function(file, options) {
     next();
   }
 
-  return through(write, end);
+  return new Transform({transform: write, flush: flush});
 };
 

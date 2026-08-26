@@ -1,8 +1,8 @@
-const css = require('emotion').css;
-const RenderLoop = require('./RenderLoop');
+const css = require('@emotion/css').css;
+const RenderLoop = require('./renderLoop');
 const Timer = require('./Timer');
 const runShellCommand = require('./runShellCommand');
-const ReactDom = require('react-dom');
+const {createRoot} = require('react-dom/client');
 const html = require('react').createElement;
 const ErrorDetails = require('./ErrorDetails');
 window.html = html;
@@ -26,6 +26,7 @@ module.exports = function VirtualDomWidget(widgetObject) {
   let contentEl;
   let commandLoop;
   let renderLoop;
+  let root;
   let currentError;
 
   function init(widget) {
@@ -102,7 +103,7 @@ module.exports = function VirtualDomWidget(widgetObject) {
 
   function render(state) {
     try {
-      ReactDom.render(implementation.render(state, dispatch), contentEl);
+      root.render(implementation.render(state, dispatch));
     } catch (err) {
       handleError(err);
     }
@@ -118,7 +119,7 @@ module.exports = function VirtualDomWidget(widgetObject) {
   }
 
   function renderErrorDetails(details) {
-    ReactDom.render(html(ErrorDetails, details), contentEl);
+    root.render(html(ErrorDetails, details));
   }
 
   api.create = function create() {
@@ -129,12 +130,17 @@ module.exports = function VirtualDomWidget(widgetObject) {
       contentEl.classList.add(css(implementation.className));
     }
     document.body.appendChild(contentEl);
+    root = createRoot(contentEl);
     start();
     return contentEl;
   };
 
   api.destroy = function destroy() {
     commandLoop && commandLoop.stop();
+    if (root) {
+      root.unmount();
+      root = null;
+    }
     if (contentEl && contentEl.parentNode) {
       contentEl.parentNode.removeChild(contentEl);
     }

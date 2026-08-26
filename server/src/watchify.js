@@ -1,4 +1,4 @@
-var through = require('through2');
+var {Transform} = require('stream');
 var path = require('path');
 var fs = require('fs');
 
@@ -36,7 +36,8 @@ function watchify (b, opts) {
     }
 
     function collect () {
-        b.pipeline.get('deps').push(through.obj(function(row, enc, next) {
+        b.pipeline.get('deps').push(new Transform({objectMode: true,
+          transform: function(row, enc, next) {
             var file = row.expose ? b._expose[row.id] : row.file;
             cache[file] = {
                 source: row.source,
@@ -44,7 +45,7 @@ function watchify (b, opts) {
             };
             this.push(row);
             next();
-        }));
+          }}));
     }
 
     b.on('file', function (file) {
@@ -69,7 +70,7 @@ function watchify (b, opts) {
             time = Date.now();
         });
 
-        b.pipeline.get('wrap').push(through(write, end));
+        b.pipeline.get('wrap').push(new Transform({transform: write, flush: end}));
         function write (buf, enc, next) {
             bytes += buf.length;
             this.push(buf);

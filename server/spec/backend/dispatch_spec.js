@@ -1,8 +1,10 @@
 var test = require('tape');
 var WebSocket = require('ws');
+var testPort = require('../helpers/testPort');
 
-var server = new WebSocket.Server({ port: 8888 });
-var url = 'ws://localhost:8888';
+var port = testPort(8888);
+var server = new WebSocket.Server({ port: port });
+var url = 'ws://localhost:' + port;
 var sharedSocket = require('../../src/SharedSocket');
 var dispatch = require('../../src/dispatch');
 
@@ -20,6 +22,7 @@ test('queuing up messages', (t) => {
 
       if (expectedMessages.length === 0) {
         t.pass('it queues up messages and sends them once the socket opens');
+        sharedSocket.close();
         server.close(() => t.end());
       }
     });

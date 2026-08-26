@@ -4,10 +4,9 @@ const widgetify = require('./widgetify');
 const coffeeify = require('coffeeify');
 const babelify = require('babelify');
 const jsxTransform = require('@babel/preset-react');
-const restSpreadTransform = require('@babel/plugin-proposal-object-rest-spread');
-const emotion = require('babel-plugin-emotion');
+const emotion = require('@emotion/babel-plugin');
 const envPreset = require('@babel/preset-env');
-const through = require('through2');
+const {Transform} = require('stream');
 
 function wrapJSWidget() {
   let start = true;
@@ -18,12 +17,12 @@ function wrapJSWidget() {
     }
     next(null, chunk);
   }
-  function end(next) {
+  function flush(next) {
     this.push('})');
     next();
   }
 
-  return through(write, end);
+  return new Transform({transform: write, flush: flush});
 }
 
 module.exports = function bundleWidget(id, filePath) {
@@ -49,10 +48,10 @@ module.exports = function bundleWidget(id, filePath) {
   } else if (isJsxWidget) {
     bundle.transform(babelify, {
       presets: [
-        [envPreset, {targets: 'last 4 Safari versions', modules: 'commonjs'}],
+        [envPreset, {targets: {safari: '16.6'}, modules: 'commonjs'}],
         [jsxTransform, {pragma: 'html'}],
       ],
-      plugins: [restSpreadTransform, emotion],
+      plugins: [emotion],
     });
   } else {
     bundle.transform(wrapJSWidget);

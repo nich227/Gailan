@@ -1,19 +1,22 @@
 var test = require('tape');
 var WebSocket = require('ws');
+var testPort = require('../helpers/testPort');
 
-var server = new WebSocket.Server({ port: 8889 });
+var port = testPort(8889);
+var server = new WebSocket.Server({ port: port });
 var sharedSocket = require('../../src/SharedSocket');
 var listen = require('../../src/listen');
 
 test('listen', (t) => {
-  sharedSocket.open('ws://localhost:8889');
+  sharedSocket.open('ws://localhost:' + port);
 
   listen((message) => {
-    t.looseEqual(
+    t.deepLooseEqual(
       message,
       { type: 'YASS', payload: 'yay' },
       'it calls listeners with deserialized messages'
     );
+    sharedSocket.close();
     server.close(() => t.end());
   });
 

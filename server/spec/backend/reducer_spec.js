@@ -9,7 +9,7 @@ test('WIDGET_ADDED', (t) => {
   };
   var newState = reduce({ widgets: {} }, action);
 
-  t.looseEqual(
+  t.deepLooseEqual(
     newState.widgets,
     { foo: { id: 'foo', error: 'oh no', filePath: '/foo/' } },
     'it adds new widgets'
@@ -20,7 +20,7 @@ test('WIDGET_ADDED', (t) => {
     'it creates a new settings hash if none exists'
   );
 
-  t.looseEqual(
+  t.deepLooseEqual(
     newState.settings.foo, {
       showOnAllScreens: true,
       showOnMainScreen: false,
@@ -37,7 +37,7 @@ test('WIDGET_ADDED', (t) => {
   };
   newState = reduce(newState, action);
 
-  t.looseEqual(
+  t.deepLooseEqual(
     newState.widgets,
     { foo: { id: 'foo', body: 'yay', filePath: '/foo/' } },
     'it updates existing widgets'
@@ -55,7 +55,7 @@ test('WIDGET_REMOVED', (t) => {
   newState = reduce({
     widgets: { foo: {}, bar: {}},
   }, action);
-  t.looseEqual(newState.widgets, {bar: {}}, 'it removes existing widgets');
+  t.deepLooseEqual(newState.widgets, {bar: {}}, 'it removes existing widgets');
   t.end();
 });
 
@@ -67,14 +67,14 @@ test('WIDGET_SETTINGS_CHANGED', (t) => {
   };
 
   newState = reduce({ settings: {} }, action);
-  t.looseEqual(
+  t.deepLooseEqual(
     newState.settings,
     { foo: { a: 'b' } },
     'it applies new settings'
   );
 
   newState = reduce({ settings: { bar: {} } }, action);
-  t.looseEqual(
+  t.deepLooseEqual(
     newState.settings,
     { foo: { a: 'b' }, bar: {}},
     'it merges with existing settings'
@@ -92,7 +92,7 @@ test('WIDGET_SET_TO_HIDE / SHOW', (t) => {
     },
   };
   var newState = reduce(state, action);
-  t.looseEqual(
+  t.deepLooseEqual(
     state.settings,
     {
       foo: { hidden: false, some: 'other', stuff: 1 },
@@ -103,7 +103,7 @@ test('WIDGET_SET_TO_HIDE / SHOW', (t) => {
 
   action = { type: 'WIDGET_SET_TO_SHOW', payload: 'bar' };
   newState = reduce(newState, action);
-  t.looseEqual(
+  t.deepLooseEqual(
     state.settings,
     {
       foo: { hidden: false, some: 'other', stuff: 1 },

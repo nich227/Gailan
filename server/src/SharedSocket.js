@@ -20,7 +20,9 @@ function handleWSCosed() {
 }
 
 function handleMessage(data) {
-  messageListeners.forEach((f) => f(data));
+  // ws hands us a Buffer, the browser a string
+  const message = typeof data === 'string' ? data : String(data);
+  messageListeners.forEach((f) => f(message));
 }
 
 function handleError(err) {

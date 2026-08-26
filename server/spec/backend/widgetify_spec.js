@@ -1,13 +1,13 @@
 var test = require('tape');
 var widgetify = require('../../src/widgetify');
-var through = require('through2');
+var {Transform} = require('stream');
 
 function grabOutput(then) {
   var output = '';
-  return through(
-    (chunk, enc, next) => { output += chunk; next(); },
-    (next) => { then(output); next(); }
-  );
+  return new Transform({
+    transform: (chunk, enc, next) => { output += chunk; next(); },
+    flush: (next) => { then(output); next(); },
+  });
 }
 
 test('transforming valid widgets', (t) => {
@@ -56,6 +56,7 @@ test('transforming valid widgets', (t) => {
 });
 
 test('transforming a widget with a syntax error', (t) => {
+  t.plan(3);
   var transform = widgetify('path/', { id: 'foo' });
   var src = `
     ({
@@ -72,7 +73,6 @@ test('transforming a widget with a syntax error', (t) => {
         e.name === 'ReferenceError' && e.message === 'color is not defined',
         'the error looks ok'
       );
-      t.end();
     })
     .pipe(grabOutput((transformed) => {
       t.ok(!transformed, 'and there is no outout');
