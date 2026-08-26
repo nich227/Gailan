@@ -14,7 +14,7 @@
     "test-dom": "node spec/run.js -r coffeescript/register -r ./spec/helpers/domEnv.js 'spec/frontend/*.js'"
   },
   "author": "Kevin Chen",
-  "license": "GPL v3 <http://www.gnu.org/licenses/>",
+  "license": "GPL-3.0-or-later",
   "engines": {
     "node": ">=26.0.0"
   },
