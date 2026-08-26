@@ -194,7 +194,7 @@ export const init = (dispatch) => {
 
 ## Styling Widgets
 
-Gailan comes bundled with [Emotion](https://emotion.sh) (version 10). It exposes it's `css` and `styled` functions via the `gailan` module.
+Gailan comes bundled with [Emotion](https://emotion.sh) (version 11). It exposes it's `css` and `styled` functions via the `gailan` module.
 
 As described above, you can use `className` to style and position the root node of your widget. For further styling you can do something like this:
 
