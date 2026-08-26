@@ -1,10 +1,12 @@
 var test = require('tape');
 var sinon = require('sinon');
+// sinon stopped re-exporting fakeServer; it lives in nise, sinon's own package
+var fakeServer = require('nise').fakeServer;
 var tosource = require('tosource');
 var Widget = require('../../src/Widget.js');
 
 function makeFakeServer() {
-  var server = sinon.fakeServer.create();
+  var server = fakeServer.create();
   server.respondToRun = function respondToRun(body) {
     server.respondWith('POST', '/run/', [
       status,
@@ -384,7 +386,7 @@ test('error handling', (t) => {
   });
 
   var clock = sinon.useFakeTimers();
-  var server = sinon.fakeServer.create({ respondImmediately: true });
+  var server = fakeServer.create({ respondImmediately: true });
   server.respondWith('POST', '/run/', [ 500, {}, 'oh noez!']);
   server.respondImmediately = true;
 

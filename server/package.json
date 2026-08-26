@@ -4,14 +4,14 @@
   "description": "Node.js backend for Gailan, a fork of Übersicht by Felix Hageloh",
   "main": "server.coffee",
   "scripts": {
-    "test": "npm run-script test-local && npm run-script test-browser",
-    "test-local": "tape -r coffeescript/register spec/backend/**/* | tap-spec",
-    "test-browser": "browserify -t coffeeify  spec/frontend/*.*  | tape-run | tap-spec",
+    "test": "npm run-script test-local && npm run-script test-dom",
+    "test-local": "node spec/run.js -r coffeescript/register 'spec/backend/**/*'",
     "start": "coffee server.coffee",
     "fetch-node": "../scripts/fetch-node.sh",
     "release": "npm run-script fetch-node && npm run-script build-client && npm run-script build-server",
     "build-client": "browserify -i ws -t coffeeify -t babelify -r ./src/gailan.js:gailan -r ./src/legacyAlias.js:uebersicht client.coffee | terser -c > release/public/client.js",
-    "build-server": "browserify -t coffeeify --node --detect-globals false --no-bundle-external server.coffee > release/server.js && cd release && npm prune --production && npm install --production --no-progress"
+    "build-server": "browserify -t coffeeify --node --detect-globals false --no-bundle-external server.coffee > release/server.js && cd release && npm prune --production && npm install --production --no-progress",
+    "test-dom": "node spec/run.js -r coffeescript/register -r ./spec/helpers/domEnv.js 'spec/frontend/*.js'"
   },
   "author": "Kevin Chen",
   "license": "GPL v3 <http://www.gnu.org/licenses/>",
@@ -21,10 +21,11 @@
   "private": true,
   "devDependencies": {
     "coffeescript": "^2.7.0",
+    "jsdom": "^30.0.1",
+    "nise": "^6.1.5",
     "sinon": "^22.1.0",
-    "tap-spec": "^5.0.0",
+    "tap-arc": "^1.3.2",
     "tape": "^5.10.2",
-    "tape-run": "^11.0.0",
     "terser": "^5.51.0",
     "tosource": "^1.0.0"
   },
@@ -62,8 +63,5 @@
   },
   "optionalDependencies": {
     "fsevents": "^2.3.3"
-  },
-  "allowScripts": {
-    "electron@26.6.10": true
   }
 }

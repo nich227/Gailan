@@ -17,9 +17,5 @@ jobs:
         working-directory: server
       - run: npm run test-local
         working-directory: server
-      # tape-run needs electron, and electron cannot install on node 26:
-      # extract-zip never settles, so the postinstall reports success without
-      # unpacking a binary. Run these by hand on an older node for now.
-      - run: npm run test-browser
+      - run: npm run test-dom
         working-directory: server
-        continue-on-error: true

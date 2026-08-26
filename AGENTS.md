@@ -40,23 +40,26 @@ project dependency; install it ad hoc when you touch the branding.
 
 ## Tests
 
-    cd server && npm test        # backend (tape) then frontend (tape-run, needs a browser)
+    cd server && npm test        # backend then frontend
+    npm run test-local           # spec/backend, plain node
+    npm run test-dom             # spec/frontend, jsdom
 
-`spec/backend` runs under plain node. `spec/frontend` needs a DOM and is driven by
-tape-run/electron.
+Neither half needs a browser. `spec/frontend` used to be bundled and handed to
+tape-run/electron, which cannot be installed on node 26 at all: the download works,
+but `extract-zip` never settles its promise, so the postinstall exits successfully
+having unpacked nothing. Those specs now run in jsdom via `spec/helpers/domEnv.js`,
+which also maps `superagent` to its xhr build, because that is what browserify picks
+for the widget bundle and what the specs' fake server can intercept.
 
-Electron cannot install on node 26: its postinstall downloads the zip fine, but
-`extract-zip` never settles its promise, so the script exits successfully having
-unpacked nothing and electron reports "failed to install correctly". CI therefore
-enforces `npm run test-local` and treats `npm run test-browser` as best effort. To run
-the frontend specs, use an older node for that step, or swap tape-run for a maintained
-runner. `allowScripts` in package.json is what lets electron's postinstall run at all
-under npm 11's script gating.
+Run tape through `spec/run.js` rather than piping to a formatter directly. `tape | tap-arc`
+throws away tape's exit status, so a suite that dies on load prints "total: 0" and exits
+0, and sh has no pipefail.
 
 Two things bite on non-macOS machines:
 
   - `fsevents` is darwin-only. It sits in `optionalDependencies` so `npm install`
-    works anywhere, but `directory_watcher_spec` cannot pass without it.
+    works anywhere, but `directory_watcher_spec` cannot pass without it, and any
+    `npm install` will prune a hand-made stub in `node_modules`.
   - the socket and command-server specs prefer their usual ports and fall back to a
     random free one (`spec/helpers/testPort.js`), so a busy dev machine will not fail
     the run.
@@ -69,6 +72,10 @@ If a spec starts an http server, tear it down with `closeAllConnections()` and w
 `close()` to call back. `close()` on its own leaves established keep-alive sockets up,
 and a client holding one while the next server starts gets a hang-up mid-request, which
 takes the whole run down.
+
+Three deprecation warnings survive `npm install`: `glob@10` via stylus, and `glob@7` plus
+`inflight` via browserify and tape. All three are already at their latest versions, so
+there is nothing to bump.
 
 Anything involving the cocoa app, the WKWebView, or real file-system events has to be
 verified on macOS. Say so rather than implying it was tested.

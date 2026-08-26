@@ -12,11 +12,17 @@ module.exports = function runShellCommand(command, callback) {
   const request = post('/run/')
     .retry(2, isKeepAliveError)
     .send(command);
-  return callback
-    ? request.end((err, res) => callback(wrapError(err, res), (res || {}).text))
-    : request
-        .catch((err) => {
-          throw wrapError(err, err.response);
-        })
-        .then((res) => res.text);
+
+  if (!callback) {
+    return request
+      .catch((err) => {
+        throw wrapError(err, err.response);
+      })
+      .then((res) => res.text);
+  }
+
+  // end() used to return the request and callers chain onto it, so hand back
+  // the request rather than whatever end() gives us
+  request.end((err, res) => callback(wrapError(err, res), (res || {}).text));
+  return request;
 };
