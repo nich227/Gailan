@@ -43,7 +43,15 @@ project dependency; install it ad hoc when you touch the branding.
     cd server && npm test        # backend (tape) then frontend (tape-run, needs a browser)
 
 `spec/backend` runs under plain node. `spec/frontend` needs a DOM and is driven by
-tape-run/electron, so it only runs where a browser is available.
+tape-run/electron.
+
+Electron cannot install on node 26: its postinstall downloads the zip fine, but
+`extract-zip` never settles its promise, so the script exits successfully having
+unpacked nothing and electron reports "failed to install correctly". CI therefore
+enforces `npm run test-local` and treats `npm run test-browser` as best effort. To run
+the frontend specs, use an older node for that step, or swap tape-run for a maintained
+runner. `allowScripts` in package.json is what lets electron's postinstall run at all
+under npm 11's script gating.
 
 Two things bite on non-macOS machines:
 

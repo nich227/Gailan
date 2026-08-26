@@ -41,16 +41,9 @@ function write(file, buffer) {
   console.log(file, buffer.length, 'bytes');
 }
 
-// app icon: mark on the tinted disc upstream used
+// app icon: the mark on a white disc
 const appIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <defs>
-    <linearGradient id="disc" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f7ecf0"/>
-      <stop offset="0.55" stop-color="#eaeaf1"/>
-      <stop offset="1" stop-color="#dae5f1"/>
-    </linearGradient>
-  </defs>
-  <circle cx="512" cy="512" r="502" fill="url(#disc)" stroke="${NAVY}" stroke-width="6"/>
+  <circle cx="512" cy="512" r="502" fill="#ffffff" stroke="${NAVY}" stroke-width="6"/>
   <g transform="translate(212 250) scale(37.5)">${mark(NAVY, 0.4)}</g>
 </svg>`;
 
