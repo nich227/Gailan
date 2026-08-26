@@ -29,7 +29,7 @@ The node runtime is Node 26 and is no longer checked into git; see [Building Gai
 
 In essence, widgets are JavaScript modules that expose a few key properties and methods. They need to be defined in a single file with a `.jsx` extension for Gailan to pick them up. Previously, widgets could be written in CoffeeScript and are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan will listen to file changes inside your widget directory, so you can edit widgets and see the result live.
 
-Widget rendering is done using [React](https://reactjs.org) and its [JSX](https://reactjs.org/docs/introducing-jsx.html) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which get processed by a single `updateState` function which returns the new state, which is passed to the render function of your widget.
+Widget rendering is done using [React](https://react.dev) and its [JSX](https://react.dev/learn/writing-markup-with-jsx) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which get processed by a single `updateState` function which returns the new state, which is passed to the render function of your widget.
 
 State is kept when you modify your widget, which allows for live coding. Any changes to the UI of your widget will be immediately visible.  One drawback (at least with the current implementation) is that if you change the shape of your state you might have to 'Refresh all Widgets' from the app menu for your widget to work.
 
@@ -77,7 +77,7 @@ An **number** specifying how often the above command is executed.
 
 It defines the delay in milliseconds between consecutive commands executions. Example:
 
-```coffeescript
+```jsx
 export const refreshFrequency = 1000; // widget will run command once a second
 ```
 
@@ -113,7 +113,7 @@ Note that widgets are positioned absolute in relation to the screen (minus the m
 
 A **function(props : object)** to render your widget.
 
-If you know [React functional components](https://reactjs.org/docs/components-and-props.html) you know how render works. The `props` passed to this function is whatever state your `updateState` function returns. If you don't provide your own `updateState` function, the default props that are passed are `output` and `error`, containing the output your command produced and any error that might have occurred.
+If you know [React functional components](https://react.dev/learn/your-first-component) you know how render works. The `props` passed to this function is whatever state your `updateState` function returns. If you don't provide your own `updateState` function, the default props that are passed are `output` and `error`, containing the output your command produced and any error that might have occurred.
 
 ```jsx
 export const render = ({output, error}) => {
@@ -194,7 +194,8 @@ export const init = (dispatch) => {
 
 ## Styling Widgets
 
-Gailan comes bundled with [Emotion](https://emotion.sh) (version 11). It exposes it's `css` and `styled` functions via the `gailan` module.
+Gailan comes bundled with [Emotion](https://emotion.sh) (version 11). It exposes its `css` and `styled` functions via the `gailan` module, which also carries
+`run`, `request` (superagent) and `React`.
 
 As described above, you can use `className` to style and position the root node of your widget. For further styling you can do something like this:
 
@@ -300,7 +301,7 @@ It returns a Promise, which will resolve to the output of the command (stdout) o
 ```jsx
 import { run } from 'gailan'
 
-export const render => (props, dispatch) {
+export const render = (props, dispatch) => {
   return (
     <button
       onClick={() => {
@@ -356,7 +357,7 @@ If you like you make Ajax requests to an external site without using a command, 
 
 ## Scripting Support
 
-Gailan has AppleScript support since version 1.1.45. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name):
+Gailan supports AppleScript. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name):
 
     tell application id "com.nich227.Gailan" to refresh
 
@@ -381,12 +382,15 @@ To build Gailan you will need to have NodeJS and a few dependencies installed:
 
 ### setup
 
-Gailan bundles Node 26 into the app, so you need Node 26 to build it:
+Gailan bundles Node 26 into the app and the server code expects it, so build with node 26.
+Homebrew's unversioned formula is on 26 (there is no `node@26`):
 
 ```
-brew install node@26 && brew link --force node@26
+brew install node
 ```
-then run
+
+Or pin it with a version manager, `nvm install 26`. Then:
+
 ```
 cd server && npm install
 ```
@@ -411,9 +415,12 @@ The code base consists of two parts, a cocoa app and a NodeJS app inside `server
 
 The node app can be run standalone using
 
-```coffeescript
-coffee server/server.coffee -d <path/to/widget/dir> -p <port>
 ```
+cd server && npx coffee server.coffee -d <path/to/widget/dir> -p <port>
+```
+
+`-s` points at a settings directory and `--login-shell` runs widget commands through a
+login shell. `npm start` does the same with the defaults.
 
 # Building in Xcode
 
@@ -423,13 +430,10 @@ Click on `Gailan` in the project navigator and then select the menu `Editor > Va
 
 You can then attempt to build, you may then be presented with code sign issues, click `Fix Issue` to continue.
 
-Now you need to remove the code signing shell script, select the `Gailan` target and under `Build Phases` remove the code in the `Code Sign Frameworks` section.
+Now you need to remove the code signing shell script: select the `Gailan` target and, under `Build Phases`, empty out the phase called `Run Script`.
 
-You should now be able to build successfully.
-
-There is one last step on the Node.js side to complete. For the sake of brevity, this link will solve your problem:
-
-http://stackoverflow.com/questions/31254725/transport-security-has-blocked-a-cleartext-http
+You should now be able to build successfully. Nothing extra is needed to let the app talk
+to its own server over http: `NSAllowsArbitraryLoads` is already set in `Gailan-Info.plist`.
 
 # Legal
 
