@@ -120,6 +120,34 @@ bash keep the stdin protocol. The deployment target is 13.5 (Node 26 requires it
 SMAppService), and `LSMinimumSystemVersion` enforces it at launch. Posting a widget-error
 notification uses UserNotifications, which asks the user for authorization once.
 
+## Migrating a widget from Übersicht
+
+Asked to port a widget, the work is usually nothing. Check these in order and change only
+what matches:
+
+  - `#uebersicht` in a selector becomes `#gailan`. Check `main.css` in the widgets folder
+    too, not just the widget. This is the only change most widgets need.
+  - `from "uebersicht"` can stay. `server/src/legacyAlias.js` exposes the module under that
+    id as well, so rewriting the import is optional.
+  - `tracesOf.Uebersicht` in an AppleScript call becomes `com.nich227.Gailan`.
+  - bash-only syntax in `command` (`shopt`, `[[ -o ...]]` idioms differing from zsh, bash
+    arrays) either gets rewritten for zsh or the user switches the shell in Preferences.
+  - a vendored native module gets rebuilt against Node 26.
+  - `.jsx` still works, so do not convert a widget to `.tsx` unless asked; if converting,
+    remember types are stripped and never checked, so a type error will not fail a build.
+
+Paths, for copying widgets:
+
+    ~/Library/Application Support/Übersicht/widgets     # source, the ü may be decomposed
+    ~/Library/Application Support/Gailan/widgets        # destination
+
+Settings do not transfer: per-widget screen and visibility choices live in the app, not in
+the widget files, and have to be redone through the status bar menu. Do not try to migrate
+`WidgetSettings.json` between the two, the widget ids differ once the file names do.
+
+Do not suggest running both apps at once. Each renders every widget, and the app already
+offers to quit Übersicht at launch.
+
 ## Compatibility to keep in mind
 
   - Widgets are user-written and live outside the repo. The public surface is the

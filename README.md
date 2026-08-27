@@ -47,6 +47,47 @@ The specifics:
 
 The Node runtime is Node 26 and is no longer checked into git; see [Building Gailan](#building-gailan).
 
+## Migrating from Übersicht
+
+Copy your widgets across and they will run. Gailan reads the same widget API, so the
+files themselves need no changes in the common case.
+
+    cp -R ~/Library/Application\ Support/Übersicht/widgets/* \
+          ~/Library/Application\ Support/Gailan/widgets/
+
+Übersicht's directory name contains a `ü`, which macOS may store either precomposed or
+decomposed, so if the shell cannot find the path use tab completion or copy the folder in
+Finder instead.
+
+Settings do not carry over. Per-widget choices (which screen a widget shows on, whether it
+is hidden, whether it sits in the background) live in the app's own preferences and have to
+be set again from the status bar menu. The widgets folder location, the shell, and the
+login item are in Gailan Preferences.
+
+Both apps can run at once, but they will each render every widget, so quit Übersicht first.
+Gailan offers to do that for you when it starts.
+
+### What might need changing in a widget
+
+  - **`import {...} from "uebersicht"`** keeps working. Gailan exposes the same module
+    under both names, so there is nothing to rewrite, though `"gailan"` is the name going
+    forward.
+  - **CSS targeting `#uebersicht`** does not. The container element is `#gailan`. This is
+    the one change most likely to be needed, and it applies to `main.css` in the widgets
+    folder as well as to widget styles.
+  - **AppleScript** referring to `application id "tracesOf.Uebersicht"` needs
+    `"com.nich227.Gailan"`.
+  - **bash-specific command syntax** may need adjusting, or set the shell back in
+    Preferences. Widget commands run through zsh by default, where Übersicht used bash.
+    Plain POSIX commands behave the same in both.
+  - **native modules** bundled inside a widget need rebuilding against Node 26.
+  - **Widget commands that depend on old Node behaviour** need looking at, per the
+    breaking changes linked above.
+
+Nothing else about a widget changes: `command`, `refreshFrequency`, `render`,
+`updateState`, `className`, the classic CoffeeScript widgets, `window.$`, and the
+`/run/` proxy all behave as they did.
+
 ## Writing Widgets
 
 In essence, widgets are TypeScript (or JavaScript) modules that expose a few key properties and methods. They need to be defined in a single file with a `.tsx` (or `.jsx`) extension for Gailan to pick them up. Types are stripped when the widget is bundled, not checked. Widgets could previously be written in CoffeeScript, and those are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
