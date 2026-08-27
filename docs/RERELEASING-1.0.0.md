@@ -27,7 +27,9 @@ notes have to keep saying.
   zip with the Sparkle EdDSA key, publishes the GitHub release, and adds an item to
   `updates.xml.rss` on the `gh-pages` branch.
 - `scripts/make-dmg.sh` produces the drag-to-Applications image.
-- `docs/release-notes/1.0.0.md` is the changelog the release body is taken from.
+- `docs/release-notes/1.0.0.md` is the changelog the release body is taken from. It
+  covers the compatibility break, the dependency jumps, the security work, and the
+  measured performance figures. Keep the numbers in it measured rather than estimated.
 - `SPARKLE_ED_PRIVATE_KEY` is a repository secret. The matching public key is
   `SUPublicEDKey` in `Gailan/Gailan-Info.plist`.
 - The build number comes from the tag, `x*10000 + y*100 + z`, so `v1.0.0` is 10000.

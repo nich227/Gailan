@@ -32,6 +32,7 @@ final class GLPreferences: ObservableObject {
     @Published var glassCurvature: Double { didSet { controller.glassCurvature = glassCurvature } }
     @Published var glassDispersion: Double { didSet { controller.glassDispersion = glassDispersion } }
     @Published var glassFrost: Double { didSet { controller.glassFrost = glassFrost } }
+    @Published var desktopGlassTag: Int { didSet { controller.desktopGlassTag = desktopGlassTag } }
     @Published var widgetPath: String
 
     init(controller: GLPreferencesController) {
@@ -48,6 +49,7 @@ final class GLPreferences: ObservableObject {
         glassCurvature = controller.glassCurvature
         glassDispersion = controller.glassDispersion
         glassFrost = controller.glassFrost
+        desktopGlassTag = controller.desktopGlassTag
         widgetPath = controller.widgetDir?.path ?? ""
     }
 
@@ -166,6 +168,21 @@ struct GLPreferencesView: View {
             optic("Frost", $prefs.glassFrost, max: 10)
         } footer: {
             Text("These are the defaults widgets inherit. A widget can override any of them.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+
+        Section {
+            Picker("Behind widgets", selection: $prefs.desktopGlassTag) {
+                Text("Off").tag(0)
+                Text("Sidebar").tag(1)
+                Text("HUD").tag(2)
+                Text("Popover").tag(3)
+                Text("Window").tag(4)
+                Text("Menu").tag(5)
+            }
+        } footer: {
+            Text("The system glasses the desktop behind widgets that ask for it. The optics above do not apply, because macOS draws this one.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }

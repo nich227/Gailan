@@ -383,6 +383,13 @@ int const PORT = 41416;
     [self shutdown:true];
 }
 
+- (void)desktopGlassDidChange
+{
+    [windowsController
+        setGlassMaterial: [self.preferences desktopGlassMaterial]
+    ];
+}
+
 // widgets read the glass settings at render time, so a reload is enough
 - (void)glassDidChange
 {

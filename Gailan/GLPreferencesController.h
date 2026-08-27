@@ -28,6 +28,9 @@
 @property double glassCurvature;
 @property double glassDispersion;
 @property double glassFrost;
+@property NSInteger desktopGlassTag;
+
+- (NSString*)desktopGlassMaterial;
 
 - (NSString*)glassSettingsJSON;
 - (NSDictionary*)glassSettings;

@@ -36,6 +36,12 @@
     return self;
 }
 
+- (void)setGlassMaterial:(NSString*)name
+{
+    [foreground setGlassMaterial:name];
+    [background setGlassMaterial:name];
+}
+
 - (void)setAlwaysOnTop:(BOOL)flag
 {
     [foreground setAlwaysOnTop:flag];

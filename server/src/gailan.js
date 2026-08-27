@@ -34,6 +34,20 @@ const Glass = (props) => {
   });
 };
 
+// Glass over the desktop rather than over page content. The system draws the
+// material behind the window, because the page cannot see what is back there;
+// this only marks the area, and the app does the rest.
+const DesktopGlass = ({radius = 12, style, children, ...rest}) =>
+  React.createElement(
+    'div',
+    {
+      ...rest,
+      'data-gailan-desktop-glass': radius,
+      style: {borderRadius: radius, ...(style || {})},
+    },
+    children
+  );
+
 export {
   run,
   request,
@@ -43,5 +57,6 @@ export {
   Glass,
   GlassSurface,
   GlassMaterial,
+  DesktopGlass,
   glassSettings,
 };

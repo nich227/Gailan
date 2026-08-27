@@ -231,6 +231,12 @@
         [message.webView.window setIgnoresMouseEvents: NO];
     } else if ([message.body isEqual:@"widgetLeave"]) {
         [message.webView.window setIgnoresMouseEvents: YES];
+    } else if ([message.body isKindOfClass:[NSDictionary class]]) {
+        NSDictionary* body = (NSDictionary*)message.body;
+        if ([body[@"type"] isEqual:@"glassRegions"]) {
+            GLWindow* window = (GLWindow*)message.webView.window;
+            [window setGlassRegions:body[@"regions"]];
+        }
     }
 }
 

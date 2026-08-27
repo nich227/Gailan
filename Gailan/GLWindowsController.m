@@ -105,6 +105,13 @@
     }
 }
 
+- (void)setGlassMaterial:(NSString*)name
+{
+    for (GLWindowGroup* group in [windows allValues]) {
+        [group setGlassMaterial:name];
+    }
+}
+
 - (void)setAlwaysOnTop:(BOOL)flag
 {
     _alwaysOnTop = flag;

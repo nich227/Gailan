@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
 - (void)setAlwaysOnTop:(BOOL)flag;
+- (void)setGlassMaterial:(NSString*)name;
 
 @end
 

@@ -8,6 +8,7 @@ render = require './src/render'
 actions = require './src/actions'
 userCssLink = null
 detectWidgetHover = require './src/detectWidgetHover'
+reportGlassRegions = require './src/reportGlassRegions'
 
 
 # widgets style against this instead of guessing: html[data-appearance="dark"]
@@ -34,7 +35,8 @@ window.onload = ->
   userCssLink = Array.from(document.querySelectorAll('link'))
     .find((el) => el.href.match('userMain.css'))
 
-  detectWidgetHover(contentEl);
+  detectWidgetHover(contentEl)
+  reportGlassRegions.watch()
 
   getState (err, initialState) ->
     bail err, 10000 if err?
@@ -48,6 +50,7 @@ window.onload = ->
       nextState = store.getState()
       return if nextState == prevState
       render(store.getState(), screen, contentEl, store.dispatch)
+      reportGlassRegions()
       prevState = nextState
 
     listenToRemote (action) ->

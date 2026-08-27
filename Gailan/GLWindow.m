@@ -14,12 +14,14 @@
 //
 
 #import "GLWindow.h"
+#import "GLGlassLayer.h"
 #import "GLWebViewController.h"
 
 @implementation GLWindow {
     GLWebViewController* webViewController;
     NSTrackingArea* trackingArea;
     GLWindowType type;
+    GLGlassLayer* glassLayer;
 }
 
 - (id)initWithWindowType:(GLWindowType)windowType
@@ -51,10 +53,32 @@
         webViewController = [[GLWebViewController alloc]
             initWithFrame: [self frame]
         ];
-        [self setContentView:webViewController.view];
+
+        // the glass the compositor draws goes underneath the web view, so a
+        // widget can sit on top of glassed wallpaper
+        NSView* container = [[NSView alloc] initWithFrame:[self frame]];
+        container.autoresizesSubviews = YES;
+        glassLayer = [[GLGlassLayer alloc] initWithFrame:container.bounds];
+        glassLayer.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+        webViewController.view.frame = container.bounds;
+        webViewController.view.autoresizingMask =
+            NSViewWidthSizable | NSViewHeightSizable;
+        [container addSubview:glassLayer];
+        [container addSubview:webViewController.view];
+        [self setContentView:container];
     }
 
     return self;
+}
+
+- (void)setGlassRegions:(NSArray*)regions
+{
+    [glassLayer setRegions:regions];
+}
+
+- (void)setGlassMaterial:(NSString*)name
+{
+    [glassLayer setMaterialName:name];
 }
 
 - (void)loadUrl:(NSURL*)url

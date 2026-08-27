@@ -38,7 +38,10 @@
             @"glassDepth": @0.4,
             @"glassCurvature": @0.3,
             @"glassDispersion": @0.4,
-            @"glassFrost": @2.0
+            @"glassFrost": @2.0,
+            // which system material glasses the desktop behind a widget that
+            // asks for it; off by default
+            @"desktopGlass": @"off"
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
@@ -307,6 +310,35 @@ GL_GLASS_OPTIC(GlassFrost, @"glassFrost")
 }
 
 // the same settings, for the initial page url
+static NSArray* desktopGlassMaterials(void)
+{
+    return @[@"off", @"sidebar", @"hud", @"popover", @"window", @"menu"];
+}
+
+- (NSString*)desktopGlassMaterial
+{
+    NSString* name = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"desktopGlass"
+    ];
+    return [desktopGlassMaterials() containsObject:name] ? name : @"off";
+}
+
+- (NSInteger)desktopGlassTag
+{
+    return (NSInteger)[desktopGlassMaterials()
+        indexOfObject:[self desktopGlassMaterial]];
+}
+
+- (void)setDesktopGlassTag:(NSInteger)tag
+{
+    if (tag < 0 || tag >= (NSInteger)desktopGlassMaterials().count) return;
+    [[NSUserDefaults standardUserDefaults]
+        setObject: desktopGlassMaterials()[tag]
+           forKey: @"desktopGlass"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
+}
+
 - (NSString*)glassSettingsJSON
 {
     NSData* json = [NSJSONSerialization
