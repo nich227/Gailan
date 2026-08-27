@@ -13,6 +13,8 @@
 #import "GLWidgetForScripting.h"
 #import "GLPreferencesController.h"
 
+@import UserNotifications;
+
 @implementation GLWidgetsController {
     GLWidgetsStore* widgets;
     GLScreensController* screensController;
@@ -452,7 +454,7 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     NSString* widgetId = [(NSMenuItem*)sender representedObject];
     NSString* filePath = [widgets get:widgetId][@"filePath"];
     
-    if (![[NSWorkspace sharedWorkspace] openFile:filePath]) {
+    if (![[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:filePath]]) {
         NSString* message = @"Please configure an app to edit .%@ files";
         [self
             notifyUser: [NSString
@@ -478,12 +480,21 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
 
 - (void)notifyUser:(NSString*)message withTitle:(NSString*)title
 {
-    NSUserNotification *notification = [[NSUserNotification alloc] init];
-    notification.title = title;
-    notification.informativeText = message;
-    
-    [[NSUserNotificationCenter defaultUserNotificationCenter]
-        deliverNotification:notification
+    UNMutableNotificationContent* content =
+        [[UNMutableNotificationContent alloc] init];
+    content.title = title;
+    content.body = message;
+
+    UNNotificationRequest* request = [UNNotificationRequest
+        requestWithIdentifier: [[NSUUID UUID] UUIDString]
+        content: content
+        trigger: nil
+    ];
+    [[UNUserNotificationCenter currentNotificationCenter]
+        addNotificationRequest: request
+        withCompletionHandler: ^(NSError* error) {
+            if (error) NSLog(@"could not deliver notification: %@", error);
+        }
     ];
 }
 

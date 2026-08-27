@@ -13,7 +13,9 @@
 #import <Cocoa/Cocoa.h>
 #import "GLScreenChangeListener.h"
 
-@interface GLAppDelegate : NSObject <NSApplicationDelegate, NSUserNotificationCenterDelegate, GLScreenChangeListener>
+@import UserNotifications;
+
+@interface GLAppDelegate : NSObject <NSApplicationDelegate, UNUserNotificationCenterDelegate, GLScreenChangeListener>
 
 @property (weak) IBOutlet NSMenu *statusBarMenu;
 @property (readonly) NSArray* widgets;

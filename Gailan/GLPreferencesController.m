@@ -12,9 +12,9 @@
 
 #import "GLPreferencesController.h"
 
-@implementation GLPreferencesController {
-    LSSharedFileListRef loginItems;
-}
+@import ServiceManagement;
+
+@implementation GLPreferencesController
 
 @synthesize filePicker;
 
@@ -29,17 +29,7 @@
             @"enableInteraction": @YES
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-                
-        // watch for login item changes
-        loginItems = LSSharedFileListCreate(NULL,
-                                            kLSSharedFileListSessionLoginItems,
-                                            NULL);
-        
-        LSSharedFileListAddObserver(loginItems,
-                                    CFRunLoopGetMain(),
-                                    kCFRunLoopCommonModes,
-                                    loginItemsChanged,
-                                    (__bridge void*)self);
+
     }
     
     return self;
@@ -67,7 +57,7 @@
     [openPanel setCanChooseDirectories:YES];
     
     [openPanel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
-        if (result == NSFileHandlingPanelOKButton) {
+        if (result == NSModalResponseOK) {
             [self setWidgetDir:[openPanel URLs][0]];
         }
         
@@ -80,13 +70,17 @@
     NSData* widgetDir = [[NSUserDefaults standardUserDefaults]
                          objectForKey:@"widgetDirectory"];
     
-    return [NSKeyedUnarchiver unarchiveObjectWithData:widgetDir];
+    return [NSKeyedUnarchiver unarchivedObjectOfClass:[NSURL class]
+                                              fromData:widgetDir
+                                                 error:nil];
 }
 
 - (void)setWidgetDir:(NSURL*)newDir
 {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:[NSKeyedArchiver archivedDataWithRootObject:newDir]
+    [defaults setObject:[NSKeyedArchiver archivedDataWithRootObject:newDir
+                                             requiringSecureCoding:YES
+                                                             error:nil]
                  forKey:@"widgetDirectory"];
     
     [self widgetDirChanged:newDir];
@@ -118,7 +112,9 @@
     
     [self createIfNotExists:defaultDir];
     
-    return [NSKeyedArchiver archivedDataWithRootObject:defaultDir];
+    return [NSKeyedArchiver archivedDataWithRootObject:defaultDir
+                               requiringSecureCoding:YES
+                                               error:nil];
 }
 
 - (void)createIfNotExists:(NSURL*)defaultWidgetDir
@@ -206,74 +202,27 @@
 
 - (BOOL)startAtLogin
 {
-    return [self getLoginItem] != NULL;
+    return [SMAppService mainAppService].status == SMAppServiceStatusEnabled;
 }
 
 - (void)setStartAtLogin:(BOOL)doStart
 {
+    NSError* error = nil;
     if (doStart) {
-        NSURL *bundleURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
-        LSSharedFileListInsertItemURL(loginItems,
-                                      kLSSharedFileListItemLast,
-                                      NULL,
-                                      NULL,
-                                      (__bridge CFURLRef)bundleURL,
-                                      NULL,
-                                      NULL);
+        [[SMAppService mainAppService] registerAndReturnError:&error];
     } else {
-        LSSharedFileListItemRef loginItemRef = [self getLoginItem];
-        if (loginItemRef) {
-            LSSharedFileListItemRemove(loginItems, loginItemRef);
-            CFRelease(loginItemRef);
-        }
-        
+        [[SMAppService mainAppService] unregisterAndReturnError:&error];
     }
-}
-
-- (LSSharedFileListItemRef)getLoginItem
-{
-    CFArrayRef snapshotRef = LSSharedFileListCopySnapshot(loginItems, NULL);
-    NSURL *bundleURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
-    
-    LSSharedFileListItemRef itemRef = NULL;
-    CFURLRef itemURLRef;
-    
-    for (id item in (__bridge NSArray*)snapshotRef) {
-        itemRef = (__bridge LSSharedFileListItemRef)item;
-        if (LSSharedFileListItemResolve(itemRef, 0, &itemURLRef, NULL) == noErr) {
-            if ([bundleURL isEqual:((__bridge NSURL *)itemURLRef)]) {
-                CFRetain(itemRef);
-                break;
-            }
-        }
-        itemRef = NULL;
+    if (error) {
+        NSLog(@"could not update the login item: %@", error);
     }
-    
-    CFRelease(snapshotRef);
-    return itemRef;
-}
-
-static void loginItemsChanged(LSSharedFileListRef listRef, void *context)
-{
-    GLPreferencesController *controller = (__bridge GLPreferencesController*)context;
-    
-    [controller willChangeValueForKey:@"startAtLogin"];
-    [controller didChangeValueForKey:@"startAtLogin"];
 }
 
 #
 #pragma mark Teardown
 #
 
-- (void)dealloc
-{
-    LSSharedFileListRemoveObserver(loginItems,
-                                   CFRunLoopGetMain(),
-                                   kCFRunLoopCommonModes,
-                                   loginItemsChanged,
-                                   (__bridge void*)self);
-    CFRelease(loginItems);
-}
+
 
 
 @end

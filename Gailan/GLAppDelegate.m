@@ -68,11 +68,16 @@ int const PORT = 41416;
         [self->widgetsController render];
     }];
     
-    // make sure notifcations always show
-    NSUserNotificationCenter* unc = [NSUserNotificationCenter
-        defaultUserNotificationCenter
-    ];
+    // make sure notifications always show, even while we are frontmost
+    UNUserNotificationCenter* unc =
+        [UNUserNotificationCenter currentNotificationCenter];
     unc.delegate = self;
+    [unc
+        requestAuthorizationWithOptions: UNAuthorizationOptionAlert
+        completionHandler: ^(BOOL granted, NSError* error) {
+            if (error) NSLog(@"notification authorization: %@", error);
+        }
+    ];
     
 
     [[[NSWorkspace sharedWorkspace] notificationCenter]
@@ -207,7 +212,7 @@ int const PORT = 41416;
     [image setTemplate:YES];
     [item.button setImage: image];
     [item setMenu:aMenu];
-    [item setEnabled:YES];
+    item.button.enabled = YES;
 
     return item;
 }
@@ -357,10 +362,12 @@ int const PORT = 41416;
     [windowsController showDebugConsolesForScreen:currentScreen];
 }
 
-- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center
-     shouldPresentNotification:(NSUserNotification *)notification
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:
+             (void (^)(UNNotificationPresentationOptions))completionHandler
 {
-    return YES;
+    completionHandler(UNNotificationPresentationOptionBanner);
 }
 
 - (void)wakeFromSleep:(NSNotification *)notification
@@ -417,11 +424,7 @@ int const PORT = 41416;
         kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagUseCFTypes
     );
     
-    FSEventStreamScheduleWithRunLoop(
-        stream,
-        CFRunLoopGetCurrent(),
-        kCFRunLoopDefaultMode
-    );
+    FSEventStreamSetDispatchQueue(stream, dispatch_get_main_queue());
     FSEventStreamStart(stream);
 
 }

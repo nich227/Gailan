@@ -26,7 +26,7 @@
 {
     self = [super
         initWithContentRect: NSMakeRect(0, 0, 0, 0)
-        styleMask: NSBorderlessWindowMask
+        styleMask: NSWindowStyleMaskBorderless
         backing: NSBackingStoreBuffered
         defer: NO
     ];

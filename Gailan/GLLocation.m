@@ -101,7 +101,19 @@
     
     
     NSDate *timestamp = location.timestamp;
-    NSDictionary *address = placeMark.addressDictionary;
+    // the same keys addressDictionary used to provide
+    NSString* street = placeMark.subThoroughfare
+        ? [NSString stringWithFormat:@"%@ %@",
+            placeMark.subThoroughfare, placeMark.thoroughfare]
+        : placeMark.thoroughfare;
+    NSDictionary *address = @{
+        @"Street": street ?: @"",
+        @"City": placeMark.locality ?: @"",
+        @"ZIP": placeMark.postalCode ?: @"",
+        @"Country": placeMark.country ?: @"",
+        @"State": placeMark.administrativeArea ?: @"",
+        @"CountryCode": placeMark.ISOcountryCode ?: @"",
+    };
     
     NSString* format = @"{ \
         \"position\": { \

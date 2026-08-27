@@ -148,7 +148,7 @@ static CFDictionaryRef getDisplayInfoDictionary(CGDirectDisplayID displayID)
     
     // releases matching for us
     kern_return_t err = IOServiceGetMatchingServices(
-        kIOMasterPortDefault,
+        kIOMainPortDefault,
         matching,
         &iter
     );
