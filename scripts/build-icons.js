@@ -139,6 +139,17 @@ function logo(ink, sub) {
 </svg>`;
 }
 
+// the mark on its own, for the starter widget, which sets its own wordmark in
+// live text rather than baking type into a picture
+function markOnly(ink) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 104 104">
+  <g transform="translate(4 4) scale(6)">${mark(ink, 0.4)}</g>
+</svg>`;
+}
+
+write('gailan-mark.png', render(markOnly(NAVY), 208));
+write('gailan-mark-dark.png', render(markOnly('#ffffff'), 208));
+
 write('gailan-logo.png', render(logo(NAVY, '#5b6070'), 352));
 // for dark backgrounds; the widget swaps via prefers-color-scheme
 write('gailan-logo-dark.png', render(logo('#ffffff', '#a0a0ac'), 352));

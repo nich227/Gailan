@@ -28,6 +28,8 @@
 		DC4F43F3189E90DD00937925 /* status-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = DC4F43F1189E90DD00937925 /* status-icon.png */; };
 		DC4F43F4189E90DD00937925 /* status-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DC4F43F2189E90DD00937925 /* status-icon@2x.png */; };
 		DC4FC28118EAB1CA00B7FD79 /* gailan-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = DC4FC28018EAB1CA00B7FD79 /* gailan-logo.png */; };
+		GL08000001000003 /* gailan-mark.png in Resources */ = {isa = PBXBuildFile; fileRef = GL08000001000001 /* gailan-mark.png */; };
+		GL08000001000004 /* gailan-mark-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = GL08000001000002 /* gailan-mark-dark.png */; };
 		DC4FC28318EAB1CA00B7FD79 /* gailan-logo-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DC4FC28218EAB1CA00B7FD79 /* gailan-logo-dark.png */; };
 		DC57ED2E18DB4EC900A24FDD /* GLPreferencesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DC57ED2C18DB4EC900A24FDD /* GLPreferencesController.xib */; };
 		DC62CC731E1C0F73004F85B8 /* Gailan.sdef in Resources */ = {isa = PBXBuildFile; fileRef = DC74D0741E1A6FC300893D53 /* Gailan.sdef */; };
@@ -117,6 +119,8 @@
 		DC4F43F1189E90DD00937925 /* status-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "status-icon.png"; sourceTree = "<group>"; };
 		DC4F43F2189E90DD00937925 /* status-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "status-icon@2x.png"; sourceTree = "<group>"; };
 		DC4FC28018EAB1CA00B7FD79 /* gailan-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gailan-logo.png"; sourceTree = "<group>"; };
+		GL08000001000001 /* gailan-mark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gailan-mark.png"; sourceTree = "<group>"; };
+		GL08000001000002 /* gailan-mark-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gailan-mark-dark.png"; sourceTree = "<group>"; };
 		DC4FC28218EAB1CA00B7FD79 /* gailan-logo-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gailan-logo-dark.png"; sourceTree = "<group>"; };
 		DC57ED2A18DB4EC900A24FDD /* GLPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLPreferencesController.h; sourceTree = "<group>"; };
 		DC57ED2B18DB4EC900A24FDD /* GLPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLPreferencesController.m; sourceTree = "<group>"; };
@@ -320,6 +324,8 @@
 				DC9296A51C5017CF006E4267 /* widget-status-visible.png */,
 				DC9296A61C5017CF006E4267 /* widget-status-visible@2x.png */,
 				DC4FC28018EAB1CA00B7FD79 /* gailan-logo.png */,
+				GL08000001000001 /* gailan-mark.png */,
+				GL08000001000002 /* gailan-mark-dark.png */,
 				DC4FC28218EAB1CA00B7FD79 /* gailan-logo-dark.png */,
 				GL02000001000001 /* GLGlassLayer.h */,
 				GL02000001000002 /* GLGlassLayer.m */,
@@ -490,6 +496,8 @@
 				DC9296A71C5017CF006E4267 /* widget-status-visible.png in Resources */,
 				DC4F43F4189E90DD00937925 /* status-icon@2x.png in Resources */,
 				DC4FC28118EAB1CA00B7FD79 /* gailan-logo.png in Resources */,
+				GL08000001000003 /* gailan-mark.png in Resources */,
+				GL08000001000004 /* gailan-mark-dark.png in Resources */,
 				DC4FC28318EAB1CA00B7FD79 /* gailan-logo-dark.png in Resources */,
 				DC4F43F3189E90DD00937925 /* status-icon.png in Resources */,
 				DC9296A81C5017CF006E4267 /* widget-status-visible@2x.png in Resources */,

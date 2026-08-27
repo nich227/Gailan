@@ -288,11 +288,40 @@ const Title = styled("span")`
   }
 `;
 
-/* the wordmark spans the full window width; the dark variant is swapped in
-   by the <picture> below when the system is in dark mode */
-const Logo = styled("img")`
+/* The mark, then the name set in live text rather than baked into a picture, so
+   it takes the widget's own color and needs no font loaded. The dark variant of
+   the mark is swapped in by the <picture> below. */
+const Brand = styled("div")`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 18px 18px;
+  border-bottom: 1px solid var(--border);
+`;
+
+const Mark = styled("img")`
   display: block;
-  width: 100%;
+  width: 62px;
+  height: 62px;
+`;
+
+const Wordmark = styled("div")`
+  font-size: 25px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  /* the tracking pushes the block right, so the last letter's space is removed */
+  text-indent: 0.34em;
+  text-transform: uppercase;
+  color: var(--text);
+`;
+
+const Pronunciation = styled("div")`
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dim);
 `;
 
 const Body = styled("div")`
@@ -371,10 +400,14 @@ export const render = ({ output, error, settings = {} }: State) => {
         </Title>
       </Header>
 
-      <picture>
-        <source srcSet="/logo-dark.png" media="(prefers-color-scheme: dark)" />
-        <Logo src="/logo.png" />
-      </picture>
+      <Brand>
+        <picture>
+          <source srcSet="/mark-dark.png" media="(prefers-color-scheme: dark)" />
+          <Mark src="/mark.png" alt="" />
+        </picture>
+        <Wordmark>Gailan</Wordmark>
+        <Pronunciation>概览 · gàilǎn</Pronunciation>
+      </Brand>
 
       <Body>
         <h1>Hi, {firstName}</h1>
@@ -395,8 +428,8 @@ export const render = ({ output, error, settings = {} }: State) => {
 
       {settings.showCredits === false ? null : (
         <Footer>
-          Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
-          system is. tracesof.net/uebersicht
+          Gailan is a fork of Übersicht by Felix Hageloh.
+          tracesof.net/uebersicht
         </Footer>
       )}
     </Window>

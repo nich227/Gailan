@@ -170,14 +170,19 @@
                 ]
                 error: &error];
     
-    NSURL* logo = [[NSBundle mainBundle] URLForResource:@"gailan-logo" withExtension:@"png"];
-    NSURL* darkLogo = [[NSBundle mainBundle] URLForResource:@"gailan-logo-dark" withExtension:@"png"];
+    // the starter widget sets its own wordmark in text, so it only needs the mark
+    NSURL* logo = [[NSBundle mainBundle]
+        URLForResource: @"gailan-mark" withExtension: @"png"
+    ];
+    NSURL* darkLogo = [[NSBundle mainBundle]
+        URLForResource: @"gailan-mark-dark" withExtension: @"png"
+    ];
     
     [fileManager copyItemAtURL:logo
-                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"logo.png"]
+                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"mark.png"]
                          error:&error];
     [fileManager copyItemAtURL:darkLogo
-                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"logo-dark.png"]
+                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"mark-dark.png"]
                          error:nil];
     
     if (error) {
