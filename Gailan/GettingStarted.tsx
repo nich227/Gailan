@@ -267,7 +267,14 @@ export const render = ({ output, error }: State) => {
 
   return (
     <Glass radius={12}>
-      <Window id={WIDGET_ID} style={{ width: 340, ...position }}>
+      {/* Glass above refracts this widget's own content. The marker below asks
+          macOS to glass the wallpaper under the window, which the page cannot
+          reach on its own: turn it on in Preferences under Liquid Glass. */}
+      <Window
+        id={WIDGET_ID}
+        data-gailan-desktop-glass={12}
+        style={{ width: 340, ...position }}
+      >
       <Header onMouseDown={startDrag}>
         <Lights>
           <Light c="#ff5f57">

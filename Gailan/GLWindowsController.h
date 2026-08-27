@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
          forceRefresh:(Boolean)forceRefresh;
 
 - (void)reloadAll;
-- (void)setGlassMaterial:(NSString*)name;
+@property (nonatomic, copy) NSString* glassMaterial;
 - (void)closeAll;
 - (void)workspaceChanged;
 - (void)wallpaperChanged;

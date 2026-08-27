@@ -21,7 +21,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         views = [[NSMutableDictionary alloc] init];
-        materialName = @"sidebar";
+        materialName = @"off";
     }
     return self;
 }
@@ -30,11 +30,17 @@
 {
     if ([name isEqualToString:materialName]) return;
     materialName = [name copy];
-    // the material is baked into each view, so they have to be rebuilt
+    // the material is baked into each view, so they have to be rebuilt. this
+    // also clears them for "off", where a widget's claim goes unanswered.
     for (NSView* view in views.allValues) {
         [view removeFromSuperview];
     }
     [views removeAllObjects];
+}
+
+- (BOOL)isEnabled
+{
+    return ![materialName isEqualToString:@"off"];
 }
 
 - (NSVisualEffectMaterial)material
@@ -96,6 +102,8 @@
 
 - (void)setRegions:(NSArray<NSDictionary*>*)regions
 {
+    if (![self isEnabled]) return;
+
     NSMutableSet<NSString*>* stale = [NSMutableSet setWithArray:views.allKeys];
     CGFloat height = self.bounds.size.height;
 

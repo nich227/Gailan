@@ -43,6 +43,7 @@
                 initWithInteractionEnabled: interactionEnabled
             ];
             [windowGroup setAlwaysOnTop:self.alwaysOnTop];
+            [windowGroup setGlassMaterial:self.glassMaterial];
             [windows setObject:windowGroup forKey:screenId];
             [windowGroup loadUrl: [self screenUrl:screenId baseUrl:baseUrl]];
         } else {
@@ -107,6 +108,7 @@
 
 - (void)setGlassMaterial:(NSString*)name
 {
+    _glassMaterial = [name copy];
     for (GLWindowGroup* group in [windows allValues]) {
         [group setGlassMaterial:name];
     }

@@ -106,6 +106,9 @@ int const PORT = 41416;
     
     [GLPreferencesController applyAppearance];
     [windowsController setAlwaysOnTop:self.preferences.alwaysOnTop];
+    [windowsController
+        setGlassMaterial: [self.preferences desktopGlassMaterial]
+    ];
 
     // make sure notifications always show, even while we are frontmost
     UNUserNotificationCenter* unc =
