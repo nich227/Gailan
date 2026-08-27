@@ -8,6 +8,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
 - (void)showDebugConsolesForScreen:(NSNumber*)screenId;
-- (WKWebView*)webViewInView:(NSView*)view;
+- (nullable WKWebView*)webViewInView:(NSView*)view;
 - (NSScreen*)getNSScreen:(NSNumber*)screenId;
 
 @end

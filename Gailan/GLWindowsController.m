@@ -158,7 +158,7 @@ static NSString* const GLInspectorStartsAttachedKey =
 
 // The web view is no longer the window's content view: the glass layer sits
 // beside it under a container, so it has to be looked up.
-- (WKWebView*)webViewInView:(NSView*)view
+- (nullable WKWebView*)webViewInView:(NSView*)view
 {
     if ([view isKindOfClass:[WKWebView class]]) {
         return (WKWebView*)view;
