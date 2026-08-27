@@ -125,12 +125,12 @@ write('status-icon@2x.png', render(statusIcon, 32));
 // wordmark, copied into the default widget directory as logo.png
 function logo(ink, sub) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 168">
-  <g transform="translate(6 18) scale(6.5)">${mark(ink, 0.4)}</g>
-  <text x="124" y="104" font-family="Alibaba PuHuiTi" font-weight="bold"
+  <g transform="translate(14 18) scale(6.5)">${mark(ink, 0.4)}</g>
+  <text x="132" y="104" font-family="Alibaba PuHuiTi" font-weight="bold"
         font-size="62" fill="${ink}">Gailan</text>
-  <line x1="6" y1="132" x2="346" y2="132" stroke="${ink}" stroke-width="1" opacity="0.35"/>
-  <text x="346" y="158" font-family="Alibaba PuHuiTi" font-size="20" fill="${sub}"
-        text-anchor="end">概览 · gàilǎn</text>
+  <line x1="30" y1="132" x2="322" y2="132" stroke="${ink}" stroke-width="1" opacity="0.35"/>
+  <text x="176" y="158" font-family="Alibaba PuHuiTi" font-size="20" fill="${sub}"
+        text-anchor="middle">概览 · gàilǎn</text>
 </svg>`;
 }
 
