@@ -487,6 +487,17 @@ int const PORT = 41416;
     completionHandler(UNNotificationPresentationOptionBanner);
 }
 
+- (void)appResignedActive:(NSNotification *)notification
+{
+    [self widgetsLostFocus];
+}
+
+// widgets style off html[data-widget-focus] and can listen for gailan:blur
+- (void)widgetsLostFocus
+{
+    [dispatcher dispatch:@"WIDGETS_BLURRED" withPayload:@""];
+}
+
 - (void)wakeFromSleep:(NSNotification *)notification
 {
     [windowsController reloadAll];
