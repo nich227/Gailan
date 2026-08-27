@@ -207,9 +207,7 @@ struct GLPreferencesView: View {
     private func heading(_ title: String, help: String) -> some View {
         HStack(spacing: 4) {
             Text(title)
-            Image(systemName: "info.circle")
-                .foregroundStyle(.secondary)
-                .help(help)
+            GLHelpButton(text: help)
         }
     }
 
@@ -231,6 +229,33 @@ struct GLPreferencesView: View {
 // Handed to the window controller, which has no way to build a SwiftUI view
 // itself.
 @objc(GLPreferencesHosting)
+// The info button next to a section title. .help alone is hover only, which
+// makes an icon that looks clickable do nothing when clicked.
+private struct GLHelpButton: View {
+    let text: String
+    @State private var showing = false
+
+    var body: some View {
+        Button {
+            showing.toggle()
+        } label: {
+            Image(systemName: "info.circle")
+                .foregroundStyle(.secondary)
+        }
+        .buttonStyle(.plain)
+        .help(text)
+        .popover(isPresented: $showing, arrowEdge: .bottom) {
+            Text(text)
+                .font(.callout)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(width: 280, alignment: .leading)
+                .padding(14)
+        }
+        .accessibilityLabel("About this setting")
+    }
+}
+
 final class GLPreferencesHosting: NSObject {
     @objc static func viewFor(_ controller: GLPreferencesController) -> NSView {
         let prefs = GLPreferences(controller: controller)
