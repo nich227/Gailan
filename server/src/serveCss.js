@@ -8,7 +8,10 @@ module.exports = (widgetsDir) => (req, res, next) => {
 
   fs.ReadStream(path.join(widgetsDir, 'main.css'))
     .on('error', (err) => {
-      if (err.code !== 'ENOENT') throw err;
+      // no main.css is the normal case. Anything else (permissions, a
+      // directory by that name) must not take the server down over css:
+      // throwing from an error listener is an uncaught exception.
+      if (err.code !== 'ENOENT') console.log(err);
       res.end('');
     })
     .pipe(res);
