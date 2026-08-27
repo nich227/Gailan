@@ -43,9 +43,11 @@
 		DC943A5D264EE8B30018374E /* node-x64 in Resources */ = {isa = PBXBuildFile; fileRef = DC943A5C264EE8B30018374E /* node-x64 */; };
 		DC9F7CE31C439CE50014E25B /* GLDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = DC9F7CE21C439CE50014E25B /* GLDispatcher.m */; };
 		GL05000001000002 /* GLShortcutsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL05000001000001 /* GLShortcutsTests.swift */; };
+		GL09000001000002 /* GLWidgetUpdatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL09000001000001 /* GLWidgetUpdatesTests.swift */; };
 		GL03000001000002 /* GLGlassLayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = GL03000001000001 /* GLGlassLayerTests.m */; };
 		GL02000001000003 /* GLGlassLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = GL02000001000002 /* GLGlassLayer.m */; };
 		GL07000001000002 /* GLWidgetsOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL07000001000001 /* GLWidgetsOverview.swift */; };
+		GL08000001000002 /* GLWidgetUpdates.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL08000001000001 /* GLWidgetUpdates.swift */; };
 		GL04000001000002 /* GLShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL04000001000001 /* GLShortcuts.swift */; };
 		GL04000001000004 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = GL04000001000003 /* AppIntents.framework */; };
 		GL01000001000002 /* GLPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL01000001000001 /* GLPreferencesView.swift */; };
@@ -141,10 +143,12 @@
 		DC9F7CE11C439CE50014E25B /* GLDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLDispatcher.h; sourceTree = "<group>"; };
 		DC9F7CE21C439CE50014E25B /* GLDispatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLDispatcher.m; sourceTree = "<group>"; };
 		GL05000001000001 /* GLShortcutsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLShortcutsTests.swift; sourceTree = "<group>"; };
+		GL09000001000001 /* GLWidgetUpdatesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLWidgetUpdatesTests.swift; sourceTree = "<group>"; };
 		GL03000001000001 /* GLGlassLayerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLGlassLayerTests.m; sourceTree = "<group>"; };
 		GL02000001000001 /* GLGlassLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLGlassLayer.h; sourceTree = "<group>"; };
 		GL02000001000002 /* GLGlassLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLGlassLayer.m; sourceTree = "<group>"; };
 		GL07000001000001 /* GLWidgetsOverview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLWidgetsOverview.swift; sourceTree = "<group>"; };
+		GL08000001000001 /* GLWidgetUpdates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLWidgetUpdates.swift; sourceTree = "<group>"; };
 		GL04000001000001 /* GLShortcuts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLShortcuts.swift; sourceTree = "<group>"; };
 		GL04000001000003 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 		GL01000001000001 /* GLPreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLPreferencesView.swift; sourceTree = "<group>"; };
@@ -330,6 +334,7 @@
 				GL02000001000001 /* GLGlassLayer.h */,
 				GL02000001000002 /* GLGlassLayer.m */,
 				GL07000001000001 /* GLWidgetsOverview.swift */,
+				GL08000001000001 /* GLWidgetUpdates.swift */,
 				GL04000001000001 /* GLShortcuts.swift */,
 				GL01000001000001 /* GLPreferencesView.swift */,
 				GL01000001000003 /* Gailan-Bridging-Header.h */,
@@ -350,6 +355,7 @@
 			isa = PBXGroup;
 			children = (
 				GL05000001000001 /* GLShortcutsTests.swift */,
+				GL09000001000001 /* GLWidgetUpdatesTests.swift */,
 				GL03000001000001 /* GLGlassLayerTests.m */,
 				DC43ADA917EC2D9500241CC2 /* GailanTests.m */,
 				DC43ADA417EC2D9500241CC2 /* Supporting Files */,
@@ -626,6 +632,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				GL07000001000002 /* GLWidgetsOverview.swift in Sources */,
+				GL08000001000002 /* GLWidgetUpdates.swift in Sources */,
 				GL04000001000002 /* GLShortcuts.swift in Sources */,
 				GL02000001000003 /* GLGlassLayer.m in Sources */,
 				GL01000001000002 /* GLPreferencesView.swift in Sources */,
@@ -657,6 +664,7 @@
 				DC43ADAA17EC2D9500241CC2 /* GailanTests.m in Sources */,
 				GL03000001000002 /* GLGlassLayerTests.m in Sources */,
 				GL05000001000002 /* GLShortcutsTests.swift in Sources */,
+				GL09000001000002 /* GLWidgetUpdatesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

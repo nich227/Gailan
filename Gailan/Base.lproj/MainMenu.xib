@@ -682,6 +682,12 @@
                         <action selector="visitWidgetGallery:" target="494" id="4jL-gZ-cAv"/>
                     </connections>
                 </menuItem>
+                <menuItem title="Check for Widget Updates..." id="GL7-up-it0">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="checkForWidgetUpdates:" target="494" id="GL7-up-ac0"/>
+                    </connections>
+                </menuItem>
                 <menuItem isSeparatorItem="YES" id="T85-qJ-hLx"/>
                 <menuItem title="Widgets..." id="GL6-ov-er0">
                     <modifierMask key="keyEquivalentModifierMask"/>

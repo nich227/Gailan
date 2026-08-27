@@ -127,6 +127,18 @@ int const PORT = 41416;
     ];
     
 
+    // widgets are read from disk as they land, so a check can wait until the
+    // desktop is drawn rather than competing with it
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(8 * NSEC_PER_SEC)),
+        dispatch_get_main_queue(),
+        ^{
+            [GLWidgetUpdatesWindow
+                checkQuietly:[self.preferences.widgetDir path]
+            ];
+        }
+    );
+
     [[[NSWorkspace sharedWorkspace] notificationCenter]
         addObserver: self
         selector: @selector(wakeFromSleep:)
@@ -465,14 +477,19 @@ int const PORT = 41416;
     [screensController syncScreens];
 }
 
-// the menu item's tag says which layer to inspect: 1 foreground, 2 background,
-// 0 both. widgets sit in one layer or the other, so inspecting the wrong one
-// shows an empty page.
 - (IBAction)showWidgetsOverview:(id)sender
 {
     [GLWidgetsOverviewWindow show:widgetsController];
 }
 
+- (IBAction)checkForWidgetUpdates:(id)sender
+{
+    [GLWidgetUpdatesWindow show:[self.preferences.widgetDir path]];
+}
+
+// the menu item's tag says which layer to inspect: 1 foreground, 2 background,
+// 0 both. widgets sit in one layer or the other, so inspecting the wrong one
+// shows an empty page.
 - (IBAction)showDebugConsole:(id)sender
 {
     NSNumber* currentScreen = [[NSScreen mainScreen]

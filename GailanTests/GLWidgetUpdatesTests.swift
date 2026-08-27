@@ -1,0 +1,205 @@
+//
+//  GLWidgetUpdatesTests.swift
+//  GailanTests
+//
+//  Copyright (c) 2026 Kevin Chen.
+//
+//  Released under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version. See <http://www.gnu.org/licenses/> for
+//  details.
+//
+
+import XCTest
+
+@testable import Gailan
+
+final class GLWidgetUpdatesTests: XCTestCase {
+    private var widgetDir: URL!
+
+    override func setUpWithError() throws {
+        widgetDir = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("widget-updates-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(
+            at: widgetDir,
+            withIntermediateDirectories: true
+        )
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: widgetDir)
+    }
+
+    private func install(
+        folder: String,
+        name: String? = nil,
+        version: String?
+    ) throws {
+        let dir = widgetDir.appendingPathComponent(folder)
+        try FileManager.default.createDirectory(
+            at: dir,
+            withIntermediateDirectories: true
+        )
+
+        var manifest: [String: Any] = ["name": name ?? folder, "title": folder]
+        if let version { manifest["version"] = version }
+
+        try JSONSerialization
+            .data(withJSONObject: manifest)
+            .write(to: dir.appendingPathComponent("widget.json"))
+    }
+
+    // MARK: - comparing versions
+
+    func testANewerVersionWins() {
+        XCTAssertTrue(versionIsNewer("1.0.1", than: "1.0.0"))
+        XCTAssertTrue(versionIsNewer("1.1.0", than: "1.0.9"))
+        XCTAssertTrue(versionIsNewer("2.0.0", than: "1.9.9"))
+    }
+
+    func testTheSameVersionIsNotAnUpdate() {
+        XCTAssertFalse(versionIsNewer("1.2.3", than: "1.2.3"))
+    }
+
+    func testAnOlderVersionIsNotAnUpdate() {
+        XCTAssertFalse(versionIsNewer("1.0.0", than: "1.0.1"))
+        XCTAssertFalse(versionIsNewer("1.9.9", than: "2.0.0"))
+    }
+
+    // the reason not to compare these as strings: "10" sorts before "9"
+    func testTwoDigitPartsCompareAsNumbers() {
+        XCTAssertTrue(versionIsNewer("1.0.10", than: "1.0.9"))
+        XCTAssertTrue(versionIsNewer("1.10.0", than: "1.9.0"))
+        XCTAssertFalse(versionIsNewer("1.0.9", than: "1.0.10"))
+    }
+
+    func testAMissingPartCountsAsZero() {
+        XCTAssertTrue(versionIsNewer("1.1", than: "1.0.0"))
+        XCTAssertFalse(versionIsNewer("1.0", than: "1.0.0"))
+    }
+
+    func testTrailingTextIsIgnoredRatherThanThrowingOffTheNumber() {
+        XCTAssertTrue(versionIsNewer("1.2.0-beta", than: "1.1.0"))
+        XCTAssertFalse(versionIsNewer("1.1.0-beta", than: "1.1.0"))
+    }
+
+    // MARK: - reading what is installed
+
+    func testAWidgetWithAVersionIsFound() throws {
+        try install(folder: "clock", version: "1.0.0")
+
+        let installed = installedWidgets(in: widgetDir)
+        XCTAssertEqual(installed.count, 1)
+        XCTAssertEqual(installed["clock"]?.version, "1.0.0")
+        XCTAssertEqual(installed["clock"]?.folder.lastPathComponent, "clock")
+    }
+
+    func testTheManifestNameWinsOverTheFolderName() throws {
+        try install(folder: "my-clock", name: "clock", version: "1.0.0")
+
+        let installed = installedWidgets(in: widgetDir)
+        XCTAssertNotNil(installed["clock"])
+        XCTAssertNil(installed["my-clock"])
+        XCTAssertEqual(installed["clock"]?.folder.lastPathComponent, "my-clock")
+    }
+
+    func testAWidgetWithoutAVersionIsLeftAlone() throws {
+        try install(folder: "homegrown", version: nil)
+
+        XCTAssertTrue(installedWidgets(in: widgetDir).isEmpty)
+    }
+
+    func testAFolderWithoutAManifestIsLeftAlone() throws {
+        try FileManager.default.createDirectory(
+            at: widgetDir.appendingPathComponent("loose"),
+            withIntermediateDirectories: true
+        )
+
+        XCTAssertTrue(installedWidgets(in: widgetDir).isEmpty)
+    }
+
+    func testUnreadableJSONDoesNotStopTheOtherWidgets() throws {
+        try install(folder: "clock", version: "1.0.0")
+
+        let broken = widgetDir.appendingPathComponent("broken")
+        try FileManager.default.createDirectory(
+            at: broken,
+            withIntermediateDirectories: true
+        )
+        try "{ not json".write(
+            to: broken.appendingPathComponent("widget.json"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let installed = installedWidgets(in: widgetDir)
+        XCTAssertEqual(installed.count, 1)
+        XCTAssertNotNil(installed["clock"])
+    }
+
+    func testAMissingWidgetFolderReadsAsEmpty() {
+        let nowhere = widgetDir.appendingPathComponent("gone")
+        XCTAssertTrue(installedWidgets(in: nowhere).isEmpty)
+    }
+
+    // MARK: - choosing what to update
+
+    @MainActor
+    func testSelectionStartsOnAndCanBeChanged() async throws {
+        let model = WidgetUpdatesModel(widgetDirectory: widgetDir)
+        model.available = [
+            update(name: "clock", installed: "1.0.0", hub: "1.1.0"),
+            update(name: "weather", installed: "2.0.0", hub: "2.1.0"),
+        ]
+
+        XCTAssertEqual(model.selectedCount, 2)
+        XCTAssertTrue(model.allSelected)
+
+        model.toggle("clock")
+        XCTAssertEqual(model.selectedCount, 1)
+        XCTAssertFalse(model.allSelected)
+
+        model.selectAll(false)
+        XCTAssertEqual(model.selectedCount, 0)
+
+        model.selectAll(true)
+        XCTAssertEqual(model.selectedCount, 2)
+    }
+
+    @MainActor
+    func testTogglingAWidgetThatIsNotThereChangesNothing() async throws {
+        let model = WidgetUpdatesModel(widgetDirectory: widgetDir)
+        model.available = [update(name: "clock", installed: "1.0.0", hub: "1.1.0")]
+
+        model.toggle("absent")
+        XCTAssertEqual(model.selectedCount, 1)
+    }
+
+    @MainActor
+    func testNothingSelectedWhenThereIsNothingToUpdate() async throws {
+        let model = WidgetUpdatesModel(widgetDirectory: widgetDir)
+
+        XCTAssertEqual(model.selectedCount, 0)
+        XCTAssertFalse(model.allSelected)
+    }
+
+    private func update(
+        name: String,
+        installed: String,
+        hub: String
+    ) -> WidgetUpdatesModel.Available {
+        WidgetUpdatesModel.Available(
+            widget: HubWidget(
+                name: name,
+                title: name.capitalized,
+                description: "a widget",
+                author: "someone",
+                version: hub,
+                path: "widgets/\(name)",
+                files: [HubFile(path: "index.tsx")]
+            ),
+            installedVersion: installed,
+            folder: widgetDir.appendingPathComponent(name)
+        )
+    }
+}

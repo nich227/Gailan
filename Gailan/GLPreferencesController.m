@@ -32,6 +32,7 @@
             @"shell": @"zsh",
             @"appearance": @"system",
             @"alwaysOnTop": @NO,
+            @"checkWidgetUpdates": @YES,
 
             // which system material macOS draws behind a widget that asks
             // for it. on by default; "off" opts out.

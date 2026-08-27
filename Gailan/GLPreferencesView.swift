@@ -37,6 +37,11 @@ final class GLPreferences: ObservableObject {
         didSet { controller.desktopGlassTint = desktopGlassTint.hexRGBA }
     }
     @Published var widgetPath: String
+    @Published var checkWidgetUpdates: Bool {
+        didSet {
+            UserDefaults.standard.set(checkWidgetUpdates, forKey: "checkWidgetUpdates")
+        }
+    }
 
     init(controller: GLPreferencesController) {
         self.controller = controller
@@ -50,6 +55,7 @@ final class GLPreferences: ObservableObject {
         desktopGlassStyleTag = controller.desktopGlassStyleTag
         desktopGlassTint = Color(hexRGBA: controller.desktopGlassTint)
         widgetPath = controller.widgetDir?.path ?? ""
+        checkWidgetUpdates = UserDefaults.standard.bool(forKey: "checkWidgetUpdates")
     }
 
     var widgetFolderIcon: NSImage {
@@ -128,8 +134,9 @@ struct GLPreferencesView: View {
             }
             Toggle("Enable interaction", isOn: $prefs.enableInteraction)
             Toggle("Keep widgets above other windows", isOn: $prefs.alwaysOnTop)
+            Toggle("Check for widget updates", isOn: $prefs.checkWidgetUpdates)
         } footer: {
-            Text("Interaction lets widgets receive clicks. It needs an interaction shortcut and accessibility access.")
+            Text("Interaction lets widgets receive clicks. It needs an interaction shortcut and accessibility access. Widget updates come from GailanHub, once a day, and are installed only when you say so.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
