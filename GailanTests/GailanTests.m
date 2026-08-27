@@ -61,25 +61,51 @@
     XCTAssertEqual([statusBarItem menu], deletgate.statusBarMenu);
 }
 
+// Finds an action anywhere in the menu, submenus included, since the inspector
+// lives in one now.
+static BOOL menuHasAction(NSMenu* menu, SEL action)
+{
+    for (NSMenuItem* item in menu.itemArray) {
+        if (item.action == action) return YES;
+        if (item.submenu && menuHasAction(item.submenu, action)) return YES;
+    }
+    return NO;
+}
+
 - (void)testMainMenu
 {
     NSMenu* mainMenu = deletgate.statusBarMenu;
-    
-    bool hasOpenWidgetsDir;
-    bool hasShowDebugConsole;
-    
-    for(id item in mainMenu.itemArray) {
-        if(((NSMenuItem*)item).action == @selector(openWidgetDir:))
-            hasOpenWidgetsDir = YES;
-        else if (((NSMenuItem*)item).action == @selector(showDebugConsole:))
-            hasShowDebugConsole = YES;
-    }
-    
-    XCTAssert(hasOpenWidgetsDir);
-    XCTAssert(hasShowDebugConsole);
-    
+
+    // these were declared uninitialized, so the test passed on whatever was on
+    // the stack rather than on what the menu contained
+    XCTAssertTrue(menuHasAction(mainMenu, @selector(openWidgetDir:)));
+    XCTAssertTrue(menuHasAction(mainMenu, @selector(showDebugConsole:)));
+    XCTAssertFalse(menuHasAction(mainMenu, @selector(testMainMenu)),
+                   @"and a selector that is not in the menu is not found");
+
     XCTAssert([deletgate respondsToSelector:@selector(openWidgetDir:)]);
     XCTAssert([deletgate respondsToSelector:@selector(showDebugConsole:)]);
+}
+
+- (void)testTheInspectorOffersEachLayer
+{
+    NSMenuItem* inspector = nil;
+    for (NSMenuItem* item in deletgate.statusBarMenu.itemArray) {
+        if ([item.title isEqualToString:@"Web Inspector"]) inspector = item;
+    }
+
+    XCTAssertNotNil(inspector, @"the inspector has its own menu");
+    XCTAssertNotNil(inspector.submenu);
+
+    NSMutableDictionary* tagsByTitle = [NSMutableDictionary dictionary];
+    for (NSMenuItem* item in inspector.submenu.itemArray) {
+        if (!item.isSeparatorItem) tagsByTitle[item.title] = @(item.tag);
+    }
+
+    // the tags are what the action reads to know which layer was asked for
+    XCTAssertEqualObjects(tagsByTitle[@"Foreground Widgets"], @1);
+    XCTAssertEqualObjects(tagsByTitle[@"Background Widgets"], @2);
+    XCTAssertEqualObjects(tagsByTitle[@"Both"], @0);
 }
 
 // The debug console has to find the web view. It used to be the window's
