@@ -1,5 +1,9 @@
 // Renders the Gailan branding assets: bootstrap window-dock with a tiny pair of
 // eyeglasses sitting in the middle of the desktop area.
+//
+// The icon paths come from Bootstrap Icons (https://github.com/twbs/icons),
+// copyright (c) 2019-2024 The Bootstrap Authors, MIT licensed. The full
+// license is in licenses/bootstrap-icons.txt.
 const fs = require('fs');
 const path = require('path');
 const {execFileSync} = require('child_process');

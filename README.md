@@ -442,3 +442,7 @@ Gailan is a fork of [Übersicht](https://github.com/felixhageloh/uebersicht) by 
 The source is released under the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 © 2026 Kevin Chen. Based on Übersicht, © 2019 Felix Hageloh.
+
+The app icon, menu bar icon and wordmark are built from the *window-dock* and *eyeglasses*
+icons of [Bootstrap Icons](https://github.com/twbs/icons), © 2019–2024 The Bootstrap Authors,
+[MIT licensed](licenses/bootstrap-icons.txt).
