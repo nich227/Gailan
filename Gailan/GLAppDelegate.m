@@ -37,8 +37,8 @@ int const PORT = 41416;
 
 @synthesize statusBarMenu;
 
-// Gailan and Übersicht fight over the desktop and the widgets they render,
-// so only one of them should run
+// Gailan is Übersicht with the same widget surface, so running both renders
+// everything twice; only one of them should run
 - (void)resolveUbersichtConflict
 {
     NSArray<NSRunningApplication*>* others = [NSRunningApplication
@@ -49,7 +49,7 @@ int const PORT = 41416;
     NSAlert* alert = [[NSAlert alloc] init];
     alert.messageText = @"Übersicht is running";
     alert.informativeText =
-        @"Gailan and Übersicht will fight over your desktop. "
+        @"Gailan is an upgraded version of Übersicht. "
         @"Only one of them should run.";
     [alert addButtonWithTitle:@"Quit Übersicht"];   // first button = default
     [alert addButtonWithTitle:@"Quit Gailan"];

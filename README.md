@@ -26,6 +26,7 @@ upgrading it:
   - Preferences also has an appearance override: System, Light or Dark, which widgets
     see through `prefers-color-scheme`
   - if Übersicht is running when Gailan starts, a dialog offers to quit one of them
+    (Gailan is an upgraded Übersicht, so running both doubles every widget)
   - **requires macOS 13.5 or later** (the bundled Node runtime and the modern system
     APIs need it) — the app will not launch on anything older
 
