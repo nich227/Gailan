@@ -17,17 +17,17 @@
         <window title="Gailan Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="1">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="472" y="636" width="560" height="342"/>
+            <rect key="contentRect" x="472" y="636" width="560" height="314"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1415"/>
-            <value key="minSize" type="size" width="560" height="342"/>
-            <value key="maxSize" type="size" width="560" height="342"/>
+            <value key="minSize" type="size" width="560" height="314"/>
+            <value key="maxSize" type="size" width="560" height="314"/>
             <view key="contentView" autoresizesSubviews="NO" id="2">
-                <rect key="frame" x="0.0" y="0.0" width="560" height="342"/>
+                <rect key="frame" x="0.0" y="0.0" width="560" height="314"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
 
                     <box title="General" fixedFrame="YES" titlePosition="atTop" translatesAutoresizingMaskIntoConstraints="NO" id="box-general">
-                        <rect key="frame" x="18" y="166" width="524" height="158"/>
+                        <rect key="frame" x="18" y="138" width="524" height="158"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="box-general-content">
                             <rect key="frame" x="3" y="3" width="518" height="140"/>
@@ -120,7 +120,7 @@
                     </box>
 
                     <box title="Appearance" fixedFrame="YES" titlePosition="atTop" translatesAutoresizingMaskIntoConstraints="NO" id="box-appearance">
-                        <rect key="frame" x="18" y="114" width="524" height="70"/>
+                        <rect key="frame" x="18" y="86" width="524" height="70"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="box-appearance-content">
                             <rect key="frame" x="3" y="3" width="518" height="52"/>
@@ -153,28 +153,19 @@
                                         <binding destination="-2" name="selectedTag" keyPath="appearanceTag" id="apP-00-007"/>
                                     </connections>
                                 </popUpButton>
-                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="240" translatesAutoresizingMaskIntoConstraints="NO" id="apN-00-001">
-                                    <rect key="frame" x="272" y="16" width="232" height="28"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" title="Widgets see this through prefers-color-scheme and a data-appearance attribute." id="apN-00-002">
-                                        <font key="font" metaFont="label" size="11"/>
-                                        <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
-                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                    </textFieldCell>
-                                </textField>
-                            </subviews>
+                                </subviews>
                         </view>
                     </box>
 
                     <box title="Shell Commands" fixedFrame="YES" titlePosition="atTop" translatesAutoresizingMaskIntoConstraints="NO" id="box-shell">
-                        <rect key="frame" x="18" y="18" width="524" height="98"/>
+                        <rect key="frame" x="18" y="18" width="524" height="70"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="box-shell-content">
-                            <rect key="frame" x="3" y="3" width="518" height="80"/>
+                            <rect key="frame" x="3" y="3" width="518" height="52"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="shL-00-001">
-                                    <rect key="frame" x="14" y="48" width="100" height="17"/>
+                                    <rect key="frame" x="14" y="20" width="100" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Shell:" id="shL-00-002">
                                         <font key="font" metaFont="system"/>
@@ -183,7 +174,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <popUpButton autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="shP-00-001">
-                                    <rect key="frame" x="122" y="42" width="100" height="25"/>
+                                    <rect key="frame" x="122" y="14" width="100" height="25"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" selectedItem="shP-00-004" id="shP-00-002">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -200,7 +191,7 @@
                                     </connections>
                                 </popUpButton>
                                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JRx-iq-tIq">
-                                    <rect key="frame" x="232" y="45" width="140" height="18"/>
+                                    <rect key="frame" x="232" y="17" width="140" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="check" title="Load shell env" bezelStyle="regularSquare" imagePosition="left" inset="2" id="LrP-z2-QmY">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -210,17 +201,7 @@
                                         <binding destination="-2" name="value" keyPath="loginShell" id="sUK-v9-cTo"/>
                                     </connections>
                                 </button>
-                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="380" translatesAutoresizingMaskIntoConstraints="NO" id="Sr1-od-DCN">
-                                    <rect key="frame" x="122" y="8" width="382" height="28"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                    <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" id="7Za-aa-BIO">
-                                        <font key="font" metaFont="label" size="11"/>
-                                        <string key="title">Loading your shell's env preserves your config, like locale and PATH. If it is not set up correctly, widgets can stop working.</string>
-                                        <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
-                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                    </textFieldCell>
-                                </textField>
-                            </subviews>
+                                </subviews>
                         </view>
                     </box>
 
