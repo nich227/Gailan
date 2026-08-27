@@ -50,8 +50,9 @@ test('settings that cannot be written', (t) => {
 
 test('settings that arrive while a write is running', (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-settings-'));
-  const file = path.join(dir, 'settings');
-  const settings = Settings(file);
+  const settingsDir = path.join(dir, 'settings');
+  const file = path.join(settingsDir, 'WidgetSettings.json');
+  const settings = Settings(settingsDir);
 
   settings.persist({round: 1});
   settings.persist({round: 2});
@@ -67,8 +68,9 @@ test('settings that arrive while a write is running', (t) => {
 
 test('settings that are already what we have', (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-settings-'));
-  const file = path.join(dir, 'settings');
-  const settings = Settings(file);
+  const settingsDir = path.join(dir, 'settings');
+  const file = path.join(settingsDir, 'WidgetSettings.json');
+  const settings = Settings(settingsDir);
   const state = {'a-widget': {hidden: false}};
 
   settings.persist(state);
