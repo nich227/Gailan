@@ -354,7 +354,9 @@ struct GLWidgetUpdates: View {
 
     private var list: some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
+            // eager: a handful of rows, and a lazy stack draws nothing until it
+            // has scroll geometry to work from
+            VStack(spacing: 0) {
                 ForEach(model.available) { item in
                     row(item)
                     Divider()
@@ -438,7 +440,7 @@ struct GLWidgetUpdates: View {
                 Button(model.allSelected ? "Deselect All" : "Select All") {
                     model.selectAll(!model.allSelected)
                 }
-                .buttonStyle(.link)
+                .buttonStyle(.borderless)
             }
 
             Spacer()
