@@ -27,6 +27,14 @@ injected `id`), and resolving `gailan` out of the client bundle through
 starts emit `update`; rebuilds we ask for do not, or `WidgetBundler` rebuilding on `update`
 would loop forever.
 
+`.jsx` and `.tsx` widgets get one babel pass, running only
+`@emotion/babel-plugin` so a generated class names its component. Babel parses
+and prints the jsx and types back untouched; esbuild still compiles them. It
+costs about 55ms once for loading babel and 6ms a rebuild. Emotion's `sourceMap`
+option stays off: it copies the file's whole map into every styled call, which
+took the starter widget from 30KB to 302KB. Widgets import `styled` from
+`gailan`, so the plugin is pointed at it with `importMap`, `uebersicht` included.
+
 Bundles publish themselves into `globalThis.__gailanWidgets[id]`, which is what
 `client.ts` reads after the script tag loads. esbuild ships as a native binary per
 architecture, fetched by `scripts/fetch-esbuild.sh` with pinned hashes and ad-hoc signed

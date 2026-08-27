@@ -44,8 +44,7 @@ The specifics:
   - widgets are bundled with **esbuild** rather than browserify. `.jsx`, `.tsx` and
     classic object-literal widgets all still work; what changed is that a widget bundle
     publishes itself into `globalThis.__gailanWidgets` instead of registering with
-    browserify's require, and the Emotion Babel plugin is gone, so generated class names
-    no longer carry component labels
+    browserify's require
   - a widget can ask macOS to glass the desktop behind it; see
     [Glass over the desktop](#glass-over-the-desktop)
   - **requires macOS 13.5 or later**, which the bundled Node runtime and the system APIs
