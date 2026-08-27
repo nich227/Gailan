@@ -66,6 +66,12 @@ const realAppend = document.head.appendChild.bind(document.head);
 document.head.appendChild = (node) => {
   if (node.tagName === 'SCRIPT' && String(node.src).indexOf('/widgets/') > -1) {
     const id = node.id;
+    // a widget whose bundle will not load at all
+    if (id === 'unloadable-widget') {
+      realAppend(node);
+      setTimeout(() => node.onerror && node.onerror(new Error('404')), 0);
+      return node;
+    }
     globalThis.__gailanWidgets = globalThis.__gailanWidgets || {};
     globalThis.__gailanWidgets[id] = {
       render: () => require('react').createElement('p', null, id),
@@ -277,6 +283,34 @@ test('the state request failing', (t) => {
     logged[0],
     'the server said no',
     'with what the server said, rather than an undefined variable'
+  );
+  t.end();
+});
+
+test('a widget whose bundle will not load', async (t) => {
+  preparePage();
+  window.onload();
+  await settle();
+
+  const rejections = [];
+  const onRejection = (err) => rejections.push(err);
+  process.on('unhandledRejection', onRejection);
+
+  fakeSocket.deliver({
+    type: 'WIDGET_ADDED',
+    payload: {id: 'unloadable-widget', filePath: '/w/unloadable-widget.jsx'},
+  });
+  await settle();
+
+  process.removeListener('unhandledRejection', onRejection);
+  t.notOk(
+    globalThis.__gailanWidgets['unloadable-widget'],
+    'nothing is registered for it'
+  );
+  t.equal(
+    document.querySelectorAll('script#unloadable-widget').length,
+    0,
+    'and the script tag is cleaned up rather than left behind'
   );
   t.end();
 });

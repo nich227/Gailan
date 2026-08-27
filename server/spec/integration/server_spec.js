@@ -171,3 +171,56 @@ test('the server refusing a widget directory that is not there', (t) => {
     t.end();
   });
 });
+
+test('the long form of every argument', (t) => {
+  const dirs = scratch();
+  const port = testPort();
+
+  startServer(
+    [
+      '--port',
+      String(port),
+      '--dir',
+      dirs.widgets,
+      '--settings',
+      path.join(dirs.root, 'settings'),
+      '--login-shell',
+      '--shell',
+      'zsh',
+    ],
+    'a-token',
+    (proc) => {
+      get(port, '/state/?token=a-token', (res) => {
+        t.equal(res.statusCode, 200, '--port, --dir and --settings all work');
+        proc.kill('SIGKILL');
+        fs.rmSync(dirs.root, {recursive: true, force: true});
+        t.end();
+      });
+    }
+  );
+});
+
+test('the server with no arguments at all', (t) => {
+  // it falls back to ./widgets, ./settings and port 41416 beside the script,
+  // which is how the app ships it
+  const child = spawn(process.execPath, [entry], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  let output = '';
+  const watch = (chunk) => {
+    output += chunk;
+  };
+  child.stdout.on('data', watch);
+  child.stderr.on('data', watch);
+  child.stdin.end();
+
+  setTimeout(() => {
+    child.kill('SIGKILL');
+    t.ok(
+      output.indexOf('41416') > -1 || output.indexOf('could not find') > -1,
+      'it uses the default port, or says the default folder is missing'
+    );
+    t.end();
+  }, 1500);
+});
