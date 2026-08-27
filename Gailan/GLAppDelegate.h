@@ -30,5 +30,6 @@
 - (void)reloadWidget:(NSString*)widgetId;
 - (void)loginShellDidChange;
 - (void)shellDidChange;
+- (void)alwaysOnTopDidChange;
 
 @end
