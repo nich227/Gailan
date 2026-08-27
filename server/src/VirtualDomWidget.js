@@ -29,10 +29,24 @@ module.exports = function VirtualDomWidget(widgetObject) {
   let root;
   let currentError;
 
+  // what the user chose in the widget's own settings, merged over whatever the
+  // manifest said the defaults were
+  let config = {};
+
   function init(widget) {
     currentError = widget.error ? JSON.parse(widget.error) : undefined;
     implementation = Object.create(defaults);
     Object.assign(implementation, widget.implementation || {}, {id: widget.id});
+
+    const declared = widget.settingsSchema || [];
+    const defaultsFromManifest = {};
+    declared.forEach((setting) => {
+      if (setting.default !== undefined) {
+        defaultsFromManifest[setting.key] = setting.default;
+      }
+    });
+    config = Object.assign(defaultsFromManifest, widget.config || {});
+
     return api;
   }
 
@@ -103,7 +117,10 @@ module.exports = function VirtualDomWidget(widgetObject) {
 
   function render(state) {
     try {
-      root.render(implementation.render(state, dispatch));
+      // settings is reserved: a widget reads props.settings.<key>
+      root.render(
+        implementation.render(Object.assign({}, state, {settings: config}), dispatch)
+      );
     } catch (err) {
       handleError(err);
     }

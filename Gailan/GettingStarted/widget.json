@@ -1,0 +1,40 @@
+{
+  "name": "getting-started",
+  "title": "Welcome to Gailan",
+  "description": "The widget that ships with Gailan, and the one to copy",
+  "author": "Kevin Chen",
+  "license": "GPL-3.0-or-later",
+  "version": "1.0.0",
+  "entry": "index.tsx",
+  "tags": ["example"],
+  "settings": [
+    {
+      "key": "size",
+      "type": "choice",
+      "label": "Size",
+      "help": "How wide the panel is",
+      "default": "medium",
+      "options": [
+        {"value": "small", "label": "Small"},
+        {"value": "medium", "label": "Medium"},
+        {"value": "large", "label": "Large"}
+      ]
+    },
+    {
+      "key": "showCredits",
+      "type": "toggle",
+      "label": "Show credits",
+      "default": true
+    },
+    {
+      "key": "opacity",
+      "type": "number",
+      "label": "Fill opacity",
+      "help": "How much of the frosted wallpaper shows through",
+      "default": 42,
+      "min": 10,
+      "max": 90,
+      "step": 1
+    }
+  ]
+}

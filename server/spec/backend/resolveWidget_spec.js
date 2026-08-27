@@ -7,7 +7,7 @@ test('resolving tsx widgets', (t) => {
     filePath: '/widget/dir/typed.tsx',
     rootPath: '/widget/dir/',
   });
-  t.equal(action.id, 'typed-tsx', 'a tsx file is a widget');
+  t.equal(action.id, 'typed', 'a tsx file is a widget, named without the extension');
   t.end();
 });
 

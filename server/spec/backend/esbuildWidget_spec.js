@@ -119,7 +119,9 @@ test('a tsx widget has its types stripped', async (t) => {
 test('the gailan module is borrowed from the client, not bundled', async (t) => {
   const source = await bundle(
     'getting-started',
-    path.join(__dirname, '..', '..', '..', 'Gailan', 'GettingStarted.tsx')
+    path.join(
+      __dirname, '..', '..', '..', 'Gailan', 'GettingStarted', 'index.tsx'
+    )
   );
 
   t.ok(

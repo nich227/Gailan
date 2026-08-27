@@ -156,11 +156,19 @@
         return;
     }
     
-    NSURL* gettinStartedWidget = [[NSBundle mainBundle] URLForResource:@"GettingStarted" withExtension:@"tsx"];
-    
-    [fileManager copyItemAtURL:gettinStartedWidget
-                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"GettingStarted.tsx"]
-                         error:&error];
+    // the starter widget is a folder now: its manifest declares the settings the
+    // Widgets window offers, so it has to travel with the code
+    NSURL* starterWidget = [[NSBundle mainBundle]
+        URLForResource: @"GettingStarted"
+         withExtension: nil
+    ];
+
+    [fileManager
+        copyItemAtURL: starterWidget
+                toURL: [defaultWidgetDir
+                    URLByAppendingPathComponent: @"GettingStarted"
+                ]
+                error: &error];
     
     NSURL* logo = [[NSBundle mainBundle] URLForResource:@"gailan-logo" withExtension:@"png"];
     NSURL* darkLogo = [[NSBundle mainBundle] URLForResource:@"gailan-logo-dark" withExtension:@"png"];

@@ -16,9 +16,20 @@ export const refreshFrequency: number | false = false;
 
 // Widget state, typed. Events flow through updateState (a tiny redux),
 // which is the documented way to keep state in a widget.
+/* Declared in widget.json so the app can build controls for them, and delivered
+   to render as props.settings. The widths are what Small, Medium and Large mean. */
+type Settings = {
+  size?: "small" | "medium" | "large";
+  showCredits?: boolean;
+  opacity?: number;
+};
+
+const WIDTHS: Record<string, number> = { small: 280, medium: 340, large: 420 };
+
 type State = {
   output: string;
   error?: string;
+  settings?: Settings;
 };
 
 type Event = { type: "UB/COMMAND_RAN"; output: string; error?: string };
@@ -318,7 +329,9 @@ const Footer = styled("div")`
   text-transform: uppercase;
 `;
 
-export const render = ({ output, error }: State) => {
+export const render = ({ output, error, settings = {} }: State) => {
+  const width = WIDTHS[settings.size ?? "medium"] ?? WIDTHS.medium;
+  const fill = (settings.opacity ?? 42) / 100;
   const firstName = error ? "there" : output.trim().split(/\s+/)[0] || "there";
   const position = pos
     ? { left: `${pos.left}px`, top: `${pos.top}px` }
@@ -332,7 +345,14 @@ export const render = ({ output, error }: State) => {
       id={WIDGET_ID}
       data-gailan-desktop-glass={5}
       data-active={active ? "true" : "false"}
-      style={{ width: 340, ...position }}
+      style={
+        {
+          width,
+          // the fill opacity is a setting, so it overrides the stylesheet
+          ["--panel" as string]: `rgba(11, 11, 12, ${fill})`,
+          ...position,
+        } as Record<string, unknown>
+      }
     >
       <Header onMouseDown={startDrag}>
         <Lights data-lights>

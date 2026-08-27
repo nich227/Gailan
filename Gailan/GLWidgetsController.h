@@ -29,6 +29,9 @@
 - (void)setScreenMode:(NSString*)mode forWidget:(NSString*)widgetId;
 - (void)refreshWidgetWithId:(NSString*)widgetId;
 - (void)openWidgetFile:(NSString*)widgetId;
+- (void)setConfigValue:(id)value
+                forKey:(NSString*)key
+                widget:(NSString*)widgetId;
 - (void)reloadWidget:(NSString*)widgetId;
 
 @end

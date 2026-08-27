@@ -47,7 +47,7 @@
 		GL04000001000002 /* GLShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL04000001000001 /* GLShortcuts.swift */; };
 		GL04000001000004 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = GL04000001000003 /* AppIntents.framework */; };
 		GL01000001000002 /* GLPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL01000001000001 /* GLPreferencesView.swift */; };
-		DCAAAF9618DF0B050097677F /* GettingStarted.tsx in Resources */ = {isa = PBXBuildFile; fileRef = DCAAAF9518DF0B050097677F /* GettingStarted.tsx */; };
+		DCAAAF9618DF0B050097677F /* GettingStarted in Resources */ = {isa = PBXBuildFile; fileRef = DCAAAF9518DF0B050097677F /* GettingStarted */; };
 		DCAC78CA1C550B810051E78B /* GLWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = DCAC78C91C550B810051E78B /* GLWebSocket.m */; };
 		DCAC78CD1C551D130051E78B /* GLListener.m in Sources */ = {isa = PBXBuildFile; fileRef = DCAC78CC1C551D130051E78B /* GLListener.m */; };
 		DCB95A8D22FAD3F60066A51A /* GLApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = DCB95A8C22FAD3F60066A51A /* GLApplication.m */; };
@@ -145,7 +145,7 @@
 		GL04000001000003 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 		GL01000001000001 /* GLPreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLPreferencesView.swift; sourceTree = "<group>"; };
 		GL01000001000003 /* Gailan-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Gailan-Bridging-Header.h"; sourceTree = "<group>"; };
-		DCAAAF9518DF0B050097677F /* GettingStarted.tsx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GettingStarted.tsx; sourceTree = "<group>"; };
+		DCAAAF9518DF0B050097677F /* GettingStarted */ = {isa = PBXFileReference; lastKnownFileType = folder; path = GettingStarted; sourceTree = "<group>"; };
 		DCAC78C81C550B810051E78B /* GLWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLWebSocket.h; sourceTree = "<group>"; };
 		DCAC78C91C550B810051E78B /* GLWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLWebSocket.m; sourceTree = "<group>"; };
 		DCAC78CB1C551D130051E78B /* GLListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLListener.h; sourceTree = "<group>"; };
@@ -327,7 +327,7 @@
 				GL04000001000001 /* GLShortcuts.swift */,
 				GL01000001000001 /* GLPreferencesView.swift */,
 				GL01000001000003 /* Gailan-Bridging-Header.h */,
-				DCAAAF9518DF0B050097677F /* GettingStarted.tsx */,
+				DCAAAF9518DF0B050097677F /* GettingStarted */,
 				DC4F43F1189E90DD00937925 /* status-icon.png */,
 				DC4F43F2189E90DD00937925 /* status-icon@2x.png */,
 				DC43AD8717EC2D9500241CC2 /* Gailan-Info.plist */,
@@ -500,7 +500,7 @@
 				DC57ED2E18DB4EC900A24FDD /* GLPreferencesController.xib in Resources */,
 				DCECA1C71893F23200C0CA32 /* localnode in Resources */,
 				DC404DF51D294B3100305CE2 /* geolocation.js in Resources */,
-				DCAAAF9618DF0B050097677F /* GettingStarted.tsx in Resources */,
+				DCAAAF9618DF0B050097677F /* GettingStarted in Resources */,
 				DCECA1C81893F23200C0CA32 /* server.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

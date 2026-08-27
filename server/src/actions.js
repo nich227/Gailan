@@ -1,10 +1,10 @@
 'use strict';
 
 function addWidget(widget) {
-  const {id, filePath, error, mtime} = widget;
+  const {id, filePath, error, mtime, settingsSchema} = widget;
   return {
     type: 'WIDGET_ADDED',
-    payload: {id, filePath, error, mtime},
+    payload: {id, filePath, error, mtime, settingsSchema},
   };
 }
 
@@ -27,6 +27,13 @@ exports.applyWidgetSettings = function applyWidgetSettings(id, settings) {
   return {
     type: 'WIDGET_SETTINGS_CHANGED',
     payload: { id: id, settings: settings },
+  };
+};
+
+exports.setWidgetConfig = function setWidgetConfig(id, key, value) {
+  return {
+    type: 'WIDGET_CONFIG_CHANGED',
+    payload: {id: id, key: key, value: value},
   };
 };
 

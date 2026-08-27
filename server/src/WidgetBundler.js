@@ -1,6 +1,7 @@
 'use strict';
 
 const bundleWidget = require('./esbuildWidget');
+const readWidgetSettings = require('./readWidgetSettings');
 const fs = require('fs');
 
 module.exports = function WidgetBundler() {
@@ -60,6 +61,8 @@ module.exports = function WidgetBundler() {
       const widget = {
         id: id,
         filePath: filePath,
+        // what the widget says it can be configured with, if anything
+        settingsSchema: readWidgetSettings(filePath),
       };
 
       fs.access(filePath, fs.constants.R_OK, (couldNotRead) => {

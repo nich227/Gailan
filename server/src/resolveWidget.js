@@ -9,13 +9,19 @@ function isWidgetPath(filePath) {
   );
 }
 
+// The id is the path inside the widget folder, without the extension: a widget
+// called GettingStarted.tsx is "GettingStarted", not "GettingStarted-tsx". A
+// folder widget keeps its folder in the name, so widgets/clock/index.tsx is
+// "clock-index".
 function widgetId(filePath, rootPath) {
   const fileParts = filePath
     .replace(rootPath, '')
+    .replace(/\.(jsx?|tsx?)$/, '')
     .split(/\/+/)
     .filter((part) => !!part);
 
-  return fileParts.join('-')
+  return fileParts
+    .join('-')
     .replace(/\./g, '-')
     .replace(/\s/g, '_');
 }

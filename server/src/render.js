@@ -26,10 +26,19 @@ function isInBackground(widgetId, state) {
   return settings.inBackground === true;
 }
 
+function sameConfig(a, b) {
+  return JSON.stringify(a || {}) === JSON.stringify(b || {});
+}
+
 function renderWidget(widget, domEl) {
   var prevRendered = rendered[widget.id];
 
-  if (prevRendered && prevRendered.widget.mtime === widget.mtime) {
+  if (
+    prevRendered &&
+    prevRendered.widget.mtime === widget.mtime &&
+    // a settings change has to redraw even though the file has not moved
+    sameConfig(prevRendered.widget.config, widget.config)
+  ) {
     return;
   } else if (prevRendered) {
     prevRendered.instance.update(widget);
@@ -53,7 +62,12 @@ function render(state, screen, domEl, dispatch) {
   const remaining = new Set(Object.keys(rendered));
 
   for (var id in state.widgets) {
-    const widget = state.widgets[id];
+    // the widget's own settings ride along, so it can render differently
+    // without its file changing
+    const settings = state.settings[id] || {};
+    const widget = Object.assign({}, state.widgets[id], {
+      config: settings.config || {},
+    });
 
     if (!isVisibleOnScreen(id, screen.id, state)) continue;
 

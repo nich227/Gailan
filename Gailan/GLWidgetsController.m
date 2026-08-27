@@ -417,6 +417,10 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
             @"showOnAllScreens": @([settings[@"showOnAllScreens"] boolValue]),
             @"showOnMainScreen": @([settings[@"showOnMainScreen"] boolValue]),
             @"hasError": @(widget[@"error"] != nil),
+            // what the widget says it can be configured with, and what it is
+            // currently set to
+            @"settingsSchema": widget[@"settingsSchema"] ?: @[],
+            @"config": settings[@"config"] ?: @{},
         }];
     }
 
@@ -449,6 +453,16 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     if ([mode isEqualToString:@"main"]) action = @"WIDGET_SET_TO_MAIN_SCREEN";
 
     [dispatcher dispatch:action withPayload:widgetId];
+}
+
+- (void)setConfigValue:(id)value
+                forKey:(NSString*)key
+                widget:(NSString*)widgetId
+{
+    [dispatcher
+        dispatch: @"WIDGET_CONFIG_CHANGED"
+        withPayload: @{@"id": widgetId, @"key": key, @"value": value}
+    ];
 }
 
 - (void)refreshWidgetWithId:(NSString*)widgetId

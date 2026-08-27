@@ -13,18 +13,67 @@
 import AppKit
 import SwiftUI
 
-// Everything the status menu offers per widget, in one window instead of five
-// submenus. Both go through GLWidgetsController, so a change made in either
-// shows up in the other.
+// A gallery of what is installed: a card each, showing the widget's own preview
+// image, its name, a switch, and a button for the settings it declares. Both this
+// and the status menu go through GLWidgetsController, so a change in either shows
+// up in the other.
+
+// MARK: - a setting a widget declares in its widget.json
+
+struct WidgetSetting: Identifiable, Equatable {
+    enum Kind: String {
+        case choice, toggle, number, text, color
+    }
+
+    struct Option: Equatable {
+        let value: String
+        let label: String
+    }
+
+    let key: String
+    let kind: Kind
+    let label: String
+    let help: String?
+    let options: [Option]
+    let min: Double
+    let max: Double
+    let step: Double
+
+    var id: String { key }
+
+    init?(_ raw: [AnyHashable: Any]) {
+        guard let key = raw["key"] as? String,
+              let type = raw["type"] as? String,
+              let kind = Kind(rawValue: type)
+        else { return nil }
+
+        self.key = key
+        self.kind = kind
+        label = raw["label"] as? String ?? key
+        help = raw["help"] as? String
+        min = raw["min"] as? Double ?? 0
+        max = raw["max"] as? Double ?? 100
+        step = raw["step"] as? Double ?? 1
+
+        options = ((raw["options"] as? [[AnyHashable: Any]]) ?? []).compactMap {
+            guard let value = $0["value"] else { return nil }
+            let text = String(describing: value)
+            return Option(value: text, label: $0["label"] as? String ?? text)
+        }
+    }
+}
 
 struct WidgetSummary: Identifiable, Equatable {
     let id: String
     let fileName: String
+    let filePath: String
     let hidden: Bool
     let inBackground: Bool
     let showOnAllScreens: Bool
     let showOnMainScreen: Bool
     let hasError: Bool
+    let settings: [WidgetSetting]
+    let config: [String: String]
 
     enum Screens: String {
         case all, main, selected
@@ -36,19 +85,43 @@ struct WidgetSummary: Identifiable, Equatable {
         return .selected
     }
 
+    // the widget's own screenshot, if it shipped one beside its file
+    var previewURL: URL? {
+        guard !filePath.isEmpty else { return nil }
+        let folder = (filePath as NSString).deletingLastPathComponent
+        for name in ["preview.png", "preview@2x.png", "screenshot.png"] {
+            let candidate = (folder as NSString).appendingPathComponent(name)
+            if FileManager.default.fileExists(atPath: candidate) {
+                return URL(fileURLWithPath: candidate)
+            }
+        }
+        return nil
+    }
+
     init(_ raw: [AnyHashable: Any]) {
         id = raw["id"] as? String ?? ""
         fileName = raw["fileName"] as? String ?? ""
+        filePath = raw["filePath"] as? String ?? ""
         hidden = raw["hidden"] as? Bool ?? false
         inBackground = raw["inBackground"] as? Bool ?? false
         showOnAllScreens = raw["showOnAllScreens"] as? Bool ?? false
         showOnMainScreen = raw["showOnMainScreen"] as? Bool ?? false
         hasError = raw["hasError"] as? Bool ?? false
+
+        settings = ((raw["settingsSchema"] as? [[AnyHashable: Any]]) ?? [])
+            .compactMap(WidgetSetting.init)
+
+        // everything is kept as a string so one dictionary covers every kind
+        var values: [String: String] = [:]
+        for (key, value) in (raw["config"] as? [AnyHashable: Any]) ?? [:] {
+            if let key = key as? String {
+                values[key] = String(describing: value)
+            }
+        }
+        config = values
     }
 }
 
-// The store notifies through a single block that the app delegate already owns,
-// so it reposts a notification and this listens for that.
 extension Notification.Name {
     static let widgetsDidChange = Notification.Name("GLWidgetsDidChange")
 }
@@ -81,6 +154,10 @@ final class WidgetsOverviewModel: ObservableObject {
         widgets = controller.widgetsOverview().map(WidgetSummary.init)
     }
 
+    func widget(_ id: String) -> WidgetSummary? {
+        widgets.first { $0.id == id }
+    }
+
     func setHidden(_ hidden: Bool, for id: String) {
         controller.setHidden(hidden, forWidget: id)
     }
@@ -100,21 +177,33 @@ final class WidgetsOverviewModel: ObservableObject {
     func edit(_ id: String) {
         controller.openWidgetFile(id)
     }
+
+    func setValue(_ value: Any, forKey key: String, widget id: String) {
+        controller.setConfigValue(value, forKey: key, widget: id)
+    }
 }
+
+// MARK: - the gallery
 
 struct GLWidgetsOverview: View {
     @ObservedObject var model: WidgetsOverviewModel
+    @State private var settingsFor: String?
+
+    private let columns = [GridItem(.adaptive(minimum: 232), spacing: 18)]
 
     var body: some View {
         VStack(spacing: 0) {
             if model.widgets.isEmpty {
                 empty
             } else {
-                List(model.widgets) { widget in
-                    row(widget)
-                        .padding(.vertical, 6)
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 18) {
+                        ForEach(model.widgets) { widget in
+                            card(widget)
+                        }
+                    }
+                    .padding(18)
                 }
-                .listStyle(.inset)
             }
 
             Divider()
@@ -130,7 +219,21 @@ struct GLWidgetsOverview: View {
             }
             .padding(12)
         }
-        .frame(minWidth: 520, minHeight: 340)
+        .frame(minWidth: 560, minHeight: 420)
+        .sheet(
+            isPresented: Binding(
+                get: { settingsFor != nil },
+                set: { if !$0 { settingsFor = nil } }
+            )
+        ) {
+            if let id = settingsFor, let widget = model.widget(id) {
+                GLWidgetSettings(
+                    widget: widget,
+                    model: model,
+                    dismiss: { settingsFor = nil }
+                )
+            }
+        }
     }
 
     private var count: String {
@@ -150,70 +253,231 @@ struct GLWidgetsOverview: View {
         .padding(32)
     }
 
-    private func row(_ widget: WidgetSummary) -> some View {
-        HStack(alignment: .center, spacing: 12) {
-            // shown or hidden, which is the one thing people come here for
-            Toggle(
-                "",
-                isOn: Binding(
-                    get: { !widget.hidden },
-                    set: { model.setHidden(!$0, for: widget.id) }
-                )
-            )
-            .labelsHidden()
-            .toggleStyle(.switch)
-            .controlSize(.small)
+    private func card(_ widget: WidgetSummary) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            preview(widget)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Text(widget.id)
                         .fontWeight(.medium)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
                     if widget.hasError {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(.orange)
                             .help("This widget failed to build")
                     }
+                    Spacer()
                 }
-                Text(widget.fileName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 10) {
+                    Toggle(
+                        "",
+                        isOn: Binding(
+                            get: { !widget.hidden },
+                            set: { model.setHidden(!$0, for: widget.id) }
+                        )
+                    )
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+
+                    Spacer()
+
+                    // only offered when the widget declares something to set
+                    if !widget.settings.isEmpty {
+                        Button {
+                            settingsFor = widget.id
+                        } label: {
+                            Image(systemName: "slider.horizontal.3")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Settings for this widget")
+                    }
+
+                    Menu {
+                        Button("Refresh") { model.refresh(widget.id) }
+                        Button("Edit…") { model.edit(widget.id) }
+                        Divider()
+                        Picker("Screens", selection: Binding(
+                            get: { widget.screens },
+                            set: { model.setScreens($0, for: widget.id) }
+                        )) {
+                            Text("All screens").tag(WidgetSummary.Screens.all)
+                            Text("Main screen").tag(WidgetSummary.Screens.main)
+                            Text("Chosen screens").tag(WidgetSummary.Screens.selected)
+                        }
+                        Toggle("Behind windows", isOn: Binding(
+                            get: { widget.inBackground },
+                            set: { model.setInBackground($0, for: widget.id) }
+                        ))
+                    } label: {
+                        Image(systemName: "ellipsis")
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+                }
             }
+            .padding(12)
+        }
+        .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(.separator, lineWidth: 1)
+        )
+        .opacity(widget.hidden ? 0.55 : 1)
+    }
 
-            Spacer()
-
-            Picker(
-                "",
-                selection: Binding(
-                    get: { widget.screens },
-                    set: { model.setScreens($0, for: widget.id) }
-                )
-            ) {
-                Text("All screens").tag(WidgetSummary.Screens.all)
-                Text("Main screen").tag(WidgetSummary.Screens.main)
-                Text("Chosen screens").tag(WidgetSummary.Screens.selected)
+    private func preview(_ widget: WidgetSummary) -> some View {
+        ZStack {
+            if let url = widget.previewURL, let image = NSImage(contentsOf: url) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                // no screenshot shipped, so say so rather than showing a gap
+                VStack(spacing: 6) {
+                    Image(systemName: "square.dashed")
+                        .font(.title2)
+                        .foregroundStyle(.tertiary)
+                    Text("No preview")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
             }
-            .labelsHidden()
-            .frame(width: 140)
+        }
+        .frame(height: 116)
+        .frame(maxWidth: .infinity)
+        .background(.black.opacity(0.28))
+        .clipped()
+    }
+}
 
+// MARK: - the settings a widget declares, turned into controls
+
+struct GLWidgetSettings: View {
+    let widget: WidgetSummary
+    @ObservedObject var model: WidgetsOverviewModel
+    let dismiss: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(widget.id)
+                        .fontWeight(.semibold)
+                    Text(widget.fileName)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .padding(16)
+
+            Divider()
+
+            Form {
+                ForEach(widget.settings) { setting in
+                    control(setting)
+                }
+            }
+            .formStyle(.grouped)
+
+            Divider()
+
+            HStack {
+                Spacer()
+                Button("Done", action: dismiss)
+                    .keyboardShortcut(.defaultAction)
+            }
+            .padding(12)
+        }
+        .frame(width: 380, height: 340)
+    }
+
+    /* One control per declared kind. This is the whole translator: a widget says
+       what sort of setting it has, and this decides what that looks like. */
+    @ViewBuilder
+    private func control(_ setting: WidgetSetting) -> some View {
+        switch setting.kind {
+        case .choice:
+            Picker(setting.label, selection: binding(setting)) {
+                ForEach(setting.options, id: \.value) { option in
+                    Text(option.label).tag(option.value)
+                }
+            }
+            .pickerStyle(.segmented)
+            .help(setting.help ?? "")
+
+        case .toggle:
             Toggle(
-                "Behind windows",
+                setting.label,
                 isOn: Binding(
-                    get: { widget.inBackground },
-                    set: { model.setInBackground($0, for: widget.id) }
+                    get: { current(setting) == "true" || current(setting) == "1" },
+                    set: { model.setValue($0, forKey: setting.key, widget: widget.id) }
                 )
             )
-            .toggleStyle(.checkbox)
-            .help("Keep this widget behind your windows")
+            .help(setting.help ?? "")
 
-            Menu {
-                Button("Refresh") { model.refresh(widget.id) }
-                Button("Edit…") { model.edit(widget.id) }
-            } label: {
-                Image(systemName: "ellipsis.circle")
+        case .number:
+            LabeledContent(setting.label) {
+                HStack(spacing: 10) {
+                    Slider(
+                        value: Binding(
+                            get: { Double(current(setting)) ?? setting.min },
+                            set: {
+                                model.setValue(
+                                    ($0 / setting.step).rounded() * setting.step,
+                                    forKey: setting.key,
+                                    widget: widget.id
+                                )
+                            }
+                        ),
+                        in: setting.min...setting.max,
+                        step: setting.step
+                    )
+                    Text(current(setting))
+                        .font(.callout)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .frame(width: 38, alignment: .trailing)
+                }
             }
-            .menuStyle(.borderlessButton)
-            .fixedSize()
+            .help(setting.help ?? "")
+
+        case .text:
+            LabeledContent(setting.label) {
+                TextField("", text: binding(setting))
+                    .textFieldStyle(.roundedBorder)
+            }
+            .help(setting.help ?? "")
+
+        case .color:
+            ColorPicker(
+                setting.label,
+                selection: Binding(
+                    get: { Color(hexRGBA: current(setting)) },
+                    set: {
+                        model.setValue(
+                            $0.hexRGBA, forKey: setting.key, widget: widget.id
+                        )
+                    }
+                ),
+                supportsOpacity: true
+            )
         }
+    }
+
+    private func current(_ setting: WidgetSetting) -> String {
+        widget.config[setting.key] ?? ""
+    }
+
+    private func binding(_ setting: WidgetSetting) -> Binding<String> {
+        Binding(
+            get: { current(setting) },
+            set: { model.setValue($0, forKey: setting.key, widget: widget.id) }
+        )
     }
 }
 
@@ -234,7 +498,6 @@ final class GLWidgetsOverviewWindow: NSObject {
 
     private func present(_ controller: GLWidgetsController) {
         if let window {
-            // already built: freshen it and bring it forward
             model?.reload()
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
@@ -245,7 +508,7 @@ final class GLWidgetsOverviewWindow: NSObject {
         self.model = model
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 580, height: 380),
+            contentRect: NSRect(x: 0, y: 0, width: 620, height: 460),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false

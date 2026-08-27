@@ -134,6 +134,16 @@ const handlers = {
     });
   },
 
+  // a widget's own settings live under config, so they cannot collide with
+  // hidden, screens and the rest
+  WIDGET_CONFIG_CHANGED: (state, action) => {
+    const {id, key, value} = action.payload;
+    const current = state.settings[id] || {};
+    const config = Object.assign({}, current.config, {[key]: value});
+
+    return updateSettings(state, id, {config: config});
+  },
+
   SCREENS_DID_CHANGE: (state, action) => {
     return Object.assign({}, state, {
       screens: action.payload,
