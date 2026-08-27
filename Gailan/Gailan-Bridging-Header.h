@@ -6,3 +6,4 @@
 #import "GLPreferencesController.h"
 #import "GLAppDelegate.h"
 #import "GLWidgetForScripting.h"
+#import "GLWidgetsStore.h"

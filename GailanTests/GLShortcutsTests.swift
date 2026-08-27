@@ -23,21 +23,45 @@ final class GLShortcutsTests: XCTestCase {
         NSApp.delegate as! GLAppDelegate
     }
 
+    private var store: GLWidgetsStore {
+        delegate.value(forKey: "widgetsStore") as! GLWidgetsStore
+    }
+
+    private let seeded = ["alpha-widget", "beta-widget"]
+
+    // The host app has only just launched, so nothing has been bundled yet.
+    // Seeding the store keeps these from depending on load timing or on
+    // whatever happens to be in the widget folder.
+    override func setUp() {
+        super.setUp()
+        store.reset([
+            "widgets": [
+                "alpha-widget": ["id": "alpha-widget"],
+                "beta-widget": ["id": "beta-widget"],
+            ],
+            "settings": [
+                "alpha-widget": ["hidden": false, "showOnAllScreens": true],
+                "beta-widget": ["hidden": true, "showOnMainScreen": true],
+            ],
+        ])
+    }
+
+    override func tearDown() {
+        store.reset(["widgets": [:], "settings": [:]])
+        super.tearDown()
+    }
+
     private func anyWidgetId() throws -> String {
         let widgets = (delegate.widgets as? [GLWidgetForScripting]) ?? []
-        return try XCTUnwrap(widgets.first?.id, "no widgets loaded to act on")
+        return try XCTUnwrap(widgets.first?.id, "the store was not seeded")
     }
 
     func testQueryOffersTheWidgetsOnScreen() async throws {
-        let expected = ((delegate.widgets as? [GLWidgetForScripting]) ?? [])
-            .map(\.id)
-            .sorted()
-
         let suggested = try await WidgetQuery().suggestedEntities()
             .map(\.id)
             .sorted()
 
-        XCTAssertEqual(suggested, expected, "the picker lists the live widgets")
+        XCTAssertEqual(suggested, seeded, "the picker lists the live widgets")
     }
 
     func testQueryLooksUpByIdentifier() async throws {
