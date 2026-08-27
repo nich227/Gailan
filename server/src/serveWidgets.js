@@ -1,4 +1,3 @@
-const URL = require('url');
 const fs = require('fs');
 const SourceMapConsumer = require('source-map').SourceMapConsumer;
 const convert = require('convert-source-map');
@@ -8,7 +7,7 @@ const path = require('path');
 
 // middleware to serve widget bundles
 module.exports = (bundler, widgetPath) => (req, res, next) => {
-  const url = URL.parse(req.url, true);
+  const url = new URL(req.url, 'http://localhost');
   const match = url.pathname.match(/\/widgets\/(.+)$/);
   if (match) {
     const code = bundler.get(match[1]);
@@ -17,7 +16,15 @@ module.exports = (bundler, widgetPath) => (req, res, next) => {
       return res.end();
     }
     return url.search
-      ? codeLines(code, widgetPath, url.query, res)
+      ? codeLines(
+          code,
+          widgetPath,
+          {
+            line: url.searchParams.get('line'),
+            column: url.searchParams.get('column'),
+          },
+          res,
+        )
       : res.end(code);
   }
 

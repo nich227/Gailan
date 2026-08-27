@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const urls = require('url');
 
 module.exports = (widgetsDir) => (req, res, next) => {
-  const url = urls.parse(req.url);
+  // the base is only there to satisfy the URL parser; requests are relative
+  const url = new URL(req.url, 'http://localhost');
   if (url.pathname !== '/userMain.css') return next();
 
-  fs.ReadStream(path.join(widgetsDir, 'main.css'))
+  fs.createReadStream(path.join(widgetsDir, 'main.css'))
     .on('error', (err) => {
       // no main.css is the normal case. Anything else (permissions, a
       // directory by that name) must not take the server down over css:

@@ -86,5 +86,5 @@ reloadUserCSS = ->
 bail = (err, timeout = 0) ->
   console.log err if err?
   setTimeout ->
-    window.location.reload(true)
+    window.location.reload()
   , timeout
