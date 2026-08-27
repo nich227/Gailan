@@ -90,6 +90,12 @@
         setValue: @YES
         forKey: @"developerExtrasEnabled"
     ];
+    // developerExtrasEnabled alone stopped being enough in macOS 13.3: without
+    // this, Safari's Develop menu cannot see these views at all
+    if (@available(macOS 13.3, *)) {
+        webView.inspectable = YES;
+    }
+
     webView.navigationDelegate = (id<WKNavigationDelegate>)self;
     
     return webView;

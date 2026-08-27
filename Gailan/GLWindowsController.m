@@ -206,6 +206,16 @@ static NSString* const GLInspectorStartsAttachedKey =
     ];
 }
 
+- (BOOL)pointerIsOverWidget
+{
+    for (NSNumber* screenId in windows) {
+        GLWindowGroup* group = (GLWindowGroup*)windows[screenId];
+        if (![[group foreground] ignoresMouseEvents]) return YES;
+        if (![[group background] ignoresMouseEvents]) return YES;
+    }
+    return NO;
+}
+
 - (void)keepInspectorDetached
 {
     [[NSUserDefaults standardUserDefaults]

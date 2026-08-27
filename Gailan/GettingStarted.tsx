@@ -85,6 +85,10 @@ if (!(window as any).__gailanWelcomeWatching) {
     },
     true
   );
+
+  /* Clicks on the desktop or in another app never reach the page, so the app
+     reports them. */
+  window.addEventListener("gailan:blur", () => markActive(false));
 }
 
 const startDrag = (e: any) => {

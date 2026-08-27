@@ -31,6 +31,7 @@ int const PORT = 41416;
 
 @implementation GLAppDelegate {
     GLDispatcher* dispatcher;
+    id clickMonitor;
     NSStatusItem* statusBarItem;
     NSTask* widgetServer;
     GLScreensController* screensController;
@@ -149,6 +150,27 @@ int const PORT = 41416;
         object: nil
     ];
     
+    [[NSNotificationCenter defaultCenter]
+        addObserver: self
+        selector: @selector(appResignedActive:)
+        name: NSApplicationDidResignActiveNotification
+        object: nil
+    ];
+
+    // A click on the desktop or in another app never reaches the page, because
+    // the widget windows ignore the mouse unless the pointer is over a widget.
+    // This is the only way a widget can know it stopped being the thing you
+    // were last using.
+    clickMonitor = [NSEvent
+        addGlobalMonitorForEventsMatchingMask: NSEventMaskLeftMouseDown |
+                                               NSEventMaskRightMouseDown
+        handler: ^(NSEvent* event) {
+            if (![windowsController pointerIsOverWidget]) {
+                [self widgetsLostFocus];
+            }
+        }
+    ];
+
     // start server and load webview
     portOffset = 0;
     [self startUp];

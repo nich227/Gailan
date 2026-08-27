@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)showDebugConsolesForScreen:(NSNumber*)screenId layer:(NSInteger)layer;
 - (nullable WKWebView*)webViewInView:(NSView*)view;
 - (void)keepInspectorDetached;
+
+// the pointer is over a widget when a window has stopped ignoring the mouse
+- (BOOL)pointerIsOverWidget;
 - (NSScreen*)getNSScreen:(NSNumber*)screenId;
 
 @end

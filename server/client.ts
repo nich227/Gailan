@@ -69,6 +69,15 @@ window.onload = () => {
   detectWidgetHover(contentEl);
   reportGlassRegions.watch();
 
+  document.addEventListener(
+    'mousedown',
+    () => {
+      document.documentElement.dataset.widgetFocus = 'widget';
+      window.dispatchEvent(new CustomEvent('gailan:focus'));
+    },
+    true
+  );
+
   getState((err: unknown, initialState: any) => {
     // upstream carried on from here and dereferenced a null state, throwing
     // before the reload it had just scheduled could happen
@@ -103,6 +112,11 @@ window.onload = () => {
         fetchWidget(action.payload.id).then((widgetImpl) =>
           store.dispatch(actions.showWidget(action.payload.id, widgetImpl))
         );
+      } else if (action.type === 'WIDGETS_BLURRED') {
+        // the app saw a click land somewhere that is not a widget, or lost
+        // frontmost. widgets style off the attribute or listen for the event.
+        document.documentElement.dataset.widgetFocus = 'none';
+        window.dispatchEvent(new CustomEvent('gailan:blur'));
       } else if (action.type === 'MASTER_STYLE_CHANGED') {
         reloadUserCSS();
       } else {

@@ -314,3 +314,46 @@ test('a widget whose bundle will not load', async (t) => {
   );
   t.end();
 });
+
+test('the app reporting that widgets lost focus', async (t) => {
+  preparePage();
+  window.onload();
+  await settle();
+
+  const blurs = [];
+  window.addEventListener('gailan:blur', () => blurs.push(true));
+
+  fakeSocket.deliver({type: 'WIDGETS_BLURRED', payload: ''});
+  await settle();
+
+  t.equal(
+    document.documentElement.dataset.widgetFocus,
+    'none',
+    'widgets can style off the attribute'
+  );
+  t.equal(blurs.length, 1, 'and listen for the event');
+  t.end();
+});
+
+test('a click in the page taking focus back', async (t) => {
+  preparePage();
+  window.onload();
+  await settle();
+
+  document.documentElement.dataset.widgetFocus = 'none';
+  const focuses = [];
+  window.addEventListener('gailan:focus', () => focuses.push(true));
+
+  document.body.dispatchEvent(
+    new window.MouseEvent('mousedown', {bubbles: true})
+  );
+  await settle();
+
+  t.equal(
+    document.documentElement.dataset.widgetFocus,
+    'widget',
+    'the attribute flips back'
+  );
+  t.ok(focuses.length > 0, 'and the event fires');
+  t.end();
+});
