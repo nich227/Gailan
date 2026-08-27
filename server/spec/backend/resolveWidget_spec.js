@@ -19,7 +19,7 @@ test('resolving widget actions from file events', (t) => {
   });
 
   t.plan(3);
-  t.equal(action.id, 'widget_File_name-js', 'it derives a widget id');
+  t.equal(action.id, 'widget_File_name', 'the id is the path without the extension');
   t.equal(
     action.filePath, '/widget/dir/widget File name.js',
     'it contains the original file path'
