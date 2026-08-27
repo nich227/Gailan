@@ -14,27 +14,6 @@
 #import <WebKit/WebKit.h>
 
 @interface GailanTests : XCTestCase
-// The debug console has to find the web view. It used to be the window's
-// content view, until the glass layer moved it under a container.
-- (void)testFindingTheWebViewUnderAContainer
-{
-    GLWindowsController* controller = [[GLWindowsController alloc] init];
-
-    NSView* container = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
-    NSView* decoration = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
-    NSView* nesting = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
-    WKWebView* webView = [[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
-
-    // the glass layer comes first, the web view is nested deeper
-    [container addSubview:decoration];
-    [nesting addSubview:webView];
-    [container addSubview:nesting];
-
-    XCTAssertEqual([controller webViewInView:container], webView);
-    XCTAssertNil([controller webViewInView:decoration]);
-    XCTAssertEqual([controller webViewInView:webView], webView, @"or itself");
-}
-
 @end
 
 @implementation GailanTests {
@@ -101,6 +80,27 @@
     
     XCTAssert([deletgate respondsToSelector:@selector(openWidgetDir:)]);
     XCTAssert([deletgate respondsToSelector:@selector(showDebugConsole:)]);
+}
+
+// The debug console has to find the web view. It used to be the window's
+// content view, until the glass layer moved it under a container.
+- (void)testFindingTheWebViewUnderAContainer
+{
+    GLWindowsController* controller = [[GLWindowsController alloc] init];
+
+    NSView* container = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
+    NSView* decoration = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
+    NSView* nesting = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
+    WKWebView* webView = [[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 10, 10)];
+
+    // the glass layer comes first, the web view is nested deeper
+    [container addSubview:decoration];
+    [nesting addSubview:webView];
+    [container addSubview:nesting];
+
+    XCTAssertEqual([controller webViewInView:container], webView);
+    XCTAssertNil([controller webViewInView:decoration]);
+    XCTAssertEqual([controller webViewInView:webView], webView, @"or itself");
 }
 
 @end
