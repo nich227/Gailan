@@ -32,14 +32,7 @@
             @"shell": @"zsh",
             @"appearance": @"system",
             @"alwaysOnTop": @NO,
-            // the liquid glass look widgets inherit; the names are the
-            // optics vocabulary of the glass library
-            @"glassEnabled": @YES,
-            @"glassStrength": @0.5,
-            @"glassDepth": @0.4,
-            @"glassCurvature": @0.3,
-            @"glassDispersion": @0.4,
-            @"glassFrost": @2.0,
+
             // which system material macOS draws behind a widget that asks
             // for it. on by default; "off" opts out.
             @"desktopGlass": @"frosted"
@@ -263,54 +256,7 @@
 
 #
 #pragma mark Liquid glass
-#
 
-- (BOOL)glassEnabled
-{
-    return [[NSUserDefaults standardUserDefaults] boolForKey:@"glassEnabled"];
-}
-
-- (void)setGlassEnabled:(BOOL)enabled
-{
-    [[NSUserDefaults standardUserDefaults]
-        setBool:enabled forKey:@"glassEnabled"
-    ];
-    [(GLAppDelegate *)[NSApp delegate] glassDidChange];
-}
-
-#define GL_GLASS_OPTIC(prop, key)                                             \
-- (double)prop                                                                \
-{                                                                             \
-    return [[NSUserDefaults standardUserDefaults] doubleForKey:key];          \
-}                                                                             \
-                                                                              \
-- (void)set##prop:(double)value                                               \
-{                                                                             \
-    [[NSUserDefaults standardUserDefaults] setDouble:value forKey:key];       \
-    [(GLAppDelegate *)[NSApp delegate] glassDidChange];                       \
-}
-
-GL_GLASS_OPTIC(GlassStrength, @"glassStrength")
-GL_GLASS_OPTIC(GlassDepth, @"glassDepth")
-GL_GLASS_OPTIC(GlassCurvature, @"glassCurvature")
-GL_GLASS_OPTIC(GlassDispersion, @"glassDispersion")
-GL_GLASS_OPTIC(GlassFrost, @"glassFrost")
-
-- (NSDictionary*)glassSettings
-{
-    return @{
-        @"enabled": @(self.glassEnabled),
-        @"optics": @{
-            @"strength": @(self.glassStrength),
-            @"depth": @(self.glassDepth),
-            @"curvature": @(self.glassCurvature),
-            @"dispersion": @(self.glassDispersion),
-            @"frost": @(self.glassFrost),
-        }
-    };
-}
-
-// the same settings, for the initial page url
 static NSArray* desktopGlassMaterials(void)
 {
     return @[@"off", @"subtle", @"frosted", @"heavy"];
@@ -330,6 +276,72 @@ static NSArray* desktopGlassMaterials(void)
         indexOfObject:[self desktopGlassMaterial]];
 }
 
+// macOS 26 draws real liquid glass and takes a style and a tint; older systems
+// get a vibrancy material, which takes neither.
+static NSArray* desktopGlassStyles(void)
+{
+    return @[@"regular", @"clear"];
+}
+
+- (BOOL)desktopGlassClear
+{
+    return [[[NSUserDefaults standardUserDefaults]
+        stringForKey:@"desktopGlassStyle"] isEqualToString:@"clear"];
+}
+
+- (NSInteger)desktopGlassStyleTag
+{
+    return [self desktopGlassClear] ? 1 : 0;
+}
+
+- (void)setDesktopGlassStyleTag:(NSInteger)tag
+{
+    if (tag < 0 || tag >= (NSInteger)desktopGlassStyles().count) return;
+    [[NSUserDefaults standardUserDefaults]
+        setObject: desktopGlassStyles()[tag]
+           forKey: @"desktopGlassStyle"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
+}
+
+// stored as #rrggbbaa so it survives a plist round trip legibly. fully
+// transparent means untinted.
+- (NSString*)desktopGlassTint
+{
+    NSString* hex = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"desktopGlassTint"
+    ];
+    return hex ?: @"#00000000";
+}
+
+- (void)setDesktopGlassTint:(NSString*)hex
+{
+    [[NSUserDefaults standardUserDefaults]
+        setObject: hex ?: @"#00000000"
+           forKey: @"desktopGlassTint"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
+}
+
+- (NSColor*)desktopGlassTintColor
+{
+    NSString* hex = [self desktopGlassTint];
+    unsigned int value = 0;
+    NSScanner* scanner = [NSScanner scannerWithString:
+        [hex stringByReplacingOccurrencesOfString:@"#" withString:@""]];
+    if (![scanner scanHexInt:&value]) return nil;
+
+    CGFloat alpha = (value & 0xFF) / 255.0;
+    if (alpha <= 0.001) return nil;
+
+    return [NSColor
+        colorWithSRGBRed: ((value >> 24) & 0xFF) / 255.0
+                   green: ((value >> 16) & 0xFF) / 255.0
+                    blue: ((value >> 8) & 0xFF) / 255.0
+                   alpha: alpha
+    ];
+}
+
 - (void)setDesktopGlassTag:(NSInteger)tag
 {
     if (tag < 0 || tag >= (NSInteger)desktopGlassMaterials().count) return;
@@ -340,15 +352,6 @@ static NSArray* desktopGlassMaterials(void)
     [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
 }
 
-- (NSString*)glassSettingsJSON
-{
-    NSData* json = [NSJSONSerialization
-        dataWithJSONObject:[self glassSettings] options:0 error:nil
-    ];
-    return [[NSString alloc]
-        initWithData:json encoding:NSUTF8StringEncoding
-    ];
-}
 
 #
 #pragma mark Appearance

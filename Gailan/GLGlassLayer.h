@@ -21,6 +21,10 @@
 // regions arrive from the page in css pixels, origin top left:
 // @[@{@"id": ..., @"x": ..., @"y": ..., @"w": ..., @"h": ..., @"radius": ...}]
 - (void)setRegions:(NSArray<NSDictionary*>*)regions;
-- (void)setMaterialName:(NSString*)name;
+
+// style and tint only reach macOS 26's glass; the older material takes neither
+- (void)setMaterialName:(NSString*)name
+                  clear:(BOOL)clear
+                   tint:(NSColor*)tint;
 
 @end

@@ -26,13 +26,14 @@ final class GLPreferences: ObservableObject {
     @Published var appearanceTag: Int { didSet { controller.appearanceTag = appearanceTag } }
     @Published var shellTag: Int { didSet { controller.shellTag = shellTag } }
     @Published var loginShell: Bool { didSet { controller.loginShell = loginShell } }
-    @Published var glassEnabled: Bool { didSet { controller.glassEnabled = glassEnabled } }
-    @Published var glassStrength: Double { didSet { controller.glassStrength = glassStrength } }
-    @Published var glassDepth: Double { didSet { controller.glassDepth = glassDepth } }
-    @Published var glassCurvature: Double { didSet { controller.glassCurvature = glassCurvature } }
-    @Published var glassDispersion: Double { didSet { controller.glassDispersion = glassDispersion } }
-    @Published var glassFrost: Double { didSet { controller.glassFrost = glassFrost } }
     @Published var desktopGlassTag: Int { didSet { controller.desktopGlassTag = desktopGlassTag } }
+    @Published var desktopGlassStyleTag: Int {
+        didSet { controller.desktopGlassStyleTag = desktopGlassStyleTag }
+    }
+    // SwiftUI's picker speaks Color; the plist stores #rrggbbaa
+    @Published var desktopGlassTint: Color {
+        didSet { controller.desktopGlassTint = desktopGlassTint.hexRGBA }
+    }
     @Published var widgetPath: String
 
     init(controller: GLPreferencesController) {
@@ -43,13 +44,9 @@ final class GLPreferences: ObservableObject {
         appearanceTag = controller.appearanceTag
         shellTag = controller.shellTag
         loginShell = controller.loginShell
-        glassEnabled = controller.glassEnabled
-        glassStrength = controller.glassStrength
-        glassDepth = controller.glassDepth
-        glassCurvature = controller.glassCurvature
-        glassDispersion = controller.glassDispersion
-        glassFrost = controller.glassFrost
         desktopGlassTag = controller.desktopGlassTag
+        desktopGlassStyleTag = controller.desktopGlassStyleTag
+        desktopGlassTint = Color(hexRGBA: controller.desktopGlassTint)
         widgetPath = controller.widgetDir?.path ?? ""
     }
 
@@ -158,7 +155,6 @@ struct GLPreferencesView: View {
         }
     }
 
-    // two glasses, and they are easy to mix up, so each says what it is
     @ViewBuilder private var glass: some View {
         Section {
             Picker("Frost the desktop", selection: $prefs.desktopGlassTag) {
@@ -167,6 +163,16 @@ struct GLPreferencesView: View {
                 Text("Frosted").tag(2)
                 Text("Heavy").tag(3)
             }
+
+            if #available(macOS 26.0, *) {
+                Picker("Style", selection: $prefs.desktopGlassStyleTag) {
+                    Text("Regular").tag(0)
+                    Text("Clear").tag(1)
+                }
+                ColorPicker(
+                    "Tint", selection: $prefs.desktopGlassTint, supportsOpacity: true
+                )
+            }
         } header: {
             heading(
                 "System glass",
@@ -174,56 +180,22 @@ struct GLPreferencesView: View {
                     macOS frosts your wallpaper underneath a widget that asks \
                     for it. The widget draws nothing: the system draws the \
                     material behind the page, in the shape the widget claims. \
-                    The sliders below do not apply to it, because macOS has no \
-                    refraction to tune.
-                    """
-            )
-        }
-
-        Section {
-            Toggle("Available to widgets", isOn: $prefs.glassEnabled)
-            optic("Refraction", $prefs.glassStrength, max: 1)
-            optic("Depth", $prefs.glassDepth, max: 1)
-            optic("Curvature", $prefs.glassCurvature, max: 1)
-            optic("Dispersion", $prefs.glassDispersion, max: 1)
-            optic("Frost", $prefs.glassFrost, max: 10)
-        } header: {
-            heading(
-                "Widget glass",
-                help: """
-                    A lens the widget draws itself, with <Glass> from the \
-                    gailan module. It bends what is inside the page: the \
-                    widget's own content, or another widget behind it. It \
-                    cannot reach your wallpaper, so use System glass for that.
+                    A tint with no opacity leaves the glass untinted.
                     """
             )
         } footer: {
-            Text("These are the defaults widgets inherit. A widget can override any of them.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private func heading(_ title: String, help: String) -> some View {
-        HStack(spacing: 4) {
-            Text(title)
-            GLHelpButton(text: help)
-        }
-    }
-
-    private func optic(
-        _ label: String, _ value: Binding<Double>, max upper: Double
-    ) -> some View {
-        LabeledContent(label) {
-            HStack(spacing: 8) {
-                TextField("", value: value, format: .number.precision(.fractionLength(2)))
-                    .frame(width: 54)
-                    .multilineTextAlignment(.trailing)
-                Slider(value: value, in: 0...upper)
+            if #available(macOS 26.0, *) {
+                Text("Style and tint are all macOS gives us to tune. There is no blur or refraction setting behind them.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Style and tint need macOS 26. This system frosts with a vibrancy material, which takes neither.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
             }
         }
-        .disabled(!prefs.glassEnabled)
     }
+
 }
 
 // Handed to the window controller, which has no way to build a SwiftUI view
@@ -261,5 +233,33 @@ private struct GLHelpButton: View {
                 .padding(14)
         }
         .accessibilityLabel("About this setting")
+    }
+}
+
+// The plist keeps the tint as #rrggbbaa, which is legible in defaults(1) and
+// survives a round trip. Fully transparent means untinted.
+extension Color {
+    init(hexRGBA hex: String) {
+        let digits = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
+        guard digits.count == 8, let value = UInt32(digits, radix: 16) else {
+            self = .clear
+            return
+        }
+        self = Color(
+            .sRGB,
+            red: Double((value >> 24) & 0xFF) / 255,
+            green: Double((value >> 16) & 0xFF) / 255,
+            blue: Double((value >> 8) & 0xFF) / 255,
+            opacity: Double(value & 0xFF) / 255
+        )
+    }
+
+    var hexRGBA: String {
+        let srgb = NSColor(self).usingColorSpace(.sRGB) ?? .clear
+        let byte = { (component: CGFloat) in UInt32((component * 255).rounded()) }
+        let value =
+            byte(srgb.redComponent) << 24 | byte(srgb.greenComponent) << 16
+            | byte(srgb.blueComponent) << 8 | byte(srgb.alphaComponent)
+        return String(format: "#%08x", value)
     }
 }

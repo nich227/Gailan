@@ -38,9 +38,11 @@
 }
 
 - (void)setGlassMaterial:(NSString*)name
+                   clear:(BOOL)clear
+                    tint:(NSColor*)tint
 {
-    [foreground setGlassMaterial:name];
-    [background setGlassMaterial:name];
+    [foreground setGlassMaterial:name clear:clear tint:tint];
+    [background setGlassMaterial:name clear:clear tint:tint];
 }
 
 - (void)setAlwaysOnTop:(BOOL)flag

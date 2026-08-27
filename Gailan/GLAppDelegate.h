@@ -35,7 +35,6 @@
 - (void)loginShellDidChange;
 - (void)shellDidChange;
 - (void)alwaysOnTopDidChange;
-- (void)glassDidChange;
 - (void)desktopGlassDidChange;
 
 @end

@@ -47,7 +47,7 @@
 
 - (void)testRegionBecomesAViewInAppKitCoordinates
 {
-    [layer setMaterialName:@"frosted"];
+    [layer setMaterialName:@"frosted" clear:NO tint:nil];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
 
     XCTAssertEqual(layer.subviews.count, 1);
@@ -61,7 +61,7 @@
 
 - (void)testMovingAWidgetReusesItsView
 {
-    [layer setMaterialName:@"frosted"];
+    [layer setMaterialName:@"frosted" clear:NO tint:nil];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
     NSView* first = layer.subviews[0];
 
@@ -74,7 +74,7 @@
 
 - (void)testWithdrawnRegionsAreRemoved
 {
-    [layer setMaterialName:@"frosted"];
+    [layer setMaterialName:@"frosted" clear:NO tint:nil];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
     XCTAssertEqual(layer.subviews.count, 1);
 
@@ -84,17 +84,17 @@
 
 - (void)testTurningItOffClearsWhatWasThere
 {
-    [layer setMaterialName:@"frosted"];
+    [layer setMaterialName:@"frosted" clear:NO tint:nil];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
     XCTAssertEqual(layer.subviews.count, 1);
 
-    [layer setMaterialName:@"off"];
+    [layer setMaterialName:@"off" clear:NO tint:nil];
     XCTAssertEqual(layer.subviews.count, 0);
 }
 
 - (void)testJunkRegionsAreIgnored
 {
-    [layer setMaterialName:@"frosted"];
+    [layer setMaterialName:@"frosted" clear:NO tint:nil];
     [layer setRegions:@[
         @{@"id": @42, @"x": @0, @"y": @0, @"w": @10, @"h": @10},
         @{@"id": @"flat", @"x": @0, @"y": @0, @"w": @0, @"h": @0},

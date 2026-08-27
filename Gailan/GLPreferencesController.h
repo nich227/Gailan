@@ -23,18 +23,13 @@
 @property BOOL enableInteraction;
 @property NSInteger shellTag;
 @property BOOL alwaysOnTop;
-@property BOOL glassEnabled;
-@property double glassStrength;
-@property double glassDepth;
-@property double glassCurvature;
-@property double glassDispersion;
-@property double glassFrost;
 @property NSInteger desktopGlassTag;
+@property NSInteger desktopGlassStyleTag;
+@property (nonatomic, copy) NSString* desktopGlassTint;
 
 - (NSString*)desktopGlassMaterial;
-
-- (NSString*)glassSettingsJSON;
-- (NSDictionary*)glassSettings;
+- (BOOL)desktopGlassClear;
+- (NSColor*)desktopGlassTintColor;
 @property NSInteger appearanceTag;
 
 - (NSString*)shell;

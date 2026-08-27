@@ -107,9 +107,7 @@ int const PORT = 41416;
     
     [GLPreferencesController applyAppearance];
     [windowsController setAlwaysOnTop:self.preferences.alwaysOnTop];
-    [windowsController
-        setGlassMaterial: [self.preferences desktopGlassMaterial]
-    ];
+    [self applyDesktopGlass];
 
     // make sure notifications always show, even while we are frontmost
     UNUserNotificationCenter* unc =
@@ -389,20 +387,18 @@ int const PORT = 41416;
 
 - (void)desktopGlassDidChange
 {
+    [self applyDesktopGlass];
+}
+
+- (void)applyDesktopGlass
+{
     [windowsController
         setGlassMaterial: [self.preferences desktopGlassMaterial]
+                   clear: [self.preferences desktopGlassClear]
+                    tint: [self.preferences desktopGlassTintColor]
     ];
 }
 
-// widgets read the glass settings at render time, so a reload is enough
-- (void)glassDidChange
-{
-    // widgets pick this up over the socket, so no reload
-    [dispatcher
-        dispatch: @"GLASS_SETTINGS_CHANGED"
-        withPayload: [self.preferences glassSettings]
-    ];
-}
 
 // a level change, not a window rebuild: rebuilding reloads every widget
 - (void)alwaysOnTopDidChange

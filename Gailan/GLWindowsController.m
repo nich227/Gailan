@@ -44,7 +44,11 @@
                 initWithInteractionEnabled: interactionEnabled
             ];
             [windowGroup setAlwaysOnTop:self.alwaysOnTop];
-            [windowGroup setGlassMaterial:self.glassMaterial];
+            [windowGroup
+                setGlassMaterial: self.glassMaterial
+                           clear: self.glassClear
+                            tint: self.glassTint
+            ];
             [windows setObject:windowGroup forKey:screenId];
             [windowGroup loadUrl: [self screenUrl:screenId baseUrl:baseUrl]];
         } else {
@@ -108,10 +112,14 @@
 }
 
 - (void)setGlassMaterial:(NSString*)name
+                   clear:(BOOL)clear
+                    tint:(NSColor*)tint
 {
     _glassMaterial = [name copy];
+    _glassClear = clear;
+    _glassTint = tint;
     for (GLWindowGroup* group in [windows allValues]) {
-        [group setGlassMaterial:name];
+        [group setGlassMaterial:name clear:clear tint:tint];
     }
 }
 

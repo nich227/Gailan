@@ -409,43 +409,10 @@ Light mode gives widgets dark styling.
 
 ### Liquid Glass
 
-Gailan bundles [Liquid Glass](https://github.com/samasante/liquid-glass), which refracts
-the DOM behind the lens. All widgets on a screen share one page, so a glass widget can
-refract another widget behind it, or its own content. It cannot refract the wallpaper: the
-web view is transparent and composited over the desktop by the window server, and the page
-has no access to what sits underneath. WebKit also does not support
-`backdrop-filter: url()`, so the bend comes from the library's DOM copy rather than from a
-backdrop filter.
-Import `Glass` from the `gailan` module and wrap anything:
-
-```tsx
-import { Glass } from "gailan"
-
-export const render = ({output}) => (
-  <Glass radius={16}>
-    <div style={{padding: 20}}>{output}</div>
-  </Glass>
-)
-```
-
-The look is tuned in Preferences (refraction, depth, curvature, dispersion, frost), and
-those values are the defaults every widget inherits, so one setting restyles every glass
-widget on the desktop. A widget can override any of them per instance with the library's
-own vocabulary:
-
-```tsx
-<Glass radius={16} optics={{dispersion: 0.8, frost: 6}}>…</Glass>
-```
-
-If Liquid Glass is switched off in Preferences, `<Glass>` renders its children plainly, so
-a widget using it still works. `GlassSurface` and `GlassMaterial` are exported too, for
-video and canvas lenses; see the upstream README for those.
-
-### Glass over the desktop
-
-`<Glass>` bends the DOM, which cannot include the wallpaper. To glass the desktop itself,
-mark the area and let macOS draw it: the app puts the system material behind the web view,
-masked to the rectangle the widget claims.
+macOS draws the glass, so a widget marks the area it wants and the system frosts the
+wallpaper there. A page cannot reach what is behind its own window, which is why this is
+the app's job rather than CSS: the web view is transparent and composited over the desktop
+by the window server, and `backdrop-filter` only ever sees other page content.
 
 ```tsx
 export const render = ({output}) => (
@@ -455,11 +422,18 @@ export const render = ({output}) => (
 )
 ```
 
-Give an element `id` if it has one and the same glass view follows it as the widget
-re-renders. Pick the material in Preferences under Liquid Glass, where `Off` is the
-default; the optics sliders do not apply, because macOS draws this material and takes no
-displacement or dispersion. On macOS 26 it is `NSGlassEffectView`, below that the closest
-`NSVisualEffectView` material.
+`DesktopGlass` from the `gailan` module does the same thing if you prefer a component.
+Give the element an `id` and the same glass follows it as the widget re-renders.
+
+Keep the widget's own background thin, or it covers the glass it asked for. The starter
+widget uses about 40% opacity, which reads the frost through it while keeping text
+legible.
+
+Preferences carries what macOS actually exposes. `Frost the desktop` picks the material
+and is on by default; `Off` opts out. On macOS 26 there is also a `Style` of Regular or
+Clear and a `Tint` colour, where no opacity means untinted. There is no blur radius or
+refraction setting, because AppKit has none to offer: `NSGlassEffectView` takes a corner
+radius, a tint and those two styles, and nothing else.
 
 ## Running Shell Commands
 
@@ -618,6 +592,3 @@ The source is released under the GNU General Public License as published by the 
 The app icon, menu bar icon and wordmark are built from the *window-dock* and *eyeglasses*
 icons of [Bootstrap Icons](https://github.com/twbs/icons), © 2019–2024 The Bootstrap Authors,
 [MIT licensed](licenses/bootstrap-icons.txt).
-
-Liquid Glass is © 2026 Sam Asante, [MIT licensed](licenses/liquid-glass-LICENSE.txt), and is
-vendored in `server/src/vendor/liquidGlass.js`.

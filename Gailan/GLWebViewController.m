@@ -49,16 +49,9 @@
     }
     GLAppDelegate* app = (GLAppDelegate*)[NSApp delegate];
     NSString* token = [app serverToken];
-    NSString* glass = [[app preferences] glassSettingsJSON];
     NSMutableArray* query = [NSMutableArray array];
     if (token) {
         [query addObject:[NSString stringWithFormat:@"token=%@", token]];
-    }
-    if (glass) {
-        [query addObject:[NSString stringWithFormat:@"glass=%@",
-            [glass stringByAddingPercentEncodingWithAllowedCharacters:
-                [NSCharacterSet alphanumericCharacterSet]]
-        ]];
     }
     if (query.count > 0) {
         url = [NSURL URLWithString:[NSString

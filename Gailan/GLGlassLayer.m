@@ -16,6 +16,8 @@
     // one effect view per region id, so a widget that moves reuses its view
     NSMutableDictionary<NSString*, NSView*>* views;
     NSString* materialName;
+    BOOL clearStyle;
+    NSColor* tintColor;
 }
 
 - (id)initWithFrame:(NSRect)frame
@@ -29,9 +31,17 @@
 }
 
 - (void)setMaterialName:(NSString*)name
+                  clear:(BOOL)clear
+                   tint:(NSColor*)tint
 {
-    if ([name isEqualToString:materialName]) return;
+    BOOL sameTint = (tint == tintColor) || [tint isEqual:tintColor];
+    if ([name isEqualToString:materialName] && clear == clearStyle && sameTint) {
+        return;
+    }
+
     materialName = [name copy];
+    clearStyle = clear;
+    tintColor = tint;
     // the material is baked into each view, so they have to be rebuilt. this
     // also clears them for "off", where a widget's claim goes unanswered.
     for (NSView* view in views.allValues) {
@@ -85,6 +95,9 @@
     if (@available(macOS 26.0, *)) {
         NSGlassEffectView* glass = [[NSGlassEffectView alloc] init];
         glass.cornerRadius = radius;
+        glass.style = clearStyle ? NSGlassEffectViewStyleClear
+                                 : NSGlassEffectViewStyleRegular;
+        glass.tintColor = tintColor;
         return glass;
     }
 
