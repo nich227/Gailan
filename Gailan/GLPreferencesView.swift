@@ -57,7 +57,7 @@ final class GLPreferences: ObservableObject {
 
     func chooseWidgetFolder() {
         controller.chooseWidgetDir { [weak self] url in
-            self?.widgetPath = url.path
+            self?.widgetPath = url?.path ?? ""
         }
     }
 }
