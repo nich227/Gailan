@@ -5,6 +5,17 @@ const {Transform} = require('stream');
 const byline = require('byline');
 const path = require('path');
 
+// Source maps carry paths with symlinks resolved. Comparing them to the widget
+// directory as configured gives nonsense like ../../../private/var/... unless
+// both sides are resolved first, and macOS links /var to /private/var.
+function realPath(filePath) {
+  try {
+    return fs.realpathSync(filePath);
+  } catch (err) {
+    return path.resolve(filePath);
+  }
+}
+
 // middleware to serve widget bundles
 module.exports = (bundler, widgetPath) => (req, res, next) => {
   const url = new URL(req.url, 'http://localhost');
@@ -74,7 +85,10 @@ function codeLines(source, widgetDir, options, res) {
       return;
     }
 
-    origpos.path = path.relative(widgetDir, origpos.source);
+    origpos.path = path.relative(
+      realPath(widgetDir),
+      realPath(origpos.source)
+    );
     byline(fs.createReadStream(origpos.source), {keepEmptyLines: true})
       .pipe(asErrorJSON(origpos, padding))
       .pipe(res)

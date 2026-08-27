@@ -21,7 +21,10 @@ mkdir -p coverage/tmp
 # a failing test should still leave a report behind, so the status is carried
 # to the end instead of aborting here
 status=0
+# the integration suite boots the whole server, which takes over the shared
+# socket singleton, so it gets its own process
 NODE_V8_COVERAGE=coverage/tmp npm run test-local || status=$?
+NODE_V8_COVERAGE=coverage/tmp npm run test-integration || status=$?
 NODE_V8_COVERAGE=coverage/tmp npm run test-dom || status=$?
 
 npx c8 report \
