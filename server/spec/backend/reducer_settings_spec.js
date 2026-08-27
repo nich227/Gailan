@@ -1,0 +1,165 @@
+//
+//  reducer_settings_spec.js
+//  Gailan
+//
+//  Copyright (c) 2026 Kevin Chen.
+//
+//  Released under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version. See <http://www.gnu.org/licenses/> for
+//  details.
+//
+'use strict';
+
+const test = require('tape');
+const reduce = require('../../src/reducer');
+
+// The settings half of the reducer: where a widget shows, on which screens, and
+// in which layer. reducer_spec covers adding and removing widgets.
+function stateWith(settings) {
+  return {
+    widgets: {'a-widget': {id: 'a-widget'}},
+    settings: {'a-widget': settings || {}},
+    screens: [1, 2],
+  };
+}
+
+function settingsAfter(action, settings) {
+  return reduce(stateWith(settings), action).settings['a-widget'];
+}
+
+test('showing a widget everywhere', (t) => {
+  t.deepEqual(
+    settingsAfter({type: 'WIDGET_SET_TO_ALL_SCREENS', payload: 'a-widget'}),
+    {showOnAllScreens: true, showOnMainScreen: false},
+    'all screens, and not just the main one'
+  );
+  t.end();
+});
+
+test('showing a widget on chosen screens', (t) => {
+  t.deepEqual(
+    settingsAfter(
+      {type: 'WIDGET_SET_TO_SELECTED_SCREENS', payload: 'a-widget'},
+      {showOnAllScreens: true, showOnMainScreen: true}
+    ),
+    {showOnAllScreens: false, showOnMainScreen: false},
+    'neither of the shortcuts, so the screen list decides'
+  );
+  t.end();
+});
+
+test('showing a widget on the main screen', (t) => {
+  t.deepEqual(
+    settingsAfter({type: 'WIDGET_SET_TO_MAIN_SCREEN', payload: 'a-widget'}),
+    {showOnMainScreen: true, showOnAllScreens: false},
+    'the main screen only'
+  );
+  t.end();
+});
+
+test('moving a widget between layers', (t) => {
+  t.deepEqual(
+    settingsAfter({type: 'WIDGET_SET_TO_BACKGROUND', payload: 'a-widget'}),
+    {inBackground: true},
+    'to the back'
+  );
+  t.deepEqual(
+    settingsAfter(
+      {type: 'WIDGET_SET_TO_FOREGROUND', payload: 'a-widget'},
+      {inBackground: true}
+    ),
+    {inBackground: false},
+    'and to the front again'
+  );
+  t.end();
+});
+
+test('picking screens for a widget one at a time', (t) => {
+  const first = settingsAfter({
+    type: 'SCREEN_SELECTED_FOR_WIDGET',
+    payload: {id: 'a-widget', screenId: 2},
+  });
+  t.deepEqual(first.screens, [2], 'the first screen is added');
+
+  const again = settingsAfter(
+    {type: 'SCREEN_SELECTED_FOR_WIDGET', payload: {id: 'a-widget', screenId: 2}},
+    {screens: [2]}
+  );
+  t.deepEqual(again.screens, [2], 'selecting it twice does not repeat it');
+
+  const both = settingsAfter(
+    {type: 'SCREEN_SELECTED_FOR_WIDGET', payload: {id: 'a-widget', screenId: 3}},
+    {screens: [2]}
+  );
+  t.deepEqual(both.screens, [2, 3], 'another screen joins the first');
+  t.end();
+});
+
+test('unpicking a screen for a widget', (t) => {
+  t.deepEqual(
+    settingsAfter(
+      {
+        type: 'SCREEN_DESELECTED_FOR_WIDGET',
+        payload: {id: 'a-widget', screenId: 2},
+      },
+      {screens: [2, 3]}
+    ).screens,
+    [3],
+    'only that screen goes'
+  );
+
+  t.deepEqual(
+    settingsAfter(
+      {
+        type: 'SCREEN_DESELECTED_FOR_WIDGET',
+        payload: {id: 'a-widget', screenId: 2},
+      },
+      {}
+    ).screens,
+    [],
+    'a widget with no screen list survives being unpicked'
+  );
+  t.end();
+});
+
+test('the screens themselves changing', (t) => {
+  const state = reduce(stateWith(), {
+    type: 'SCREENS_DID_CHANGE',
+    payload: [7, 8, 9],
+  });
+
+  t.deepEqual(state.screens, [7, 8, 9], 'the new screen list is kept');
+  t.deepEqual(
+    state.settings,
+    stateWith().settings,
+    'and the widget settings are untouched'
+  );
+  t.end();
+});
+
+test('a widget finishing loading', (t) => {
+  const impl = {render: () => 'hi'};
+  const state = reduce(stateWith(), {
+    type: 'WIDGET_LOADED',
+    id: 'a-widget',
+    payload: impl,
+  });
+
+  t.equal(
+    state.widgets['a-widget'].implementation,
+    impl,
+    'the implementation is attached to the widget'
+  );
+  t.end();
+});
+
+test('an action the reducer does not know', (t) => {
+  const state = stateWith();
+  t.equal(
+    reduce(state, {type: 'SOMETHING_ELSE'}),
+    state,
+    'the state comes back untouched, not a copy'
+  );
+  t.end();
+});
