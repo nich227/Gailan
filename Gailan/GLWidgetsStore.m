@@ -48,6 +48,24 @@
             [self notifyChange];
         }];
         
+        // A widget's own settings. Without this the store never learns about a
+        // change made in the Widgets window, so the control that made it snaps
+        // straight back to the old value.
+        [listener on:@"WIDGET_CONFIG_CHANGED" do:^(NSDictionary* details) {
+            NSString* widgetId = details[@"id"];
+            NSString* key = details[@"key"];
+            if (!widgetId || !key) return;
+
+            NSDictionary* existing = self->settings[widgetId][@"config"];
+            NSMutableDictionary* config = existing
+                ? [existing mutableCopy]
+                : [NSMutableDictionary dictionary];
+            config[key] = details[@"value"] ?: [NSNull null];
+
+            [self updateSettings:widgetId withPatch:@{@"config": config}];
+            [self notifyChange];
+        }];
+
         [listener on:@"WIDGET_REMOVED" do:^(NSString* widgetId) {
             if (self->widgets[widgetId]) {
                 [self removeWidget:widgetId];

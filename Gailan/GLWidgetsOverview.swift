@@ -86,7 +86,7 @@ struct WidgetSummary: Identifiable, Equatable {
     let showOnMainScreen: Bool
     let hasError: Bool
     let settings: [WidgetSetting]
-    let config: [String: String]
+    private(set) var config: [String: String]
 
     enum Screens: String {
         case all, main, selected
@@ -109,6 +109,13 @@ struct WidgetSummary: Identifiable, Equatable {
             }
         }
         return nil
+    }
+
+    // used when a control has just been moved, before the change comes back
+    func replacingConfig(_ config: [String: String]) -> WidgetSummary {
+        var copy = self
+        copy.config = config
+        return copy
     }
 
     init(_ raw: [AnyHashable: Any]) {
@@ -194,6 +201,22 @@ final class WidgetsOverviewModel: ObservableObject {
 
     func setValue(_ value: Any, forKey key: String, widget id: String) {
         controller.setConfigValue(value, forKey: key, widget: id)
+        // the change goes out over the socket and comes back as a store update,
+        // which takes a moment. show it immediately so the control does not
+        // appear to bounce back.
+        applyLocally(value, forKey: key, widget: id)
+    }
+
+    private func applyLocally(_ value: Any, forKey key: String, widget id: String) {
+        guard let index = widgets.firstIndex(where: { $0.id == id }) else { return }
+
+        let text = value is Bool
+            ? ((value as? Bool) == true ? "true" : "false")
+            : String(describing: value)
+
+        var config = widgets[index].config
+        config[key] = text
+        widgets[index] = widgets[index].replacingConfig(config)
     }
 }
 
@@ -242,7 +265,7 @@ struct GLWidgetsOverview: View {
         ) {
             if let id = settingsFor, let widget = model.widget(id) {
                 GLWidgetSettings(
-                    widget: widget,
+                    widgetId: widget.id,
                     model: model,
                     dismiss: { settingsFor = nil }
                 )
@@ -371,17 +394,21 @@ struct GLWidgetsOverview: View {
 // MARK: - the settings a widget declares, turned into controls
 
 struct GLWidgetSettings: View {
-    let widget: WidgetSummary
+    // the id rather than a copy: a snapshot would not see the change the control
+    // just made, so every control would appear to bounce back
+    let widgetId: String
     @ObservedObject var model: WidgetsOverviewModel
     let dismiss: () -> Void
+
+    private var widget: WidgetSummary? { model.widget(widgetId) }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(widget.title)
+                    Text(widget?.title ?? widgetId)
                         .fontWeight(.semibold)
-                    Text(widget.fileName)
+                    Text(widget?.fileName ?? "")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -392,7 +419,7 @@ struct GLWidgetSettings: View {
             Divider()
 
             Form {
-                ForEach(widget.settings) { setting in
+                ForEach(widget?.settings ?? []) { setting in
                     control(setting)
                 }
             }
@@ -429,7 +456,7 @@ struct GLWidgetSettings: View {
                 setting.label,
                 isOn: Binding(
                     get: { current(setting) == "true" || current(setting) == "1" },
-                    set: { model.setValue($0, forKey: setting.key, widget: widget.id) }
+                    set: { model.setValue($0, forKey: setting.key, widget: widgetId) }
                 )
             )
             .help(setting.help ?? "")
@@ -444,7 +471,7 @@ struct GLWidgetSettings: View {
                                 model.setValue(
                                     ($0 / setting.step).rounded() * setting.step,
                                     forKey: setting.key,
-                                    widget: widget.id
+                                    widget: widgetId
                                 )
                             }
                         ),
@@ -474,7 +501,7 @@ struct GLWidgetSettings: View {
                     get: { Color(hexRGBA: current(setting)) },
                     set: {
                         model.setValue(
-                            $0.hexRGBA, forKey: setting.key, widget: widget.id
+                            $0.hexRGBA, forKey: setting.key, widget: widgetId
                         )
                     }
                 ),
@@ -484,7 +511,7 @@ struct GLWidgetSettings: View {
     }
 
     private func current(_ setting: WidgetSetting) -> String {
-        widget.config[setting.key] ?? setting.defaultValue ?? ""
+        widget?.config[setting.key] ?? setting.defaultValue ?? ""
     }
 
     private func binding(_ setting: WidgetSetting) -> Binding<String> {
