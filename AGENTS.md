@@ -16,8 +16,21 @@ schedule and draws the output on the macOS desktop.
     scripts/           node runtime fetcher, icon renderer
 
 The app spawns `server/release/localnode` (which picks the right bundled node binary)
-and points a WKWebView per screen at it. Widgets are browserify bundles built on the
-fly; the client mounts them with React.
+and points a WKWebView per screen at it. Widgets are esbuild bundles built on the fly;
+the client mounts them with React. browserify still builds the client and server bundles.
+
+`src/esbuildWidget.js` holds the widget pipeline. esbuild has no opinion about the parts
+that are ours, so they are plugins: compiling coffee, wrapping a classic widget's object
+literal so `widgetify` can rewrite it (stylus in `style`, `ms` in `refreshFrequency`, the
+injected `id`), and resolving `gailan` out of the client bundle through
+`globalThis.require` so widgets do not each carry a copy of React. Only builds the watcher
+starts emit `update`; rebuilds we ask for do not, or `WidgetBundler` rebuilding on `update`
+would loop forever.
+
+Bundles publish themselves into `globalThis.__gailanWidgets[id]`, which is what
+`client.coffee` reads after the script tag loads. esbuild ships as a native binary per
+architecture, fetched by `scripts/fetch-esbuild.sh` with pinned hashes and ad-hoc signed
+there, because Xcode's strip phase errors on an unsigned binary and skips a signed one.
 
 ## Building
 
@@ -43,6 +56,10 @@ project dependency; install it ad hoc when you touch the branding.
     cd server && npm test        # backend then frontend
     npm run test-local           # spec/backend, plain node
     npm run test-dom             # spec/frontend, jsdom
+
+Run them on macOS. This is a macOS app, and the directory watcher specs need real
+fsevents: on Linux they need a stub that npm prunes on every install, and five of them
+fail whatever you do. On a Mac the whole suite passes.
 
 Neither half needs a browser. `spec/frontend` used to be bundled and handed to
 tape-run/electron, whose installer could not unpack itself here: the download works,
@@ -163,7 +180,10 @@ offers to quit Übersicht at launch.
 
 ## Known rough edges
 
-  - `GLWidgetsStore deselectScreen` compares NSNumbers by pointer.
+  - a login shell that emits OSC escape sequences (shell integrations do this) prepends
+    them to widget command output. `command_server_spec`'s login shell test fails on such
+    a machine for the same reason.
+
   - the status menu is built lazily: store changes set a dirty flag, the top-level
     items are rebuilt when tracking starts (`NSMenuDidBeginTrackingNotification`), and
     each widget's submenu is populated by `menuNeedsUpdate:` when it is about to be

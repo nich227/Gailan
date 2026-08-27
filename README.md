@@ -16,7 +16,7 @@ app is a separate application with its own name, bundle id and support directory
 installs beside Übersicht instead of replacing it, and Übersicht's own updater will never
 offer it. Widget code carries over, since the widget API is the same; settings and the
 widgets folder do not, and have to be moved by hand. The bundled Node also jumped from 16
-to 26, so a widget whose command depends on old Node behaviour, or that bundles a native
+to 24, so a widget whose command depends on old Node behaviour, or that bundles a native
 module built for Node 16, needs rebuilding. Upstream breaking changes: Node
 [18](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md),
 [20](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V20.md),
@@ -41,6 +41,13 @@ The specifics:
     see through `prefers-color-scheme`
   - if Übersicht is running when Gailan starts, a dialog offers to quit one of them
     (Gailan is an upgraded Übersicht, so running both doubles every widget)
+  - widgets are bundled with **esbuild** rather than browserify. `.jsx`, `.tsx` and
+    classic CoffeeScript widgets all still work; what changed is that a widget bundle
+    publishes itself into `globalThis.__gailanWidgets` instead of registering with
+    browserify's require, and the Emotion Babel plugin is gone, so generated class names
+    no longer carry component labels
+  - a widget can ask macOS to glass the desktop behind it; see
+    [Glass over the desktop](#glass-over-the-desktop)
   - **requires macOS 13.5 or later**, which the bundled Node runtime and the system APIs
     it uses both need. The app will not launch on anything older
 
@@ -57,7 +64,8 @@ Against Übersicht 1.6.82, the most recent release at the time of the fork:
 | React | 16.13 | 19.2 |
 | CoffeeScript | `coffee-script` 1.12 (deprecated package) | `coffeescript` 2.7 |
 | Emotion | 10 (`emotion`, `@emotion/core`) | 11 (`@emotion/css`, `@emotion/react`) |
-| browserify | 16.5 | 17.0 |
+| widget bundler | browserify 16.5 | esbuild 0.25 |
+| browserify | 16.5 | 17.0, client and server bundles only |
 | ws | 6.0 | 8.21 |
 | redux | 3.7 | 5.0 |
 | superagent | 3.8 | 10.3 |
@@ -432,6 +440,26 @@ own vocabulary:
 If Liquid Glass is switched off in Preferences, `<Glass>` renders its children plainly, so
 a widget using it still works. `GlassSurface` and `GlassMaterial` are exported too, for
 video and canvas lenses; see the upstream README for those.
+
+### Glass over the desktop
+
+`<Glass>` bends the DOM, which cannot include the wallpaper. To glass the desktop itself,
+mark the area and let macOS draw it: the app puts the system material behind the web view,
+masked to the rectangle the widget claims.
+
+```tsx
+export const render = ({output}) => (
+  <div data-gailan-desktop-glass={12} style={{borderRadius: 12, padding: 20}}>
+    {output}
+  </div>
+)
+```
+
+Give an element `id` if it has one and the same glass view follows it as the widget
+re-renders. Pick the material in Preferences under Liquid Glass, where `Off` is the
+default; the optics sliders do not apply, because macOS draws this material and takes no
+displacement or dispersion. On macOS 26 it is `NSGlassEffectView`, below that the closest
+`NSVisualEffectView` material.
 
 ## Running Shell Commands
 

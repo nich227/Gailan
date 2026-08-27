@@ -2,6 +2,8 @@
 //  GLGlassLayer.m
 //  Gailan
 //
+//  Copyright (c) 2026 Kevin Chen.
+//
 //  Released under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version. See <http://www.gnu.org/licenses/> for

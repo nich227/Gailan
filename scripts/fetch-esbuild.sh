@@ -1,5 +1,12 @@
 #!/bin/bash
 #
+# Copyright (c) 2026 Kevin Chen.
+#
+# Released under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version. See <http://www.gnu.org/licenses/> for
+# details.
+#
 # Downloads the esbuild binaries that bundle widgets inside Gailan.app. npm only
 # installs the one matching the build machine, and the app is universal, so both
 # are fetched here. npm's own integrity hashes are the checksums.
