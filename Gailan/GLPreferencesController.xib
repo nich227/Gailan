@@ -28,16 +28,21 @@
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
 
-                    <!-- the sidebar: one category per row, source list styling -->
-                    <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="24" horizontalPageScroll="10" verticalLineScroll="24" verticalPageScroll="10" hasHorizontalScroller="NO" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sb-scroll">
+                    <!-- the sidebar: vibrant material behind a source list, running
+                         the full height of the window under the transparent titlebar -->
+                    <visualEffectView blendingMode="behindWindow" material="sidebar" state="followsWindowActiveState" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sb-material">
                         <rect key="frame" x="0.0" y="0.0" width="176" height="440"/>
                         <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
+                        <subviews>
+                    <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="24" horizontalPageScroll="10" verticalLineScroll="24" verticalPageScroll="10" hasHorizontalScroller="NO" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sb-scroll">
+                        <rect key="frame" x="0.0" y="0.0" width="176" height="402"/>
+                        <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
                         <clipView key="contentView" copiesOnScroll="NO" id="sb-clip">
-                            <rect key="frame" x="0.0" y="0.0" width="176" height="440"/>
+                            <rect key="frame" x="0.0" y="0.0" width="176" height="402"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="26" viewBased="NO" selectionHighlightStyle="sourceList" gridStyleMask="none" headerView="none" id="sb-table">
-                                    <rect key="frame" x="0.0" y="0.0" width="176" height="440"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="176" height="402"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="4"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -64,29 +69,31 @@
                             </subviews>
                         </clipView>
                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="sb-vs">
-                            <rect key="frame" x="161" y="0.0" width="15" height="440"/>
+                            <rect key="frame" x="161" y="0.0" width="15" height="402"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="sb-hs">
-                            <rect key="frame" x="0.0" y="425" width="176" height="15"/>
+                            <rect key="frame" x="0.0" y="387" width="176" height="15"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
+                        </subviews>
+                    </visualEffectView>
 
                     <!-- the panes, swapped by the sidebar selection -->
                     <tabView type="noTabsNoBorder" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tabs">
-                        <rect key="frame" x="176" y="0.0" width="524" height="440"/>
+                        <rect key="frame" x="176" y="0.0" width="524" height="402"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
 
                             <tabViewItem label="General" identifier="general" id="tab-general">
                                 <view key="view" id="pane-general">
-                                    <rect key="frame" x="0.0" y="0.0" width="524" height="440"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="524" height="402"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="255">
-                                            <rect key="frame" x="20" y="384" width="110" height="16"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="255">
+                                            <rect key="frame" x="20" y="346" width="110" height="16"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Startup:" id="256">
                                                 <font key="font" metaFont="system"/>
@@ -95,7 +102,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="178">
-                                            <rect key="frame" x="140" y="383" width="240" height="18"/>
+                                            <rect key="frame" x="140" y="345" width="240" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Open Gailan at Login" bezelStyle="regularSquare" imagePosition="left" inset="2" id="179">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -106,8 +113,8 @@
                                             </connections>
                                         </button>
 
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5">
-                                            <rect key="frame" x="20" y="350" width="110" height="16"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5">
+                                            <rect key="frame" x="20" y="312" width="110" height="16"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Widgets Folder:" id="8">
                                                 <font key="font" metaFont="system"/>
@@ -116,7 +123,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <popUpButton autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="43">
-                                            <rect key="frame" x="138" y="344" width="360" height="25"/>
+                                            <rect key="frame" x="138" y="306" width="360" height="25"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" id="44">
                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -136,8 +143,8 @@
                                             </popUpButtonCell>
                                         </popUpButton>
 
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R1C-8t-EyM">
-                                            <rect key="frame" x="20" y="316" width="110" height="17"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R1C-8t-EyM">
+                                            <rect key="frame" x="20" y="278" width="110" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Interaction:" id="8lm-M5-ekh">
                                                 <font key="font" metaFont="system"/>
@@ -146,7 +153,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jHv-DY-0s5">
-                                            <rect key="frame" x="140" y="315" width="240" height="18"/>
+                                            <rect key="frame" x="140" y="277" width="240" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Enable interaction" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="7vp-gG-U0H">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -157,7 +164,7 @@
                                             </connections>
                                         </button>
                                         <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aot-00-001">
-                                            <rect key="frame" x="140" y="289" width="360" height="18"/>
+                                            <rect key="frame" x="140" y="251" width="360" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Keep widgets above other windows" bezelStyle="regularSquare" imagePosition="left" inset="2" id="aot-00-002">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -173,11 +180,11 @@
 
                             <tabViewItem label="Appearance" identifier="appearance" id="tab-appearance">
                                 <view key="view" id="pane-appearance">
-                                    <rect key="frame" x="0.0" y="0.0" width="524" height="440"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="524" height="402"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="apL-00-001">
-                                            <rect key="frame" x="20" y="384" width="110" height="17"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="apL-00-001">
+                                            <rect key="frame" x="20" y="346" width="110" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Theme:" id="apL-00-002">
                                                 <font key="font" metaFont="system"/>
@@ -186,7 +193,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <popUpButton autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="apP-00-001">
-                                            <rect key="frame" x="138" y="378" width="150" height="25"/>
+                                            <rect key="frame" x="138" y="340" width="150" height="25"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" selectedItem="apP-00-004" id="apP-00-002">
                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -209,11 +216,11 @@
 
                             <tabViewItem label="Shell" identifier="shell" id="tab-shell">
                                 <view key="view" id="pane-shell">
-                                    <rect key="frame" x="0.0" y="0.0" width="524" height="440"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="524" height="402"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="shL-00-001">
-                                            <rect key="frame" x="20" y="384" width="110" height="17"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="shL-00-001">
+                                            <rect key="frame" x="20" y="346" width="110" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Shell:" id="shL-00-002">
                                                 <font key="font" metaFont="system"/>
@@ -222,7 +229,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <popUpButton autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="shP-00-001">
-                                            <rect key="frame" x="138" y="378" width="110" height="25"/>
+                                            <rect key="frame" x="138" y="340" width="110" height="25"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" selectedItem="shP-00-004" id="shP-00-002">
                                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -239,7 +246,7 @@
                                             </connections>
                                         </popUpButton>
                                         <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JRx-iq-tIq">
-                                            <rect key="frame" x="140" y="348" width="200" height="18"/>
+                                            <rect key="frame" x="140" y="310" width="200" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Load shell env" bezelStyle="regularSquare" imagePosition="left" inset="2" id="LrP-z2-QmY">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -255,11 +262,11 @@
 
                             <tabViewItem label="Liquid Glass" identifier="glass" id="tab-glass">
                                 <view key="view" id="pane-glass">
-                                    <rect key="frame" x="0.0" y="0.0" width="524" height="440"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="524" height="402"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-00-102">
-                                            <rect key="frame" x="140" y="383" width="300" height="18"/>
+                                            <rect key="frame" x="140" y="345" width="300" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <buttonCell key="cell" type="check" title="Available to widgets" bezelStyle="regularSquare" imagePosition="left" inset="2" id="gl-00-103">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -269,8 +276,8 @@
                                                 <binding destination="-2" name="value" keyPath="glassEnabled" id="gl-00-104"/>
                                             </connections>
                                         </button>
-                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" preferredMaxLayoutWidth="340" translatesAutoresizingMaskIntoConstraints="NO" id="gl-00-110">
-                                            <rect key="frame" x="140" y="345" width="350" height="30"/>
+                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="212" fixedFrame="YES" preferredMaxLayoutWidth="340" translatesAutoresizingMaskIntoConstraints="NO" id="gl-00-110">
+                                            <rect key="frame" x="140" y="307" width="350" height="30"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" title="These are the defaults widgets inherit. A widget can override any of them." id="gl-00-111">
                                                 <font key="font" metaFont="label" size="11"/>
@@ -279,8 +286,8 @@
                                             </textFieldCell>
                                         </textField>
 
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-00">
-                                            <rect key="frame" x="20" y="312" width="110" height="14"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-00">
+                                            <rect key="frame" x="20" y="274" width="110" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Refraction" id="gl-01-01">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -289,7 +296,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-00">
-                                            <rect key="frame" x="138" y="308" width="52" height="19"/>
+                                            <rect key="frame" x="138" y="270" width="52" height="19"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-01">
                                                 <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-02"/>
@@ -306,7 +313,7 @@
                                             </connections>
                                         </textField>
                                         <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-00">
-                                            <rect key="frame" x="198" y="307" width="300" height="21"/>
+                                            <rect key="frame" x="198" y="269" width="300" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.5" sliderType="linear" id="gl-02-01"/>
                                             <connections>
@@ -318,8 +325,8 @@
                                             </connections>
                                         </slider>
 
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-10">
-                                            <rect key="frame" x="20" y="282" width="110" height="14"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-10">
+                                            <rect key="frame" x="20" y="244" width="110" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Depth" id="gl-01-11">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -328,7 +335,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-10">
-                                            <rect key="frame" x="138" y="278" width="52" height="19"/>
+                                            <rect key="frame" x="138" y="240" width="52" height="19"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-11">
                                                 <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-12"/>
@@ -345,7 +352,7 @@
                                             </connections>
                                         </textField>
                                         <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-10">
-                                            <rect key="frame" x="198" y="277" width="300" height="21"/>
+                                            <rect key="frame" x="198" y="239" width="300" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.4" sliderType="linear" id="gl-02-11"/>
                                             <connections>
@@ -357,8 +364,8 @@
                                             </connections>
                                         </slider>
 
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-20">
-                                            <rect key="frame" x="20" y="252" width="110" height="14"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-20">
+                                            <rect key="frame" x="20" y="214" width="110" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Curvature" id="gl-01-21">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -367,7 +374,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-20">
-                                            <rect key="frame" x="138" y="248" width="52" height="19"/>
+                                            <rect key="frame" x="138" y="210" width="52" height="19"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-21">
                                                 <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-22"/>
@@ -384,7 +391,7 @@
                                             </connections>
                                         </textField>
                                         <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-20">
-                                            <rect key="frame" x="198" y="247" width="300" height="21"/>
+                                            <rect key="frame" x="198" y="209" width="300" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.3" sliderType="linear" id="gl-02-21"/>
                                             <connections>
@@ -396,8 +403,8 @@
                                             </connections>
                                         </slider>
 
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-30">
-                                            <rect key="frame" x="20" y="222" width="110" height="14"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-30">
+                                            <rect key="frame" x="20" y="184" width="110" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Dispersion" id="gl-01-31">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -406,7 +413,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-30">
-                                            <rect key="frame" x="138" y="218" width="52" height="19"/>
+                                            <rect key="frame" x="138" y="180" width="52" height="19"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-31">
                                                 <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-32"/>
@@ -423,7 +430,7 @@
                                             </connections>
                                         </textField>
                                         <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-30">
-                                            <rect key="frame" x="198" y="217" width="300" height="21"/>
+                                            <rect key="frame" x="198" y="179" width="300" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.4" sliderType="linear" id="gl-02-31"/>
                                             <connections>
@@ -435,8 +442,8 @@
                                             </connections>
                                         </slider>
 
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-40">
-                                            <rect key="frame" x="20" y="192" width="110" height="14"/>
+                                        <textField horizontalHuggingPriority="213" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gl-01-40">
+                                            <rect key="frame" x="20" y="154" width="110" height="14"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Frost" id="gl-01-41">
                                                 <font key="font" metaFont="smallSystem"/>
@@ -445,7 +452,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-40">
-                                            <rect key="frame" x="138" y="188" width="52" height="19"/>
+                                            <rect key="frame" x="138" y="150" width="52" height="19"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-41">
                                                 <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="1" maximumFractionDigits="1" id="gl-03-42"/>
@@ -462,7 +469,7 @@
                                             </connections>
                                         </textField>
                                         <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-40">
-                                            <rect key="frame" x="198" y="187" width="300" height="21"/>
+                                            <rect key="frame" x="198" y="149" width="300" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="10" doubleValue="2" sliderType="linear" id="gl-02-41"/>
                                             <connections>

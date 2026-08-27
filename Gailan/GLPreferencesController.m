@@ -43,7 +43,18 @@ static NSArray* categories(void)
     NSInteger row = self.categoryTable.selectedRow;
     if (row >= 0 && row < (NSInteger)categories().count) {
         [self.panes selectTabViewItemAtIndex:row];
+        [self showPaneTitle];
     }
+}
+
+// the window title names the selected category, like System Settings
+- (void)showPaneTitle
+{
+    NSInteger row = self.categoryTable.selectedRow;
+    if (row < 0 || row >= (NSInteger)categories().count) return;
+    self.window.title = [NSString
+        stringWithFormat:@"%@ \u2014 Gailan", categories()[row]
+    ];
 }
 
 @synthesize filePicker;
@@ -85,11 +96,18 @@ static NSArray* categories(void)
     
     [self widgetDirChanged:self.widgetDir];
 
+    // the sidebar material runs the full height, so the titlebar has to be
+    // transparent for it to show through, the way System Settings looks
+    self.window.titlebarAppearsTransparent = YES;
+    self.window.titleVisibility = NSWindowTitleHidden;
+    self.window.styleMask |= NSWindowStyleMaskFullSizeContentView;
+
     [self.categoryTable reloadData];
     [self.categoryTable
         selectRowIndexes: [NSIndexSet indexSetWithIndex:0]
         byExtendingSelection: NO
     ];
+    [self showPaneTitle];
 }
 
 #
