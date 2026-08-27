@@ -450,7 +450,7 @@ int const PORT = 41416;
 - (IBAction)visitWidgetGallery:(id)sender
 {
     [[NSWorkspace sharedWorkspace]
-        openURL:[NSURL URLWithString:@"http://tracesof.net/uebersicht-widgets/"]
+        openURL:[NSURL URLWithString:@"https://github.com/nich227/GailanHub"]
     ];
 }
 

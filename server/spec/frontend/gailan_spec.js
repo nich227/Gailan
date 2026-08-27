@@ -15,13 +15,15 @@ const test = require('tape');
 const gailan = require('../../src/gailan.ts');
 const uebersicht = require('../../src/legacyAlias.ts');
 
-// What a widget gets when it imports "gailan". Adding to this is fine; taking
-// something away breaks widgets.
+// What a widget gets when it imports "gailan". Übersicht exported exactly run,
+// request, css, styled and React, and Gailan keeps that surface so widgets carry
+// over unchanged; DesktopGlass is the one addition. Adding is fine, taking away
+// breaks widgets.
 test('the module a widget imports', (t) => {
   t.deepEqual(
     Object.keys(gailan).sort(),
     ['DesktopGlass', 'React', 'css', 'request', 'run', 'styled'],
-    'the surface widgets are written against'
+    "the surface widgets are written against, which is Übersicht's plus one"
   );
   t.equal(typeof gailan.run, 'function', 'run executes shell commands');
   t.equal(typeof gailan.css, 'function', 'css comes from emotion');
