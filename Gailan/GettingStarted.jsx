@@ -28,7 +28,7 @@ export const className =`
   background-position: 50% 20px;
   -webkit-backdrop-filter: blur(20px);
   color: #141f33;
-  font-family: Helvetica Neue;
+  font-family: 'Alibaba PuHuiTi', 'PingFang SC', 'Helvetica Neue', sans-serif;
   font-weight: 300;
   border: 2px solid #fff;
   border-radius: 1px;

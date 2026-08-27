@@ -98,9 +98,26 @@ for (const [file, size] of appIconSizes) {
   write(`Images.xcassets/AppIcon.appiconset/${file}`, render(appIcon, size));
 }
 
-// menu bar icon: template image, needs to read at 16pt so the glasses are bigger
+// menu bar icon: template image, so only the alpha matters. The desktop pane
+// is solid and the glasses are punched out of it as real transparency; the
+// extra circles knock out the lens interiors so the silhouette stays readable
+// at 16pt.
+const DESK_PANE = 'M2 14h12a1 1 0 0 0 1-1V5H1v8a1 1 0 0 0 1 1';
 const statusIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 0.5 17 15">
-  ${mark(NAVY, 0.46)}
+  <defs>
+    <mask id="cutout">
+      <rect x="-1" y="0" width="19" height="17" fill="white"/>
+      <g transform="translate(8 9.5) scale(0.72) translate(-8 -8)" fill="black">
+        <path d="${GLASSES}"/>
+        <circle cx="4" cy="8" r="2"/>
+        <circle cx="12" cy="8" r="2"/>
+      </g>
+    </mask>
+  </defs>
+  <g fill="${NAVY}">
+    <path d="${DOCK_FRAME}"/>
+    <path d="${DESK_PANE}" mask="url(#cutout)"/>
+  </g>
 </svg>`;
 write('status-icon.png', render(statusIcon, 16));
 write('status-icon@2x.png', render(statusIcon, 32));
