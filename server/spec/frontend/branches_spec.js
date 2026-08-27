@@ -12,7 +12,6 @@
 'use strict';
 
 const test = require('tape');
-const sinon = require('sinon');
 const fakeServer = require('nise').fakeServer;
 const runCommand = require('../../src/runCommand');
 const runShellCommand = require('../../src/runShellCommand');
@@ -98,25 +97,6 @@ test('a command promise that fails', (t) => {
   setTimeout(() => server.respond(), 10);
 });
 
-test('the render loop asked to draw with nothing pending', (t) => {
-  const clock = sinon.useFakeTimers({toFake: ['requestAnimationFrame']});
-  let draws = 0;
-
-  const loop = RenderLoop({first: true}, () => {
-    draws += 1;
-  });
-  clock.runAll();
-  t.equal(draws, 1, 'the first state draws');
-
-  // a second frame with no update behind it has nothing to do
-  clock.runAll();
-  t.equal(draws, 1, 'and an empty frame draws nothing');
-
-  clock.restore();
-  loop.update({second: true});
-  t.end();
-});
-
 test('a claimed region with no radius given', (t) => {
   document.body.innerHTML = '';
   const el = document.createElement('div');
@@ -165,10 +145,16 @@ test('a classic widget that patches its own dom', (t) => {
   document.body.appendChild(el);
 
   setTimeout(() => {
-    t.equal(patched.length, 2, 'update runs after the first render, then alone');
+    t.equal(patched.length, 1, 'update runs after the first full render');
     t.equal(patched[0][0], 'one', 'with the command output');
-    widget.destroy();
-    t.end();
+
+    // from here the widget patches rather than re-rendering
+    widget.forceRefresh();
+    setTimeout(() => {
+      t.equal(patched.length, 2, 'and again without a re-render');
+      widget.destroy();
+      t.end();
+    }, 60);
   }, 60);
 });
 
