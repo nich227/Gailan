@@ -440,7 +440,6 @@ struct GLWidgetUpdates: View {
                 Button(model.allSelected ? "Deselect All" : "Select All") {
                     model.selectAll(!model.allSelected)
                 }
-                .buttonStyle(.borderless)
             }
 
             Spacer()
