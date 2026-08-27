@@ -149,4 +149,33 @@ static BOOL menuHasAction(NSMenu* menu, SEL action)
     );
 }
 
+// The Widgets window is opened from the status menu, which a test cannot click,
+// so the action is called directly.
+- (void)testTheWidgetsWindowOpens
+{
+    NSUInteger before = [[NSApp windows] count];
+
+    [deletgate showWidgetsOverview:nil];
+
+    NSWindow* overview = nil;
+    for (NSWindow* window in [NSApp windows]) {
+        if ([[window title] isEqualToString:@"Widgets"]) overview = window;
+    }
+
+    XCTAssertNotNil(overview, @"a window titled Widgets is on screen");
+    XCTAssertTrue([overview isVisible]);
+    XCTAssertNotNil([overview contentView], @"with the SwiftUI view inside it");
+    XCTAssertGreaterThan([[NSApp windows] count], before);
+
+    // asking twice reuses the window rather than stacking them up
+    [deletgate showWidgetsOverview:nil];
+    NSUInteger titled = 0;
+    for (NSWindow* window in [NSApp windows]) {
+        if ([[window title] isEqualToString:@"Widgets"]) titled++;
+    }
+    XCTAssertEqual(titled, 1, @"and opening it again does not make a second");
+
+    [overview close];
+}
+
 @end
