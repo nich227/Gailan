@@ -222,7 +222,9 @@
     NSArray* screens = settings[widgetId][@"screens"];
     NSPredicate *withoutScreen = [NSPredicate
         predicateWithBlock: ^BOOL(id s, NSDictionary * _) {
-            return s != screenId;
+            // by value: two NSNumbers holding the same id are not necessarily
+            // the same object, so pointer comparison could silently keep it
+            return ![s isEqual:screenId];
         }
     ];
     
