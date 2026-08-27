@@ -16,7 +16,8 @@ function glassSettings() {
   const el = typeof document !== 'undefined' && document.documentElement;
   if (!el || !el.dataset.glass) return {enabled: true, optics: {}};
   try {
-    return JSON.parse(el.dataset.glass);
+    const settings = JSON.parse(el.dataset.glass);
+    return {enabled: settings.enabled !== false, optics: settings.optics || {}};
   } catch (e) {
     return {enabled: true, optics: {}};
   }

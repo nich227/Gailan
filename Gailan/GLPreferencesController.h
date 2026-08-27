@@ -30,6 +30,7 @@
 @property double glassFrost;
 
 - (NSString*)glassSettingsJSON;
+- (NSDictionary*)glassSettings;
 @property NSInteger appearanceTag;
 
 - (NSString*)shell;

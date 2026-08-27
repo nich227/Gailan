@@ -15,6 +15,7 @@
 #import "GLPreferencesController.m"
 #import "GLScreensController.h"
 #import "GLWidgetsController.h"
+#import "GLDispatcher.h"
 #import "GLWidgetsStore.h"
 #import "GLWebSocket.h"
 #import "GLWindowsController.h"
@@ -28,6 +29,7 @@ int const PORT = 41416;
 
 
 @implementation GLAppDelegate {
+    GLDispatcher* dispatcher;
     NSStatusItem* statusBarItem;
     NSTask* widgetServer;
     GLScreensController* screensController;
@@ -90,6 +92,7 @@ int const PORT = 41416;
     ];
     
     windowsController = [[GLWindowsController alloc] init];
+    dispatcher = [[GLDispatcher alloc] init];
     
     widgetsController = [[GLWidgetsController alloc]
         initWithMenu: statusBarMenu
@@ -383,7 +386,11 @@ int const PORT = 41416;
 // widgets read the glass settings at render time, so a reload is enough
 - (void)glassDidChange
 {
-    [windowsController reloadAll];
+    // widgets pick this up over the socket, so no reload
+    [dispatcher
+        dispatch: @"GLASS_SETTINGS_CHANGED"
+        withPayload: [self.preferences glassSettings]
+    ];
 }
 
 // a level change, not a window rebuild: rebuilding reloads every widget

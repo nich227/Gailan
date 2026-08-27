@@ -4,7 +4,7 @@
 // Gailan is a fork of Übersicht by Felix Hageloh. The widget API, the server
 // underneath, and the whole idea are his work: https://tracesof.net/uebersicht
 
-import { styled } from "gailan";
+import { styled, Glass } from "gailan";
 
 // this is the shell command that gets executed every time this widget
 // refreshes. id -F prints your full name; render keeps the first word.
@@ -99,6 +99,8 @@ const startDrag = (e: any) => {
    appearance. */
 const Window = styled("div")`
   --bg: rgba(24, 24, 31, 0.92);
+  /* opaque by default; the glass shows through as the fill is lightened */
+  --panel: rgba(24, 24, 31, 0.92);
   --header-bg: rgba(255, 255, 255, 0.04);
   --border: rgba(255, 255, 255, 0.1);
   --text: #e6e6ec;
@@ -107,6 +109,7 @@ const Window = styled("div")`
 
   @media (prefers-color-scheme: light) {
     --bg: rgba(250, 250, 252, 0.94);
+    --panel: rgba(250, 250, 252, 0.94);
     --header-bg: rgba(0, 0, 0, 0.03);
     --border: rgba(0, 0, 0, 0.1);
     --text: #1f1f28;
@@ -117,7 +120,7 @@ const Window = styled("div")`
   position: absolute;
   border-radius: 12px;
   overflow: hidden;
-  background: var(--bg);
+  background: var(--panel);
   border: 1px solid var(--border);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   -webkit-backdrop-filter: blur(18px);
@@ -263,7 +266,8 @@ export const render = ({ output, error }: State) => {
     : { left: "calc(50% - 170px)", top: "10%" };
 
   return (
-    <Window id={WIDGET_ID} style={{ width: 340, ...position }}>
+    <Glass radius={12}>
+      <Window id={WIDGET_ID} style={{ width: 340, ...position }}>
       <Header onMouseDown={startDrag}>
         <Lights>
           <Light c="#ff5f57">
@@ -303,10 +307,11 @@ export const render = ({ output, error }: State) => {
           </p>
         </Body>
 
-      <Footer>
-        Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
-        system is. tracesof.net/uebersicht
-      </Footer>
-    </Window>
+        <Footer>
+          Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
+          system is. tracesof.net/uebersicht
+        </Footer>
+      </Window>
+    </Glass>
   );
 };

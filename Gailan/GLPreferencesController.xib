@@ -261,12 +261,33 @@
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                 </textField>
+                                                                <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-00">
+                                    <rect key="frame" x="122" y="101" width="50" height="19"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-01">
+                                        <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-02"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="glassStrength" id="gl-03-03">
+                                            <dictionary key="options">
+                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </textField>
                                 <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-00">
-                                    <rect key="frame" x="122" y="101" width="382" height="21"/>
+                                    <rect key="frame" x="180" y="101" width="324" height="21"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.5" sliderType="linear" id="gl-02-01"/>
                                     <connections>
-                                        <binding destination="-2" name="value" keyPath="glassStrength" id="gl-02-02"/>
+                                        <binding destination="-2" name="value" keyPath="glassStrength" id="gl-02-02">
+                                            <dictionary key="options">
+                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                            </dictionary>
+                                        </binding>
                                     </connections>
                                 </slider>
 
@@ -279,8 +300,25 @@
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                 </textField>
+                                                                <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-10">
+                                    <rect key="frame" x="122" y="75" width="50" height="19"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-11">
+                                        <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-12"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="glassDepth" id="gl-03-13">
+                                            <dictionary key="options">
+                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </textField>
                                 <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-10">
-                                    <rect key="frame" x="122" y="75" width="382" height="21"/>
+                                    <rect key="frame" x="180" y="75" width="324" height="21"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.4" sliderType="linear" id="gl-02-11"/>
                                     <connections>
@@ -297,8 +335,25 @@
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                 </textField>
+                                                                <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-20">
+                                    <rect key="frame" x="122" y="49" width="50" height="19"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-21">
+                                        <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-22"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="glassCurvature" id="gl-03-23">
+                                            <dictionary key="options">
+                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </textField>
                                 <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-20">
-                                    <rect key="frame" x="122" y="49" width="382" height="21"/>
+                                    <rect key="frame" x="180" y="49" width="324" height="21"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.3" sliderType="linear" id="gl-02-21"/>
                                     <connections>
@@ -315,8 +370,25 @@
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                 </textField>
+                                                                <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-30">
+                                    <rect key="frame" x="122" y="23" width="50" height="19"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-31">
+                                        <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-32"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="glassDispersion" id="gl-03-33">
+                                            <dictionary key="options">
+                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </textField>
                                 <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-30">
-                                    <rect key="frame" x="122" y="23" width="382" height="21"/>
+                                    <rect key="frame" x="180" y="23" width="324" height="21"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="0.4" sliderType="linear" id="gl-02-31"/>
                                     <connections>
@@ -333,8 +405,25 @@
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                 </textField>
+                                                                <textField fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-03-40">
+                                    <rect key="frame" x="122" y="0" width="50" height="19"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" borderStyle="bezel" drawsBackground="YES" id="gl-03-41">
+                                        <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2" minimumFractionDigits="2" maximumFractionDigits="2" id="gl-03-42"/>
+                                        <font key="font" metaFont="smallSystem"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                    <connections>
+                                        <binding destination="-2" name="value" keyPath="glassFrost" id="gl-03-43">
+                                            <dictionary key="options">
+                                                <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                            </dictionary>
+                                        </binding>
+                                    </connections>
+                                </textField>
                                 <slider fixedFrame="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gl-02-40">
-                                    <rect key="frame" x="122" y="0" width="382" height="21"/>
+                                    <rect key="frame" x="180" y="0" width="324" height="21"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <sliderCell key="cell" controlSize="small" continuous="YES" state="on" alignment="left" maxValue="10" doubleValue="2" sliderType="linear" id="gl-02-41"/>
                                     <connections>

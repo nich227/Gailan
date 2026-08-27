@@ -281,10 +281,9 @@ GL_GLASS_OPTIC(GlassCurvature, @"glassCurvature")
 GL_GLASS_OPTIC(GlassDispersion, @"glassDispersion")
 GL_GLASS_OPTIC(GlassFrost, @"glassFrost")
 
-// travels to the widgets in the page url
-- (NSString*)glassSettingsJSON
+- (NSDictionary*)glassSettings
 {
-    NSDictionary* settings = @{
+    return @{
         @"enabled": @(self.glassEnabled),
         @"optics": @{
             @"strength": @(self.glassStrength),
@@ -294,8 +293,13 @@ GL_GLASS_OPTIC(GlassFrost, @"glassFrost")
             @"frost": @(self.glassFrost),
         }
     };
+}
+
+// the same settings, for the initial page url
+- (NSString*)glassSettingsJSON
+{
     NSData* json = [NSJSONSerialization
-        dataWithJSONObject:settings options:0 error:nil
+        dataWithJSONObject:[self glassSettings] options:0 error:nil
     ];
     return [[NSString alloc]
         initWithData:json encoding:NSUTF8StringEncoding

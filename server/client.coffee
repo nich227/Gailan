@@ -61,6 +61,10 @@ window.onload = ->
             store.dispatch(actions.showWidget(action.payload.id, widgetImpl))
       else if action.type == 'MASTER_STYLE_CHANGED'
         reloadUserCSS()
+      else if action.type == 'GLASS_SETTINGS_CHANGED'
+        # restyle every glass widget in place
+        document.documentElement.dataset.glass = JSON.stringify(action.payload)
+        render.rendered[id]?.instance?.forceRefresh() for id of render.rendered
       else
         store.dispatch(action)
     render(initialState, screen, contentEl, store.dispatch)
