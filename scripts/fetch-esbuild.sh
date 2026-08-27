@@ -54,7 +54,6 @@ fetch_arch() {
 
   tar xzf "$tarball" -C "$target" --strip-components=1
   chmod +x "${target}/bin/esbuild"
-  adhoc_sign "${target}/bin/esbuild"
   echo "esbuild-${arch}: installed ${ESBUILD_VERSION} -> ${target}"
 }
 
@@ -69,5 +68,7 @@ adhoc_sign() {
 fetch_arch x64 "$SHA512_X64"
 fetch_arch arm64 "$SHA512_ARM64"
 
-# npm's own copy, installed by build-server for the build machine's arch
+# signed every time, not just when freshly downloaded, including npm's own copy
+adhoc_sign "${DEST_DIR}/darwin-x64/bin/esbuild"
+adhoc_sign "${DEST_DIR}/darwin-arm64/bin/esbuild"
 adhoc_sign "${ROOT}/server/release/node_modules/esbuild/bin/esbuild"
