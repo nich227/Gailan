@@ -34,8 +34,8 @@ type ScreenInfo = {
 // Widget bundles ask for these by name. browserify used to expose its own
 // require for that; esbuild does not, so the registry is explicit.
 const hostModules: {[name: string]: unknown} = {
-  gailan: require('./src/gailan'),
-  uebersicht: require('./src/legacyAlias'),
+  gailan: require('./src/gailan.ts'),
+  uebersicht: require('./src/legacyAlias.ts'),
 };
 
 (globalThis as any).require = (name: string): unknown => {
