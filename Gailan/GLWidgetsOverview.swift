@@ -517,7 +517,7 @@ struct GLWidgetSettings: View {
     private func binding(_ setting: WidgetSetting) -> Binding<String> {
         Binding(
             get: { current(setting) },
-            set: { model.setValue($0, forKey: setting.key, widget: widget.id) }
+            set: { model.setValue($0, forKey: setting.key, widget: widgetId) }
         )
     }
 }
