@@ -393,10 +393,12 @@ export const render = ({ output, error, settings = {} }: State) => {
         </p>
       </Body>
 
-      <Footer>
-        Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
-        system is. tracesof.net/uebersicht
-      </Footer>
+      {settings.showCredits === false ? null : (
+        <Footer>
+          Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
+          system is. tracesof.net/uebersicht
+        </Footer>
+      )}
     </Window>
   );
 };
