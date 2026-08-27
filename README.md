@@ -21,8 +21,7 @@ module built for Node 16, needs rebuilding. Upstream breaking changes: Node
 [18](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md),
 [20](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V20.md),
 [22](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V22.md),
-[24](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V24.md),
-[26](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V26.md) ·
+[24](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V24.md) ·
 [React 19](https://react.dev/blog/2024/04/25/react-19-upgrade-guide) ·
 [CoffeeScript 2](https://coffeescript.org/#breaking-changes) ·
 [Emotion 11](https://emotion.sh/docs/emotion-11) ·
@@ -45,7 +44,7 @@ The specifics:
   - **requires macOS 13.5 or later**, which the bundled Node runtime and the system APIs
     it uses both need. The app will not launch on anything older
 
-The Node runtime is Node 26 and is no longer checked into git; see [Building Gailan](#building-gailan).
+The Node runtime is Node 24, the current LTS, and is no longer checked into git; see [Building Gailan](#building-gailan).
 
 ## Migrating from Übersicht
 
@@ -80,7 +79,7 @@ Gailan offers to do that for you when it starts.
   - **bash-specific command syntax** may need adjusting, or set the shell back in
     Preferences. Widget commands run through zsh by default, where Übersicht used bash.
     Plain POSIX commands behave the same in both.
-  - **native modules** bundled inside a widget need rebuilding against Node 26.
+  - **native modules** bundled inside a widget need rebuilding against Node 24.
   - **Widget commands that depend on old Node behaviour** need looking at, per the
     breaking changes linked above.
 
@@ -497,14 +496,13 @@ To build Gailan you need Node.js and a few dependencies:
 
 ### setup
 
-Gailan bundles Node 26 into the app, and the server code expects it, so build with Node 26.
-Homebrew's unversioned formula is on 26 (there is no `node@26`):
+Gailan bundles Node 24 into the app, and the server code expects it, so build with Node 24:
 
 ```
-brew install node
+brew install node@24
 ```
 
-Or pin it with a version manager, `nvm install 26`. Then:
+Or `nvm install 24`. Then:
 
 ```
 cd server && npm install

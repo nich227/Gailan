@@ -31,7 +31,7 @@ Xcode drives everything: the "Compile JS" build phase runs `npm run release` in
 The bundled node binaries are not in git (~145MB each, over GitHub's file limit).
 `scripts/fetch-node.sh` downloads them and checks them against the SHA256 sums
 published by the Node project. To move versions, edit `NODE_VERSION` and both
-checksums at the top of that script. Node 26 needs macOS 13.5, which is also the
+checksums at the top of that script. Node 24 needs macOS 13.5, which is also the
 project's deployment target, so keep the two in step.
 
 `scripts/build-icons.js` regenerates the app icon, status icon and wordmark from the
@@ -45,7 +45,7 @@ project dependency; install it ad hoc when you touch the branding.
     npm run test-dom             # spec/frontend, jsdom
 
 Neither half needs a browser. `spec/frontend` used to be bundled and handed to
-tape-run/electron, which cannot be installed on node 26 at all: the download works,
+tape-run/electron, whose installer could not unpack itself here: the download works,
 but `extract-zip` never settles its promise, so the postinstall exits successfully
 having unpacked nothing. Those specs now run in jsdom via `spec/helpers/domEnv.js`,
 which also maps `superagent` to its xhr build, because that is what browserify picks
@@ -116,7 +116,7 @@ User defaults (registered in `GLPreferencesController`): `shell` (`zsh` default,
 via `prefers-color-scheme`), `loginShell`, `enableInteraction`, `widgetDirectory`. The
 shell reaches the node server as `--shell`; changing it restarts the server. fish gets
 commands via `-c` because it cannot read them from the stdin pipe node hands it; zsh and
-bash keep the stdin protocol. The deployment target is 13.5 (Node 26 requires it, so does
+bash keep the stdin protocol. The deployment target is 13.5 (Node 24 requires it, so does
 SMAppService), and `LSMinimumSystemVersion` enforces it at launch. Posting a widget-error
 notification uses UserNotifications, which asks the user for authorization once.
 
@@ -132,7 +132,7 @@ what matches:
   - `tracesOf.Uebersicht` in an AppleScript call becomes `com.nich227.Gailan`.
   - bash-only syntax in `command` (`shopt`, `[[ -o ...]]` idioms differing from zsh, bash
     arrays) either gets rewritten for zsh or the user switches the shell in Preferences.
-  - a vendored native module gets rebuilt against Node 26.
+  - a vendored native module gets rebuilt against Node 24.
   - `.jsx` still works, so do not convert a widget to `.tsx` unless asked; if converting,
     remember types are stripped and never checked, so a type error will not fail a build.
 
