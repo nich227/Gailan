@@ -80,6 +80,20 @@ there is nothing to bump.
 Anything involving the cocoa app, the WKWebView, or real file-system events has to be
 verified on macOS. Say so rather than implying it was tested.
 
+## Releasing
+
+Push a tag like `v1.0.2` and the release workflow does the rest: builds the app,
+zips it, signs the zip with the EdDSA key in the `SPARKLE_ED_PRIVATE_KEY` secret,
+publishes a GitHub Release, and adds an item to `updates.xml.rss` on `gh-pages` —
+the appcast running apps poll via `SUFeedURL`. Sparkle compares the build number,
+derived from the tag as `x*10000 + y*100 + z`, so it rises with the version; the
+`CURRENT_PROJECT_VERSION` in the project stays at its dev value and is overridden
+per release. The public key lives in `Gailan-Info.plist` as `SUPublicEDKey`; the
+updater is a `SPUStandardUpdaterController` instantiated in `MainMenu.xib` (do not
+reintroduce the deprecated `SUUpdater`). Signing happens in node
+(`scripts/sign-release.js`) rather than Sparkle's `sign_update`, because CI has no
+Keychain; the output is the same ed25519 signature either way.
+
 ## Conventions
 
   - Objective-C classes use the `GL` prefix. Two-space indent, brace on its own line
