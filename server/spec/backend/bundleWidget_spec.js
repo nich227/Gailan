@@ -58,6 +58,28 @@ test('bundling jsx widgets', (t) => {
   });
 });
 
+test('bundling tsx widgets', (t) => {
+  const widgetPath = path.join(testDir, 'widget-4.tsx');
+  const bundle = bundleWidget('widget-4', widgetPath);
+
+  t.plan(3);
+  t.ok(
+    bundle.constructor.name === 'Browserify',
+    'it returns a browserify bundle',
+  );
+  bundle.bundle((err, src) => {
+    t.ok(
+      !err && src && src.indexOf('command') > -1,
+      'the source code looks ok',
+    );
+    t.ok(
+      src && src.indexOf('Props') === -1 && src.indexOf('tsx-widget') > -1,
+      'the types are stripped and the jsx is compiled',
+    );
+    bundle.close();
+  });
+});
+
 test('bundling widgets with syntax errors', (t) => {
   const widgetPath = path.join(testDir, 'broken-widget.coffee');
   const bundle = bundleWidget('broken', widgetPath);

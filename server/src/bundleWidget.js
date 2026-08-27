@@ -4,6 +4,7 @@ const widgetify = require('./widgetify');
 const coffeeify = require('coffeeify');
 const babelify = require('babelify');
 const jsxTransform = require('@babel/preset-react');
+const tsTransform = require('@babel/preset-typescript');
 const emotion = require('@emotion/babel-plugin');
 const envPreset = require('@babel/preset-env');
 const {Transform} = require('stream');
@@ -26,12 +27,14 @@ function wrapJSWidget() {
 }
 
 module.exports = function bundleWidget(id, filePath) {
-  const isJsxWidget = filePath.match(/\.jsx$/);
+  const isTsxWidget = filePath.match(/\.tsx$/);
+  const isJsxWidget = filePath.match(/\.jsx$/) || isTsxWidget;
   const bundle = browserify(filePath, {
     detectGlobals: false,
     cache: {},
     packageCache: {},
     debug: isJsxWidget,
+    extensions: ['.jsx', '.tsx', '.ts'],
   });
 
   bundle.plugin(watchify);
@@ -46,11 +49,17 @@ module.exports = function bundleWidget(id, filePath) {
     });
     bundle.transform(widgetify, {id: id});
   } else if (isJsxWidget) {
+    const presets = [
+      [envPreset, {targets: {safari: '16.6'}, modules: 'commonjs'}],
+      [jsxTransform, {pragma: 'html'}],
+    ];
+    if (isTsxWidget) {
+      // strips types only; nothing typechecks widgets
+      presets.push([tsTransform, {isTSX: true, allExtensions: true}]);
+    }
     bundle.transform(babelify, {
-      presets: [
-        [envPreset, {targets: {safari: '16.6'}, modules: 'commonjs'}],
-        [jsxTransform, {pragma: 'html'}],
-      ],
+      extensions: ['.js', '.jsx', '.tsx', '.ts'],
+      presets: presets,
       plugins: [emotion],
     });
   } else {

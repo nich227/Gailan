@@ -4,7 +4,7 @@ var VirtualDomWidget = require('./VirtualDomWidget');
 module.exports = function Widget(widget) {
   var api;
 
-  if (/\.jsx$/.test(widget.filePath)) {
+  if (/\.(jsx|tsx)$/.test(widget.filePath)) {
     api = VirtualDomWidget(widget);
   } else {
     api = ClassicWidget(widget);

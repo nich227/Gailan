@@ -8,6 +8,8 @@
 // this is the shell command that gets executed every time this widget refreshes
 export const command = "whoami";
 
+type Props = {output: string; error?: string};
+
 // the refresh frequency in milliseconds
 export const refreshFrequency = 1000000;
 
@@ -48,7 +50,7 @@ export const className =`
 
 // render gets called after the shell command has executed. The command's output
 // is passed in as a string.
-export const render = ({output}) => {
+export const render = ({output}: Props) => {
   return (
     <div>
       <h1>Hi, {output}</h1>

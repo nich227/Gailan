@@ -1,6 +1,16 @@
 const test = require('tape');
 const resolveWidget = require('../../src/resolveWidget.js');
 
+test('resolving tsx widgets', (t) => {
+  const action = resolveWidget({
+    type: 'added',
+    filePath: '/widget/dir/typed.tsx',
+    rootPath: '/widget/dir/',
+  });
+  t.equal(action.id, 'typed-tsx', 'a tsx file is a widget');
+  t.end();
+});
+
 test('resolving widget actions from file events', (t) => {
   const action = resolveWidget({
     type: 'added',

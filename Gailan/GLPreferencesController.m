@@ -141,10 +141,10 @@
         return;
     }
     
-    NSURL* gettinStartedWidget = [[NSBundle mainBundle] URLForResource:@"GettingStarted" withExtension:@"jsx"];
+    NSURL* gettinStartedWidget = [[NSBundle mainBundle] URLForResource:@"GettingStarted" withExtension:@"tsx"];
     
     [fileManager copyItemAtURL:gettinStartedWidget
-                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"GettingStarted.jsx"]
+                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"GettingStarted.tsx"]
                          error:&error];
     
     NSURL* logo = [[NSBundle mainBundle] URLForResource:@"gailan-logo" withExtension:@"png"];
