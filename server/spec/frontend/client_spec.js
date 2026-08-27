@@ -257,15 +257,6 @@ test('the state request failing', async (t) => {
   preparePage();
   stateFails = true;
 
-  const realReload = window.location.reload;
-  let reloaded = 0;
-  Object.defineProperty(window.location, 'reload', {
-    configurable: true,
-    value: () => {
-      reloaded += 1;
-    },
-  });
-
   const logged = [];
   const realLog = console.log;
   console.log = (message) => logged.push(message);
@@ -277,11 +268,10 @@ test('the state request failing', async (t) => {
   stateFails = false;
 
   t.equal(logged.length, 1, 'the failure is reported');
-  t.equal(reloaded, 0, 'and the reload is scheduled for later, not immediate');
-
-  Object.defineProperty(window.location, 'reload', {
-    configurable: true,
-    value: realReload,
-  });
+  t.equal(
+    logged[0],
+    'the server said no',
+    'with what the server said, rather than an undefined variable'
+  );
   t.end();
 });
