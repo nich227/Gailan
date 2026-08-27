@@ -5,7 +5,7 @@ var path = require('path');
 var httpGet = require('../helpers/httpGet');
 var testPort = require('../helpers/testPort');
 var httpPost = require('../helpers/httpPost');
-var commandServer = require('../../src/command_server.coffee');
+var commandServer = require('../../src/command_server.ts');
 
 var {execSync} = require('child_process');
 

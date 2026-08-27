@@ -5,7 +5,7 @@ function isWidgetPath(filePath) {
     filePath.indexOf('/node_modules/') === -1 &&
     filePath.indexOf('/src/') === -1 &&
     filePath.indexOf('/lib/') === -1 &&
-    /\.coffee$|\.js$|\.jsx$|\.tsx$/.test(filePath)
+    /\.js$|\.jsx$|\.ts$|\.tsx$/.test(filePath)
   );
 }
 

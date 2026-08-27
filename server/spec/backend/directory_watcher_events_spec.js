@@ -7,7 +7,7 @@ var os = require('os');
 var path = require('path');
 var Module = require('module');
 
-var watcherPath = require.resolve('../../src/directory_watcher.coffee');
+var watcherPath = require.resolve('../../src/directory_watcher.ts');
 
 var handlers = [];
 var fakeFsevents = {

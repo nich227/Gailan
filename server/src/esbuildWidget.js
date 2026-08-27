@@ -15,7 +15,6 @@ const esbuild = require('esbuild');
 const {EventEmitter} = require('events');
 const path = require('path');
 const fs = require('fs');
-const CoffeeScript = require('coffeescript');
 const widgetify = require('./widgetify');
 
 // the registry a widget bundle publishes itself into. the client reads it
@@ -45,37 +44,12 @@ function hostModules() {
   };
 }
 
-// classic widgets: an object literal, optionally in coffee, whose style is
-// stylus and whose refreshFrequency may be "10s". widgetify rewrites all that.
+// classic widgets: a bare object literal whose style is stylus and whose
+// refreshFrequency may be "10s". widgetify rewrites all that.
 function classicWidget(id, entry) {
   return {
     name: 'classic-widget',
     setup(build) {
-      build.onLoad({filter: /\.coffee$/}, (args) => {
-        let source;
-        try {
-          source = CoffeeScript.compile(fs.readFileSync(args.path, 'utf8'), {
-            bare: true,
-            header: false,
-          });
-        } catch (err) {
-          return {
-            errors: [
-              {
-                text: err.message,
-                location: err.location
-                  ? {
-                      line: err.location.first_line + 1,
-                      column: err.location.first_column,
-                    }
-                  : null,
-              },
-            ],
-          };
-        }
-        return {contents: rewrite(source, args.path), loader: 'js'};
-      });
-
       // a plain .js widget is a bare object literal, so it needs wrapping
       // before it can be parsed as an expression
       build.onLoad({filter: /\.js$/}, (args) => {

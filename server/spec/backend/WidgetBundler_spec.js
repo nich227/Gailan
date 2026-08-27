@@ -10,7 +10,7 @@ var callback = () => {};
 test('bundling widgets', (t) => {
   const action = {
     type: 'added',
-    filePath: path.join(fixturePath, 'widget-1.coffee'),
+    filePath: path.join(fixturePath, 'widget-1.js'),
     id: 'widget-1',
   };
 
@@ -52,7 +52,7 @@ test('watching widgets', (t) => {
   };
 
   fs.utimes(
-    path.join(fixturePath, 'widget-1.coffee'),
+    path.join(fixturePath, 'widget-1.js'),
     Date.now(),
     Date.now(),
     () => {},
@@ -62,7 +62,7 @@ test('watching widgets', (t) => {
 test('removing widgets', (t) => {
   const action = {
     type: 'removed',
-    filePath: path.join(fixturePath, 'widget-1.coffee'),
+    filePath: path.join(fixturePath, 'widget-1.js'),
     id: 'widget-1',
   };
 

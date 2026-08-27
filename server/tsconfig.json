@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "preserve",
+    // these files are CommonJS, so they carry no import/export syntax for
+    // TypeScript to notice. without this every file shares one global scope.
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "allowJs": false,
+    "checkJs": false,
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    // node strips types rather than compiling them, so nothing that needs a
+    // transform is allowed: no enums, namespaces, or parameter properties
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": false
+  },
+  "include": ["client.ts", "server.ts", "src/**/*.ts"],
+  "exclude": ["node_modules", "release", "spec"]
+}

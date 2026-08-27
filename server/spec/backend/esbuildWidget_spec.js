@@ -63,7 +63,7 @@ async function load(id, file) {
 }
 
 test('a coffee widget keeps the classic shape', async (t) => {
-  const {widget} = await load('widget-1', 'widget-1.coffee');
+  const {widget} = await load('widget-1', 'widget-1.js');
 
   t.deepEqual(
     Object.keys(widget).sort(),
@@ -136,7 +136,7 @@ test('the gailan module is borrowed from the client, not bundled', async (t) => 
 
 test('a widget with a syntax error reports where', async (t) => {
   try {
-    await bundle('broken', path.join(widgets, 'broken-widget.coffee'));
+    await bundle('broken', path.join(widgets, 'broken-widget.js'));
     t.fail('it should not have bundled');
   } catch (err) {
     t.equal(err.message, 'unexpected indentation', 'the coffee error survives');

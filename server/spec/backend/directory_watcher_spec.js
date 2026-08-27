@@ -3,7 +3,7 @@ var path = require('path');
 var fs = require('fs');
 var execSync = require('child_process').execSync;
 
-var DirWatcher = require('../../src/directory_watcher.coffee');
+var DirWatcher = require('../../src/directory_watcher.ts');
 var fixturePath = path.resolve(__dirname, '../test_widgets');
 var newWidgetPath = path.join(fixturePath, 'new-widget.coffee');
 
@@ -17,11 +17,11 @@ const throwError = (err) => {
 test('files that are already present in the widget dir', (t) => {
   t.timeoutAfter(300);
   var expectedWidgets = [
-    path.join(fixturePath, 'widget-1.coffee'),
+    path.join(fixturePath, 'widget-1.js'),
     path.join(fixturePath, 'widget-2.js'),
-    path.join(fixturePath, 'some-dir.widget', 'index-1.coffee'),
-    path.join(fixturePath, 'broken-widget.coffee'),
-    path.join(fixturePath, 'invalid-widget.coffee'),
+    path.join(fixturePath, 'some-dir.widget', 'index-1.js'),
+    path.join(fixturePath, 'broken-widget.js'),
+    path.join(fixturePath, 'invalid-widget.js'),
   ];
 
   callback = (event) => {
