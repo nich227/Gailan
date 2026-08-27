@@ -111,11 +111,12 @@ const statusIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 0.5 17
   <defs>
     <mask id="cutout">
       <rect x="-1" y="0" width="19" height="17" fill="white"/>
-      <g transform="translate(8 9.5) scale(0.72) translate(-8 -8)" fill="black">
+      <g transform="translate(8 8.2) scale(0.58) translate(-8 -8)" fill="black">
         <path d="${GLASSES}"/>
         <circle cx="4" cy="8" r="2"/>
         <circle cx="12" cy="8" r="2"/>
       </g>
+      <path d="${DOCK_KEYS}" fill="black"/>
     </mask>
   </defs>
   <g fill="${NAVY}">
