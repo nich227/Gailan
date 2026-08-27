@@ -158,7 +158,8 @@ struct GLPreferencesView: View {
         }
     }
 
-    private var glass: some View {
+    // two sections now, so the builder has to be explicit
+    @ViewBuilder private var glass: some View {
         Section {
             Toggle("Available to widgets", isOn: $prefs.glassEnabled)
             optic("Refraction", $prefs.glassStrength, max: 1)
