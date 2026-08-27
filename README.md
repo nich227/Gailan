@@ -27,7 +27,7 @@ The Node runtime is Node 26 and is no longer checked into git; see [Building Gai
 
 ## Writing Widgets
 
-In essence, widgets are JavaScript modules that expose a few key properties and methods. They need to be defined in a single file with a `.jsx` extension for Gailan to pick them up. Widgets could previously be written in CoffeeScript, and those are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
+In essence, widgets are TypeScript (or JavaScript) modules that expose a few key properties and methods. They need to be defined in a single file with a `.tsx` (or `.jsx`) extension for Gailan to pick them up. Types are stripped when the widget is bundled, not checked. Widgets could previously be written in CoffeeScript, and those are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
 
 Widget rendering is done using [React](https://react.dev) and its [JSX](https://react.dev/learn/writing-markup-with-jsx) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which are processed by a single `updateState` function that returns the new state, which is then passed to your widget's render function.
 
@@ -45,19 +45,19 @@ or **undefined**, meaning that no command will be executed for this widget.
 
 For example:
 
-```jsx
+```tsx
 export const command = "echo Hello World";
 ```
 
 Watch out for quotes inside commands. Often they need to be properly escaped, like:
 
-```jsx
+```tsx
 export const command = "ps axo \"rss,pid,ucomm\" | sort -nr | head -n3";
 ```
 
 Example using a command function:
 
-```jsx
+```tsx
 export const command = (dispatch) =>
   fetch('some/url.json')
     .then((response) => {
@@ -77,7 +77,7 @@ A **number** specifying how often the above command is executed.
 
 It defines the delay in milliseconds between consecutive command executions. Example:
 
-```jsx
+```tsx
 export const refreshFrequency = 1000; // widget will run command once a second
 ```
 
@@ -89,7 +89,7 @@ An **object** or **string** defining the CSS rules to be applied to the root of 
 
 It is most commonly used to control the position of your widget. It is converted to a CSS class name using the [Emotion CSS-in-JS library](https://emotion.sh/docs/css). Read more about [styling your widgets](#styling-widgets).
 
-```jsx
+```tsx
 export const className = {
   top: 0,
   left: 0,
@@ -99,7 +99,7 @@ export const className = {
 
 or
 
-```jsx
+```tsx
 export const className = `
   top: 0;
   left: 0;
@@ -115,7 +115,7 @@ A **function(props : object)** to render your widget.
 
 If you know [React functional components](https://react.dev/learn/your-first-component), you know how render works. The `props` passed to this function is whatever state your `updateState` function returns. If you don't provide your own `updateState` function, the default props that are passed are `output` and `error`, containing the output your command produced and any error that might have occurred.
 
-```jsx
+```tsx
 export const render = ({output, error}) => {
   return error ? (
     <div>Something went wrong: <strong>{String(error)}</strong></div>
@@ -136,7 +136,7 @@ A **function(event : object, previousState : object)** implementing the state up
 
 When provided, this function must return the next state, which will be passed as `props` to your render function. The default function will return `output` and `error` from the event object.
 
-```jsx
+```tsx
 export const updateState = (event, previousState) => {
   if (event.error) {
     return { ...previousState, warning: `We got an error: ${event.error}` };
@@ -152,7 +152,7 @@ This will pass a props object containing `cpuPct` and `processName` to the rende
 
 If your widget has more complex state logic, for example because it is fetching data from several different sources, it is a good idea to add a `type` property to your events. You can use this type to decide how to update your state. For example:
 
-```jsx
+```tsx
 export const updateState = (event, previousState) => {
   switch(event.type) {
     case 'CO2_FETCHED': return updateCo2(event.output, previousState);
@@ -172,7 +172,7 @@ An **object** with the initial state of your widget.
 
 If you provide a custom `updateState` function you might need to define the initial state that gets passed on the initial render of the widget, before any command has been run.
 
-```jsx
+```tsx
 export const initialState = { output: 'fetching data...' };
 ```
 
@@ -182,7 +182,7 @@ The default initial state is `{ output: '' }`.
 
 A **function(dispatch : function)** that is called the first time your widget loads. Many widgets won't need this, but you can use this function to perform any initial setup for more advanced use cases. For example, instead of relying on periodic shell commands, you might want to open and listen to WebSocket events to update your widget.
 
-```jsx
+```tsx
 export const init = (dispatch) => {
   const socket = new WebSocket('ws://localhost:8080');
 
@@ -199,7 +199,7 @@ Gailan comes bundled with [Emotion](https://emotion.sh) (version 11). It exposes
 
 As described above, you can use `className` to style and position the root node of your widget. For further styling you can do something like this:
 
-```jsx
+```tsx
 import { css } from "gailan"
 
 const header = css`
@@ -246,7 +246,7 @@ export const render = ({ colors }) => {
 
 Alternatively, you can also make use of Emotion's styled components:
 
-```jsx
+```tsx
 import { styled } from "gailan"
 
 const Header = styled("h1")`
@@ -298,7 +298,7 @@ If you need to run extra shell commands without using the [command](#command) pr
 
 It returns a Promise, which will resolve to the output of the command (stdout) or reject if an error occurred.
 
-```jsx
+```tsx
 import { run } from 'gailan'
 
 export const render = (props, dispatch) => {
