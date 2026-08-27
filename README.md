@@ -11,8 +11,15 @@ info on the original project, check out the [Übersicht website](http://tracesof
 
 ## Differences from Übersicht
 
-Everything is renamed, which means Gailan installs and runs alongside Übersicht rather than
-upgrading it:
+Gailan is not backwards compatible with Übersicht, and it is not an in-place upgrade. The
+app is a separate application with its own name, bundle id and support directory, so it
+installs beside Übersicht instead of replacing it, and Übersicht's own updater will never
+offer it. Widget code carries over, since the widget API is the same; settings and the
+widgets folder do not, and have to be moved by hand. The bundled Node also jumped from 16
+to 26, so a widget whose command depends on old Node behaviour, or that bundles a native
+module built for Node 16, needs rebuilding.
+
+The specifics:
 
   - bundle id is `com.nich227.Gailan` (AppleScript needs the new id)
   - widgets live in `~/Library/Application Support/Gailan/widgets`

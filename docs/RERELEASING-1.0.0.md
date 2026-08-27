@@ -10,6 +10,17 @@ membership is active. The release pipeline itself already works: it built, signe
 the Sparkle key, notarized nothing, published a dmg and a zip, and updated the appcast.
 Only Apple signing is missing.
 
+## Compatibility
+
+Gailan is not backwards compatible with Übersicht. The app name, bundle id
+(`com.nich227.Gailan`) and support directory are all different, so it installs alongside
+Übersicht rather than upgrading it, and no Übersicht install will ever see this release
+through its own updater. Widget code is compatible, since the widget API did not change;
+settings and the widgets folder are not carried over. Node went from 16 to 26, so a widget
+that depends on old Node behaviour or ships a native module built against Node 16 has to be
+rebuilt. None of this changes what the release process does, but it is what the release
+notes have to keep saying.
+
 ## What is already in place
 
 - `.github/workflows/release.yml` builds on a tag, makes the zip and the dmg, signs the
