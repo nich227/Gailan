@@ -16,9 +16,19 @@ const handlers = {
     });
 
     const settings = state.settings || {};
-    const newSettings = settings[widget.id]
-      ? state.settings
-      : Object.assign({}, settings, {[widget.id]: defaultSettings});
+    const existing = settings[widget.id];
+
+    // whatever the user last chose for this widget, read back from the
+    // settings.json beside it. it only seeds what is not already known, so a
+    // rebuild does not undo a change made since.
+    const saved = widget.savedConfig || {};
+    const config = Object.assign({}, saved, (existing || {}).config || {});
+
+    const newSettings = Object.assign({}, settings, {
+      [widget.id]: Object.assign({}, existing || defaultSettings, {
+        config: config,
+      }),
+    });
 
     return Object.assign({}, state, {
       widgets: newWidgets,

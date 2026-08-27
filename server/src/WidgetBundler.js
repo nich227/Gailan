@@ -2,6 +2,7 @@
 
 const bundleWidget = require('./esbuildWidget');
 const readWidgetSettings = require('./readWidgetSettings');
+const widgetConfigFile = require('./widgetConfigFile');
 const fs = require('fs');
 
 module.exports = function WidgetBundler() {
@@ -61,8 +62,11 @@ module.exports = function WidgetBundler() {
       const widget = {
         id: id,
         filePath: filePath,
-        // what the widget says it can be configured with, if anything
+        // what the widget says it can be configured with, what it should be
+        // called, and what the user last chose
         settingsSchema: readWidgetSettings(filePath),
+        title: readWidgetSettings.titleFor(filePath),
+        savedConfig: widgetConfigFile.read(filePath),
       };
 
       fs.access(filePath, fs.constants.R_OK, (couldNotRead) => {

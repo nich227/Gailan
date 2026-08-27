@@ -77,6 +77,18 @@ module.exports = function readWidgetSettings(filePath) {
   return raw.settings.filter(isUsable).map(normalize);
 };
 
+// The name a person should see, which the manifest can set. Without one the
+// caller falls back to the widget id.
+module.exports.titleFor = function titleFor(filePath) {
+  const manifest = path.join(path.dirname(filePath), 'widget.json');
+  try {
+    const raw = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+    return typeof raw.title === 'string' && raw.title ? raw.title : null;
+  } catch (err) {
+    return null;
+  }
+};
+
 module.exports.defaultsFor = function defaultsFor(schema) {
   const values = {};
   (schema || []).forEach((setting) => {

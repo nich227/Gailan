@@ -36,6 +36,7 @@ const sharedSocket = require('./SharedSocket');
 const actions = require('./actions');
 const reducer = require('./reducer');
 const resolveWidget = require('./resolveWidget');
+const widgetConfigFile = require('./widgetConfigFile');
 
 const dispatchToRemote = require('./dispatch');
 const listenToRemote = require('./listen');
@@ -107,7 +108,17 @@ module.exports = function GailanServer(
   });
 
   store.subscribe(() => {
-    settings.persist(store.getState().settings);
+    const state = store.getState();
+    settings.persist(state.settings);
+
+    // a widget's own settings are written beside it, so they travel with the
+    // widget rather than living only in this app's support folder
+    Object.keys(state.widgets).forEach((id) => {
+      const widget = state.widgets[id];
+      const config = (state.settings[id] || {}).config;
+      if (!widget || !widget.filePath || !config) return;
+      widgetConfigFile.write(widget.filePath, config);
+    });
   });
 
   // set up the server

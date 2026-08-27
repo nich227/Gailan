@@ -1,12 +1,14 @@
 {
   "name": "getting-started",
-  "title": "Welcome to Gailan",
+  "title": "Getting Started",
   "description": "The widget that ships with Gailan, and the one to copy",
   "author": "Kevin Chen",
   "license": "GPL-3.0-or-later",
   "version": "1.0.0",
   "entry": "index.tsx",
-  "tags": ["example"],
+  "tags": [
+    "example"
+  ],
   "settings": [
     {
       "key": "size",
@@ -15,9 +17,18 @@
       "help": "How wide the panel is",
       "default": "medium",
       "options": [
-        {"value": "small", "label": "Small"},
-        {"value": "medium", "label": "Medium"},
-        {"value": "large", "label": "Large"}
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
       ]
     },
     {

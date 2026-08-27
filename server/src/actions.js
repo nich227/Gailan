@@ -1,10 +1,11 @@
 'use strict';
 
 function addWidget(widget) {
-  const {id, filePath, error, mtime, settingsSchema} = widget;
+  const {id, filePath, error, mtime, settingsSchema, title, savedConfig} =
+    widget;
   return {
     type: 'WIDGET_ADDED',
-    payload: {id, filePath, error, mtime, settingsSchema},
+    payload: {id, filePath, error, mtime, settingsSchema, title, savedConfig},
   };
 }
 

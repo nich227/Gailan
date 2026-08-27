@@ -419,6 +419,7 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
             @"hasError": @(widget[@"error"] != nil),
             // what the widget says it can be configured with, and what it is
             // currently set to
+            @"title": widget[@"title"] ?: widgetId,
             @"settingsSchema": widget[@"settingsSchema"] ?: @[],
             @"config": settings[@"config"] ?: @{},
         }];

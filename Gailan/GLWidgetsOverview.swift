@@ -38,6 +38,10 @@ struct WidgetSetting: Identifiable, Equatable {
     let min: Double
     let max: Double
     let step: Double
+    /* What the widget says it should be when nothing has been chosen. Without
+       this a picker has no selection and a switch reads off, which makes a
+       widget look misconfigured before it has been touched. */
+    let defaultValue: String?
 
     var id: String { key }
 
@@ -55,6 +59,14 @@ struct WidgetSetting: Identifiable, Equatable {
         max = raw["max"] as? Double ?? 100
         step = raw["step"] as? Double ?? 1
 
+        if let value = raw["default"] {
+            defaultValue = value is Bool
+                ? ((value as? Bool) == true ? "true" : "false")
+                : String(describing: value)
+        } else {
+            defaultValue = nil
+        }
+
         options = ((raw["options"] as? [[AnyHashable: Any]]) ?? []).compactMap {
             guard let value = $0["value"] else { return nil }
             let text = String(describing: value)
@@ -65,6 +77,7 @@ struct WidgetSetting: Identifiable, Equatable {
 
 struct WidgetSummary: Identifiable, Equatable {
     let id: String
+    let title: String
     let fileName: String
     let filePath: String
     let hidden: Bool
@@ -100,6 +113,7 @@ struct WidgetSummary: Identifiable, Equatable {
 
     init(_ raw: [AnyHashable: Any]) {
         id = raw["id"] as? String ?? ""
+        title = raw["title"] as? String ?? (raw["id"] as? String ?? "")
         fileName = raw["fileName"] as? String ?? ""
         filePath = raw["filePath"] as? String ?? ""
         hidden = raw["hidden"] as? Bool ?? false
@@ -259,7 +273,7 @@ struct GLWidgetsOverview: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
-                    Text(widget.id)
+                    Text(widget.title)
                         .fontWeight(.medium)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -365,7 +379,7 @@ struct GLWidgetSettings: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(widget.id)
+                    Text(widget.title)
                         .fontWeight(.semibold)
                     Text(widget.fileName)
                         .font(.caption)
@@ -470,7 +484,7 @@ struct GLWidgetSettings: View {
     }
 
     private func current(_ setting: WidgetSetting) -> String {
-        widget.config[setting.key] ?? ""
+        widget.config[setting.key] ?? setting.defaultValue ?? ""
     }
 
     private func binding(_ setting: WidgetSetting) -> Binding<String> {
