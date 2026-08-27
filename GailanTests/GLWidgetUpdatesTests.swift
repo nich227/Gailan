@@ -183,6 +183,91 @@ final class GLWidgetUpdatesTests: XCTestCase {
         XCTAssertFalse(model.allSelected)
     }
 
+    // MARK: - against the hub itself
+
+    /// The whole path, against the real repository: read the index, notice the
+    /// installed widget is behind, fetch it, and write it. Skipped rather than
+    /// failed when there is no network, since that says nothing about the code.
+    @MainActor
+    func testAWidgetIsUpdatedFromTheHub() async throws {
+        try await XCTSkipUnless(hubIsReachable(), "GailanHub is not reachable")
+
+        // an old clock, and a settings file the user chose
+        try install(folder: "clock", version: "0.0.1")
+        let folder = widgetDir.appendingPathComponent("clock")
+        let settings = folder.appendingPathComponent("settings.json")
+        try #"{"format":"24h"}"#.write(to: settings, atomically: true, encoding: .utf8)
+
+        let model = WidgetUpdatesModel(widgetDirectory: widgetDir)
+        await model.check()
+
+        XCTAssertEqual(model.phase, .ready)
+        let clock = try XCTUnwrap(model.available.first { $0.id == "clock" })
+        XCTAssertEqual(clock.installedVersion, "0.0.1")
+        XCTAssertTrue(clock.selected)
+
+        await model.updateSelected()
+
+        XCTAssertEqual(model.phase, .finished)
+        XCTAssertEqual(model.available.first { $0.id == "clock" }?.state, .done)
+
+        // the widget's own files arrived
+        let entry = folder.appendingPathComponent("index.tsx")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: entry.path))
+        XCTAssertGreaterThan(try Data(contentsOf: entry).count, 100)
+
+        // and the version on disk is the one the hub holds
+        let manifest = try JSONSerialization.jsonObject(
+            with: try Data(contentsOf: folder.appendingPathComponent("widget.json"))
+        ) as? [String: Any]
+        XCTAssertEqual(manifest?["version"] as? String, clock.widget.version)
+
+        // the user's settings were not part of the update and are still there
+        XCTAssertEqual(
+            try String(contentsOf: settings, encoding: .utf8),
+            #"{"format":"24h"}"#
+        )
+    }
+
+    @MainActor
+    func testAWidgetAtTheHubVersionIsNotOffered() async throws {
+        try await XCTSkipUnless(hubIsReachable(), "GailanHub is not reachable")
+
+        // read the version the hub holds, install exactly that, expect nothing
+        let model = WidgetUpdatesModel(widgetDirectory: widgetDir)
+        try install(folder: "clock", version: "0.0.1")
+        await model.check()
+        let hubVersion = try XCTUnwrap(
+            model.available.first { $0.id == "clock" }?.widget.version
+        )
+
+        try FileManager.default.removeItem(
+            at: widgetDir.appendingPathComponent("clock")
+        )
+        try install(folder: "clock", version: hubVersion)
+
+        let second = WidgetUpdatesModel(widgetDirectory: widgetDir)
+        await second.check()
+        XCTAssertEqual(second.phase, .upToDate)
+        XCTAssertTrue(second.available.isEmpty)
+    }
+
+    private func hubIsReachable() async -> Bool {
+        var request = URLRequest(
+            url: URL(
+                string:
+                    "https://raw.githubusercontent.com/nich227/GailanHub/main/index.json"
+            )!
+        )
+        request.timeoutInterval = 10
+        request.httpMethod = "HEAD"
+
+        guard let (_, response) = try? await URLSession.shared.data(for: request),
+            let http = response as? HTTPURLResponse
+        else { return false }
+        return http.statusCode == 200
+    }
+
     private func update(
         name: String,
         installed: String,
