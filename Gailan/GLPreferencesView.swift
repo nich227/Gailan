@@ -26,7 +26,9 @@ final class GLPreferences: ObservableObject {
     @Published var appearanceTag: Int { didSet { controller.appearanceTag = appearanceTag } }
     @Published var shellTag: Int { didSet { controller.shellTag = shellTag } }
     @Published var loginShell: Bool { didSet { controller.loginShell = loginShell } }
-    @Published var desktopGlassTag: Int { didSet { controller.desktopGlassTag = desktopGlassTag } }
+    @Published var desktopGlassOn: Bool {
+        didSet { controller.desktopGlassTag = desktopGlassOn ? 2 : 0 }
+    }
     @Published var desktopGlassStyleTag: Int {
         didSet { controller.desktopGlassStyleTag = desktopGlassStyleTag }
     }
@@ -44,7 +46,7 @@ final class GLPreferences: ObservableObject {
         appearanceTag = controller.appearanceTag
         shellTag = controller.shellTag
         loginShell = controller.loginShell
-        desktopGlassTag = controller.desktopGlassTag
+        desktopGlassOn = controller.desktopGlassTag != 0
         desktopGlassStyleTag = controller.desktopGlassStyleTag
         desktopGlassTint = Color(hexRGBA: controller.desktopGlassTint)
         widgetPath = controller.widgetDir?.path ?? ""
@@ -73,6 +75,12 @@ struct GLPreferencesView: View {
 
         var id: String { rawValue }
 
+        // liquid glass is a macOS 26 feature; older systems get no pane for it
+        static var available: [Pane] {
+            if #available(macOS 26.0, *) { return allCases }
+            return allCases.filter { $0 != .glass }
+        }
+
         var symbol: String {
             switch self {
             case .general: return "gearshape"
@@ -85,7 +93,7 @@ struct GLPreferencesView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(Pane.allCases, selection: $pane) { item in
+            List(Pane.available, selection: $pane) { item in
                 Label(item.rawValue, systemImage: item.symbol).tag(item)
             }
             .navigationSplitViewColumnWidth(min: 176, ideal: 186, max: 220)
@@ -157,22 +165,14 @@ struct GLPreferencesView: View {
 
     @ViewBuilder private var glass: some View {
         Section {
-            Picker("Frost the desktop", selection: $prefs.desktopGlassTag) {
-                Text("Off").tag(0)
-                Text("Subtle").tag(1)
-                Text("Frosted").tag(2)
-                Text("Heavy").tag(3)
+            Toggle("Frost the desktop behind widgets", isOn: $prefs.desktopGlassOn)
+            Picker("Style", selection: $prefs.desktopGlassStyleTag) {
+                Text("Regular").tag(0)
+                Text("Clear").tag(1)
             }
-
-            if #available(macOS 26.0, *) {
-                Picker("Style", selection: $prefs.desktopGlassStyleTag) {
-                    Text("Regular").tag(0)
-                    Text("Clear").tag(1)
-                }
-                ColorPicker(
-                    "Tint", selection: $prefs.desktopGlassTint, supportsOpacity: true
-                )
-            }
+            ColorPicker(
+                "Tint", selection: $prefs.desktopGlassTint, supportsOpacity: true
+            )
         } header: {
             heading(
                 "System glass",
@@ -184,15 +184,9 @@ struct GLPreferencesView: View {
                     """
             )
         } footer: {
-            if #available(macOS 26.0, *) {
-                Text("Style and tint are all macOS gives us to tune. There is no blur or refraction setting behind them.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("Style and tint need macOS 26. This system frosts with a vibrancy material, which takes neither.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
+            Text("A style and a tint are all macOS gives us to tune. There is no blur or refraction setting behind them.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
         }
     }
 
