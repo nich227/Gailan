@@ -1,0 +1,88 @@
+name: release
+
+# Pushing a tag like v1.0.1 builds the app, signs it, publishes a GitHub
+# Release, and adds the release to the Sparkle appcast on gh-pages — which is
+# what running apps poll via SUFeedURL.
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: derive versions
+        id: v
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          IFS=. read -r X Y Z <<< "$VERSION"
+          # sparkle compares this monotonically increasing build number
+          BUILD=$((X * 10000 + Y * 100 + Z))
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build=$BUILD" >> "$GITHUB_OUTPUT"
+
+      - run: npm install --no-progress
+        working-directory: server
+      - run: pod install
+
+      - name: build
+        run: >
+          set -o pipefail &&
+          xcodebuild
+          -workspace Gailan.xcworkspace
+          -scheme Gailan
+          -configuration Release
+          -derivedDataPath dd
+          MARKETING_VERSION=${{ steps.v.outputs.version }}
+          CURRENT_PROJECT_VERSION=${{ steps.v.outputs.build }}
+          CODE_SIGN_IDENTITY=-
+          CODE_SIGNING_REQUIRED=NO
+          build | tail -20
+
+      - name: archive
+        run: ditto -c -k --sequesterRsrc --keepParent dd/Build/Products/Release/Gailan.app "Gailan-${{ steps.v.outputs.version }}.zip"
+
+      - name: sign
+        id: sign
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: node scripts/sign-release.js "Gailan-${{ steps.v.outputs.version }}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME"
+          "Gailan-${{ steps.v.outputs.version }}.zip"
+          --title "Gailan ${{ steps.v.outputs.version }}"
+          --generate-notes
+
+      - name: update appcast
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          git fetch origin gh-pages && git worktree add pages origin/gh-pages || {
+            git worktree add --detach pages
+            cd pages && git checkout --orphan gh-pages && git rm -rfq . && cd ..
+          }
+          node scripts/update-appcast.js pages/updates.xml.rss \
+            "${{ steps.v.outputs.version }}" \
+            "${{ steps.v.outputs.build }}" \
+            "https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/Gailan-${{ steps.v.outputs.version }}.zip" \
+            "${{ steps.sign.outputs.length }}" \
+            "${{ steps.sign.outputs.signature }}"
+          cd pages
+          git -c user.name=github-actions -c user.email=github-actions@github.com \
+            add updates.xml.rss
+          git -c user.name=github-actions -c user.email=github-actions@github.com \
+            commit -m "appcast: ${{ steps.v.outputs.version }}"
+          git push origin HEAD:gh-pages

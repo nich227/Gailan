@@ -57,6 +57,8 @@
 	<true/>
 	<key>OSAScriptingDefinition</key>
 	<string>Gailan.sdef</string>
+	<key>SUPublicEDKey</key>
+	<string>tI9ImD75tFgmJQlPjauIIM3qvvbocqeTOT6E2ZpIQA0=</string>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/nich227/Gailan/gh-pages/updates.xml.rss</string>
 </dict>
