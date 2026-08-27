@@ -45,15 +45,27 @@ module.exports = function WidgetBundler() {
 
   function WidgetBundle(id, filePath, callback) {
     const bundle = bundleWidget(id, filePath);
+    let closed = false;
+
+    // once a widget is gone, nothing it has in flight should still report
+    const closeBundle = bundle.close;
+    bundle.close = () => {
+      closed = true;
+      closeBundle();
+    };
+
     const buildWidget = (paths = []) => {
+      if (closed) return;
+
       const widget = {
         id: id,
         filePath: filePath,
       };
 
-      fs.access(filePath, fs.R_OK, (couldNotRead) => {
-        if (couldNotRead) return;
+      fs.access(filePath, fs.constants.R_OK, (couldNotRead) => {
+        if (couldNotRead || closed) return;
         bundle.bundle((err, srcBuffer) => {
+          if (closed) return;
           if (err) {
             widget.error = errorJSON(filePath, err);
           } else {
@@ -61,7 +73,9 @@ module.exports = function WidgetBundler() {
           }
 
           fs.stat(paths[0] || filePath, (statErr, stat) => {
-            if (statErr) throw statErr;
+            // the file can be deleted between bundling and this stat. throwing
+            // here used to take the whole server down with it.
+            if (statErr || closed) return;
             widget.mtime = stat.mtime;
             bundle.widget = widget;
             callback(widget);
