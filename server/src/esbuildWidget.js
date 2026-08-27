@@ -44,16 +44,29 @@ function hostModules() {
   };
 }
 
+// esbuild hands back resolved real paths, and on macOS /var is a symlink to
+// /private/var, so comparing the strings esbuild gives us to the path we were
+// handed needs both sides resolved. Gailan follows a symlinked widget folder on
+// purpose, so this is not just a temp directory problem.
+function realPath(filePath) {
+  try {
+    return fs.realpathSync(filePath);
+  } catch (err) {
+    return path.resolve(filePath);
+  }
+}
+
 // classic widgets: a bare object literal whose style is stylus and whose
 // refreshFrequency may be "10s". widgetify rewrites all that.
 function classicWidget(id, entry) {
+  const entryPath = realPath(entry);
   return {
     name: 'classic-widget',
     setup(build) {
       // a plain .js widget is a bare object literal, so it needs wrapping
       // before it can be parsed as an expression
       build.onLoad({filter: /\.js$/}, (args) => {
-        if (path.resolve(args.path) !== path.resolve(entry)) return null;
+        if (realPath(args.path) !== entryPath) return null;
         const source = fs.readFileSync(args.path, 'utf8');
         try {
           // the wrapper adds no lines, so the parser's positions still point
@@ -80,7 +93,7 @@ function classicWidget(id, entry) {
 
       // only the widget itself is an object literal; its imports are modules
       function rewrite(source, filePath) {
-        if (path.resolve(filePath) !== path.resolve(entry)) return source;
+        if (realPath(filePath) !== entryPath) return source;
         return widgetify.transform(source, id);
       }
     },
