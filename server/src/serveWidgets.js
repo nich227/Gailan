@@ -89,12 +89,17 @@ function codeLines(source, widgetDir, options, res) {
       realPath(widgetDir),
       realPath(origpos.source)
     );
-    byline(fs.createReadStream(origpos.source), {keepEmptyLines: true})
+    // the handler has to sit on the stream that can fail. hanging it off the
+    // end of the pipe chain put it on the response, so a source file that had
+    // been deleted threw where nothing was listening and took the server down.
+    const source = fs.createReadStream(origpos.source);
+    source.on('error', (err) => {
+      res.writeHead(500);
+      res.end(err.message);
+    });
+
+    byline(source, {keepEmptyLines: true})
       .pipe(asErrorJSON(origpos, padding))
-      .pipe(res)
-      .on('error', err => {
-        res.writeHead(500);
-        res.end(err.message);
-      });
+      .pipe(res);
   });
 }
