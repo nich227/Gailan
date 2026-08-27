@@ -73,7 +73,7 @@ window.onload = () => {
     'mousedown',
     () => {
       document.documentElement.dataset.widgetFocus = 'widget';
-      window.dispatchEvent(new CustomEvent('gailan:focus'));
+      window.dispatchEvent(new window.CustomEvent('gailan:focus'));
     },
     true
   );
@@ -116,7 +116,7 @@ window.onload = () => {
         // the app saw a click land somewhere that is not a widget, or lost
         // frontmost. widgets style off the attribute or listen for the event.
         document.documentElement.dataset.widgetFocus = 'none';
-        window.dispatchEvent(new CustomEvent('gailan:blur'));
+        window.dispatchEvent(new window.CustomEvent('gailan:blur'));
       } else if (action.type === 'MASTER_STYLE_CHANGED') {
         reloadUserCSS();
       } else {
