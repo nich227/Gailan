@@ -143,6 +143,69 @@ test('running with the token turned off', (t) => {
   );
 });
 
+test('replaying settings saved from a previous run', (t) => {
+  const dirs = scratch();
+  const settingsDir = path.join(dirs.root, 'settings');
+  fs.mkdirSync(settingsDir);
+  fs.writeFileSync(
+    path.join(settingsDir, 'WidgetSettings.json'),
+    JSON.stringify({'spec-widget': {hidden: true, showOnAllScreens: true}})
+  );
+
+  const port = testPort();
+  const server = GailanServer(
+    port,
+    dirs.widgets,
+    settingsDir,
+    path.join(__dirname, '..', '..', 'release', 'public'),
+    TOKEN,
+    {loginShell: false, shell: 'zsh'},
+    () => {
+      get(port, '/state/?token=' + TOKEN, {}, (res, body) => {
+        const state = JSON.parse(body);
+        t.deepEqual(
+          state.settings['spec-widget'],
+          {hidden: true, showOnAllScreens: true},
+          'what was saved last time is in the state this time'
+        );
+
+        server.close(() => {
+          fs.rmSync(dirs.root, {recursive: true, force: true});
+          t.end();
+        });
+      });
+    }
+  );
+});
+
+test('a stylesheet change in the widget folder', (t) => {
+  const dirs = scratch();
+  const port = testPort();
+
+  const server = GailanServer(
+    port,
+    dirs.widgets,
+    path.join(dirs.root, 'settings'),
+    path.join(__dirname, '..', '..', 'release', 'public'),
+    TOKEN,
+    {},
+    () => {
+      // main.css is not a widget: it tells the page to reload its styles
+      fs.writeFileSync(path.join(dirs.widgets, 'main.css'), 'body { color: red }');
+
+      setTimeout(() => {
+        get(port, '/main.css?token=' + TOKEN, {}, (res) => {
+          t.equal(res.statusCode, 200, 'and it is served');
+          server.close(() => {
+            fs.rmSync(dirs.root, {recursive: true, force: true});
+            t.end();
+          });
+        });
+      }, 500);
+    }
+  );
+});
+
 test('following a symlinked widget directory', (t) => {
   const dirs = scratch();
   const link = path.join(dirs.root, 'link-to-widgets');
