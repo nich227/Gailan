@@ -28,3 +28,4 @@ server/release/node_modules
 # (a single darwin node binary is ~145MB, over GitHub's 100MB file limit)
 server/release/node-x64
 server/release/node-arm64
+server/coverage/

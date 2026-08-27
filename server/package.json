@@ -1,7 +1,7 @@
 {
   "name": "gailan-server",
   "version": "0.0.0",
-  "description": "Node.js backend for Gailan, a fork of Übersicht by Felix Hageloh",
+  "description": "Node.js backend for Gailan, a fork of \u00dcbersicht by Felix Hageloh",
   "main": "server.ts",
   "scripts": {
     "test": "npm run-script test-local && npm run-script test-dom",
@@ -13,7 +13,8 @@
     "build-bundles": "node scripts/build.js",
     "install-runtime-deps": "cd release && npm prune --production && npm install --production --no-progress",
     "test-dom": "node spec/run.js -r ./spec/helpers/domEnv.js 'spec/frontend/*.js'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "coverage": "./scripts/coverage.sh"
   },
   "author": "Kevin Chen",
   "license": "GPL-3.0-or-later",
