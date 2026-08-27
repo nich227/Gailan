@@ -55,9 +55,15 @@ The specifics:
   - widget ids no longer carry the file extension: `Clock.jsx` is `Clock`, not
     `Clock-jsx`, and a widget in its own folder takes the folder's name. Anything
     referring to a widget by id, AppleScript included, needs updating
-  - **Open Widgets Hub** in the menu opens
-    [GailanHub](https://github.com/nich227/GailanHub) rather than Übersicht's
-    gallery. Übersicht widgets still work, so that gallery is worth a look too
+  - **Open Widgets Hub** in the menu opens the
+    [widget gallery](https://gailanapp.pages.dev/hub), where each widget in
+    [GailanHub](https://github.com/nich227/GailanHub) downloads as a zip. Übersicht
+    widgets still work, so that gallery is worth a look too
+  - **Check for Widget Updates** compares the version in each widget's `widget.json`
+    against the version GailanHub holds and lists what is behind, one checkbox per
+    widget, so you install the ones you want. The same check runs once a day and
+    opens nothing when there is nothing to install. Your saved settings survive an
+    update, since only the files the hub ships are replaced
   - **requires macOS 13.5 or later**, which the bundled Node runtime and the system APIs
     it uses both need. The app will not launch on anything older
 

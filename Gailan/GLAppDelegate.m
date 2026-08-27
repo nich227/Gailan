@@ -467,8 +467,10 @@ int const PORT = 41416;
 
 - (IBAction)visitWidgetGallery:(id)sender
 {
+    // the gallery, where a widget downloads as a zip. it reads the same repository
+    // the updater does, so the two never disagree about what exists.
     [[NSWorkspace sharedWorkspace]
-        openURL:[NSURL URLWithString:@"https://github.com/nich227/GailanHub"]
+        openURL:[NSURL URLWithString:@"https://gailanapp.pages.dev/hub"]
     ];
 }
 
