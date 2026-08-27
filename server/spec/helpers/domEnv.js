@@ -17,6 +17,11 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>', {
 global.window = dom.window;
 global.document = dom.window.document;
 
+// In a browser, window is the global, so VirtualDomWidget's window.html is what
+// the error views call. Under jsdom the two are separate objects, so the factory
+// has to be put where a bare html() will find it.
+global.html = require('react').createElement;
+
 for (const key of Object.getOwnPropertyNames(dom.window)) {
   if (key in global || key.startsWith('_')) continue;
   try {
