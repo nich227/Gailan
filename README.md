@@ -47,7 +47,7 @@ The specifics:
     browserify's require
   - a widget can ask macOS to glass the desktop behind it; see
     [Glass over the desktop](#glass-over-the-desktop)
-  - **Visit Widget Gallery** in the menu opens
+  - **Open Widgets Hub** in the menu opens
     [GailanHub](https://github.com/nich227/GailanHub) rather than Übersicht's
     gallery. Übersicht widgets still work, so that gallery is worth a look too
   - **requires macOS 13.5 or later**, which the bundled Node runtime and the system APIs

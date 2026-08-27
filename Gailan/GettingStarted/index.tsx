@@ -150,7 +150,7 @@ const Window = styled("div")`
   --border: rgba(244, 244, 242, 0.14);
   --text: #f4f4f2;
   --dim: rgba(244, 244, 242, 0.45);
-  --accent: #d71921;
+  --accent: #5aa7f5;
   --light-off: rgba(244, 244, 242, 0.22);
 
   @media (prefers-color-scheme: light) {
@@ -165,8 +165,8 @@ const Window = styled("div")`
 
   pointer-events: auto;
   position: absolute;
-  /* barely rounded: a panel, not a bubble */
-  border-radius: 5px;
+  /* the radius modern macOS windows use */
+  border-radius: 13px;
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--border);
@@ -343,7 +343,7 @@ export const render = ({ output, error, settings = {} }: State) => {
     // rectangle, System glass in Preferences picks the material.
     <Window
       id={WIDGET_ID}
-      data-gailan-desktop-glass={5}
+      data-gailan-desktop-glass={13}
       data-active={active ? "true" : "false"}
       style={
         {
@@ -388,7 +388,7 @@ export const render = ({ output, error, settings = {} }: State) => {
           simply delete it.
         </p>
         <p>
-          To download other widgets, choose <em>'Visit Widgets Gallery'</em>{" "}
+          To download other widgets, choose <em>'Open Widgets Hub'</em>{" "}
           from the status bar menu.
         </p>
       </Body>

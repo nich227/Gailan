@@ -676,7 +676,7 @@
                         <action selector="openWidgetDir:" target="494" id="dH8-iw-QzP"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Visit Widget Gallery" id="g8k-60-Yu1">
+                <menuItem title="Open Widgets Hub" id="g8k-60-Yu1">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="visitWidgetGallery:" target="494" id="4jL-gZ-cAv"/>
