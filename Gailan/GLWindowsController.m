@@ -150,37 +150,65 @@
     if (window) [self showDebugConsoleForWindow: window];
 }
 
-- (void)showDebugConsoleForWindow:(NSWindow*)window
-{
-    WKPageRef page = NULL;
-    SEL pageForTesting = @selector(_pageForTesting);
-    
-    if ([window.contentView.subviews[0] isKindOfClass:[WKView class]]) {
-        WKView* webview = window.contentView.subviews[0];
-        page = webview.pageRef;
-    } else if ([window.contentView respondsToSelector:pageForTesting]) {
-        page = (__bridge WKPageRef)([window.contentView
-            performSelector: pageForTesting
-        ]);
-    }
-    
-    if (page) {
-        WKInspectorRef inspector = WKPageGetInspector(page);
+// The inspector remembers whether it was docked, and docked means it takes over
+// the bottom of the screen the widgets are on. WebKit keeps that in this
+// default, so it is put back to detached every time.
+static NSString* const GLInspectorStartsAttachedKey =
+    @"__WebInspectorPageGroupLevel1__.WebKit2InspectorStartsAttached";
 
-        [NSApp activateIgnoringOtherApps:YES];
-        
-        WKInspectorShowConsole(inspector);
-        [self
-            performSelector: @selector(detachInspector:)
-            withObject: (__bridge id)(inspector)
-            afterDelay: 0
-        ];
+// The web view is no longer the window's content view: the glass layer sits
+// beside it under a container, so it has to be looked up.
+- (WKWebView*)webViewInView:(NSView*)view
+{
+    if ([view isKindOfClass:[WKWebView class]]) {
+        return (WKWebView*)view;
     }
+
+    for (NSView* child in view.subviews) {
+        WKWebView* found = [self webViewInView:child];
+        if (found) return found;
+    }
+
+    return nil;
 }
 
-- (void)detachInspector:(WKInspectorRef)inspector
+- (void)showDebugConsoleForWindow:(NSWindow*)window
 {
-     WKInspectorDetach(inspector);
+    WKWebView* webView = [self webViewInView:window.contentView];
+    SEL pageForTesting = @selector(_pageForTesting);
+    if (![webView respondsToSelector:pageForTesting]) return;
+
+    WKPageRef page = (__bridge WKPageRef)[webView
+        performSelector: pageForTesting
+    ];
+    if (!page) return;
+
+    WKInspectorRef inspector = WKPageGetInspector(page);
+
+    [[NSUserDefaults standardUserDefaults]
+        setBool: NO
+         forKey: GLInspectorStartsAttachedKey
+    ];
+
+    [NSApp activateIgnoringOtherApps:YES];
+    WKInspectorShowConsole(inspector);
+    [self detachInspector:(__bridge id)(inspector)];
+
+    // again once WebKit has finished opening it, since showing is what decides
+    // the docked state
+    [self
+        performSelector: @selector(detachInspector:)
+        withObject: (__bridge id)(inspector)
+        afterDelay: 0
+    ];
+}
+
+- (void)detachInspector:(id)inspectorRef
+{
+    WKInspectorRef inspector = (__bridge WKInspectorRef)inspectorRef;
+    if (WKInspectorIsAttached(inspector)) {
+        WKInspectorDetach(inspector);
+    }
 }
 
 - (void)workspaceChanged

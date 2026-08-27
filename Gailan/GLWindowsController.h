@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
 - (void)showDebugConsolesForScreen:(NSNumber*)screenId;
+- (WKWebView*)webViewInView:(NSView*)view;
 - (NSScreen*)getNSScreen:(NSNumber*)screenId;
 
 @end
