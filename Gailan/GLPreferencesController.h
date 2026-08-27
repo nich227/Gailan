@@ -13,11 +13,8 @@
 #import <Cocoa/Cocoa.h>
 
 @interface GLPreferencesController : NSWindowController
-    <NSTableViewDataSource, NSTableViewDelegate>
 
 @property (weak) IBOutlet NSPopUpButton *filePicker;
-@property (weak) IBOutlet NSTableView *categoryTable;
-@property (weak) IBOutlet NSTabView *panes;
 @property BOOL startAtLogin;
 @property BOOL compatibilityMode;
 @property NSURL* widgetDir;
@@ -40,5 +37,6 @@
 + (void)applyAppearance;
 
 - (IBAction)showFilePicker:(id)sender;
+- (void)chooseWidgetDir:(void (^)(NSURL* url))completion;
 
 @end

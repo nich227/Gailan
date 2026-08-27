@@ -11,51 +11,11 @@
 //  details.
 
 #import "GLPreferencesController.h"
+#import "Gailan-Swift.h"
 
 @import ServiceManagement;
 
 @implementation GLPreferencesController
-
-// the sidebar rows, in the order the panes appear in the xib
-static NSArray* categories(void)
-{
-    return @[@"General", @"Appearance", @"Shell", @"Liquid Glass"];
-}
-
-#
-#pragma mark Sidebar
-#
-
-- (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
-{
-    return categories().count;
-}
-
-- (id)tableView:(NSTableView*)tableView
-    objectValueForTableColumn:(NSTableColumn*)column
-    row:(NSInteger)row
-{
-    return categories()[row];
-}
-
-- (void)tableViewSelectionDidChange:(NSNotification*)notification
-{
-    NSInteger row = self.categoryTable.selectedRow;
-    if (row >= 0 && row < (NSInteger)categories().count) {
-        [self.panes selectTabViewItemAtIndex:row];
-        [self showPaneTitle];
-    }
-}
-
-// the window title names the selected category, like System Settings
-- (void)showPaneTitle
-{
-    NSInteger row = self.categoryTable.selectedRow;
-    if (row < 0 || row >= (NSInteger)categories().count) return;
-    self.window.title = [NSString
-        stringWithFormat:@"%@ \u2014 Gailan", categories()[row]
-    ];
-}
 
 @synthesize filePicker;
 
@@ -96,18 +56,11 @@ static NSArray* categories(void)
     
     [self widgetDirChanged:self.widgetDir];
 
-    // the sidebar material runs the full height, so the titlebar has to be
-    // transparent for it to show through, the way System Settings looks
+    // the window is one SwiftUI view: the split view brings its own sidebar
+    // material, so the titlebar only has to get out of its way
     self.window.titlebarAppearsTransparent = YES;
-    self.window.titleVisibility = NSWindowTitleHidden;
     self.window.styleMask |= NSWindowStyleMaskFullSizeContentView;
-
-    [self.categoryTable reloadData];
-    [self.categoryTable
-        selectRowIndexes: [NSIndexSet indexSetWithIndex:0]
-        byExtendingSelection: NO
-    ];
-    [self showPaneTitle];
+    self.window.contentView = [GLPreferencesHosting viewFor:self];
 }
 
 #
@@ -116,17 +69,22 @@ static NSArray* categories(void)
 
 - (IBAction)showFilePicker:(id)sender
 {
+    [self chooseWidgetDir:nil];
+}
+
+- (void)chooseWidgetDir:(void (^)(NSURL* url))completion
+{
     NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-    
+
     [openPanel setCanChooseFiles:NO];
     [openPanel setCanChooseDirectories:YES];
-    
+
     [openPanel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
         if (result == NSModalResponseOK) {
-            [self setWidgetDir:[openPanel URLs][0]];
+            NSURL* chosen = [openPanel URLs][0];
+            [self setWidgetDir:chosen];
+            if (completion) completion(chosen);
         }
-        
-        [self->filePicker selectItemAtIndex:0];
     }];
 }
 
@@ -157,9 +115,8 @@ static NSArray* categories(void)
     NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:[url path]];
     [iconImage setSize:NSMakeSize(16,16)];
     
-    // TODO: see if we could use bindings for this
-    [[filePicker itemAtIndex:0] setTitle: [url path]];
-    [[filePicker itemAtIndex:0] setImage:iconImage];
+    // the SwiftUI view displays the path itself, so there is nothing to update
+    (void)iconImage;
 }
 
 

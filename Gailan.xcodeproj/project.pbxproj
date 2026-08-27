@@ -40,6 +40,7 @@
 		DC943A5B264EE89F0018374E /* node-arm64 in Resources */ = {isa = PBXBuildFile; fileRef = DC943A5A264EE89E0018374E /* node-arm64 */; };
 		DC943A5D264EE8B30018374E /* node-x64 in Resources */ = {isa = PBXBuildFile; fileRef = DC943A5C264EE8B30018374E /* node-x64 */; };
 		DC9F7CE31C439CE50014E25B /* GLDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = DC9F7CE21C439CE50014E25B /* GLDispatcher.m */; };
+		GL01000001000002 /* GLPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GL01000001000001 /* GLPreferencesView.swift */; };
 		DCAAAF9618DF0B050097677F /* GettingStarted.tsx in Resources */ = {isa = PBXBuildFile; fileRef = DCAAAF9518DF0B050097677F /* GettingStarted.tsx */; };
 		DCAC78CA1C550B810051E78B /* GLWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = DCAC78C91C550B810051E78B /* GLWebSocket.m */; };
 		DCAC78CD1C551D130051E78B /* GLListener.m in Sources */ = {isa = PBXBuildFile; fileRef = DCAC78CC1C551D130051E78B /* GLListener.m */; };
@@ -129,6 +130,8 @@
 		DC99A7C418DC41A600E61222 /* Gailan.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gailan.entitlements; sourceTree = "<group>"; };
 		DC9F7CE11C439CE50014E25B /* GLDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLDispatcher.h; sourceTree = "<group>"; };
 		DC9F7CE21C439CE50014E25B /* GLDispatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLDispatcher.m; sourceTree = "<group>"; };
+		GL01000001000001 /* GLPreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLPreferencesView.swift; sourceTree = "<group>"; };
+		GL01000001000003 /* Gailan-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Gailan-Bridging-Header.h"; sourceTree = "<group>"; };
 		DCAAAF9518DF0B050097677F /* GettingStarted.tsx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GettingStarted.tsx; sourceTree = "<group>"; };
 		DCAC78C81C550B810051E78B /* GLWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLWebSocket.h; sourceTree = "<group>"; };
 		DCAC78C91C550B810051E78B /* GLWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLWebSocket.m; sourceTree = "<group>"; };
@@ -304,6 +307,8 @@
 				DC9296A61C5017CF006E4267 /* widget-status-visible@2x.png */,
 				DC4FC28018EAB1CA00B7FD79 /* gailan-logo.png */,
 				DC4FC28218EAB1CA00B7FD79 /* gailan-logo-dark.png */,
+				GL01000001000001 /* GLPreferencesView.swift */,
+				GL01000001000003 /* Gailan-Bridging-Header.h */,
 				DCAAAF9518DF0B050097677F /* GettingStarted.tsx */,
 				DC4F43F1189E90DD00937925 /* status-icon.png */,
 				DC4F43F2189E90DD00937925 /* status-icon@2x.png */,
@@ -592,6 +597,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				GL01000001000002 /* GLPreferencesView.swift in Sources */,
 				DCC74B26252AF6DA00C1D1E5 /* GLWindowGroup.m in Sources */,
 				DC9F7CE31C439CE50014E25B /* GLDispatcher.m in Sources */,
 				DCE7E3C11A376AD400A12516 /* GLLocation.m in Sources */,
@@ -784,6 +790,11 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Gailan/Gailan-Prefix.pch";
+				SWIFT_VERSION = 5.0;
+				SWIFT_OBJC_BRIDGING_HEADER = "Gailan/Gailan-Bridging-Header.h";
+				/* the swift runtime ships with macOS since 10.14.4, well below the
+				   13.5 deployment target, so embedding it would add ~15MB for nothing */
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/Gailan/Gailan-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = "@loader_path/../Frameworks";
@@ -819,6 +830,11 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Gailan/Gailan-Prefix.pch";
+				SWIFT_VERSION = 5.0;
+				SWIFT_OBJC_BRIDGING_HEADER = "Gailan/Gailan-Bridging-Header.h";
+				/* the swift runtime ships with macOS since 10.14.4, well below the
+				   13.5 deployment target, so embedding it would add ~15MB for nothing */
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/Gailan/Gailan-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = "@loader_path/../Frameworks";
@@ -846,6 +862,11 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Gailan/Gailan-Prefix.pch";
+				SWIFT_VERSION = 5.0;
+				SWIFT_OBJC_BRIDGING_HEADER = "Gailan/Gailan-Bridging-Header.h";
+				/* the swift runtime ships with macOS since 10.14.4, well below the
+				   13.5 deployment target, so embedding it would add ~15MB for nothing */
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -870,6 +891,11 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Gailan/Gailan-Prefix.pch";
+				SWIFT_VERSION = 5.0;
+				SWIFT_OBJC_BRIDGING_HEADER = "Gailan/Gailan-Bridging-Header.h";
+				/* the swift runtime ships with macOS since 10.14.4, well below the
+				   13.5 deployment target, so embedding it would add ~15MB for nothing */
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				INFOPLIST_FILE = "GailanTests/GailanTests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nich227.GailanTests;
 				PRODUCT_NAME = GailanTests;
