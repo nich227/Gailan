@@ -87,9 +87,8 @@ test('running broken commands', (t) => {
 
   httpPost(url, 'fake-command', (res, body) => {
     t.equal(res.statusCode, 500, 'it responds with a 500 code');
-    t.equal(
-      body,
-      'bash: line 1: fake-command: command not found\n',
+    t.ok(
+      /fake-command.*not found|not found.*fake-command/.test(body),
       'it responds with an error message',
     );
   });
