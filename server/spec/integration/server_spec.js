@@ -222,5 +222,5 @@ test('the server with no arguments at all', (t) => {
       'it uses the default port, or says the default folder is missing'
     );
     t.end();
-  }, 1500);
+  }, 700);
 });

@@ -63,7 +63,7 @@ test('walking symlinks', (t) => {
     );
     fs.rmSync(dir, {recursive: true, force: true});
     t.end();
-  }, 400);
+  }, 150);
 });
 
 test('a link that points nowhere', (t) => {
@@ -91,7 +91,7 @@ test('a link that points nowhere', (t) => {
     );
     fs.rmSync(dir, {recursive: true, force: true});
     t.end();
-  }, 400);
+  }, 150);
 });
 
 test('a folder that disappears mid-walk', (t) => {
@@ -116,7 +116,7 @@ test('a folder that disappears mid-walk', (t) => {
     t.pass('the walk survives the folder going away');
     fs.rmSync(dir, {recursive: true, force: true});
     t.end();
-  }, 400);
+  }, 150);
 });
 
 test('watching stops when told to', (t) => {
@@ -137,6 +137,6 @@ test('watching stops when told to', (t) => {
       t.equal(events, seenBefore, 'nothing is reported after closing');
       fs.rmSync(dir, {recursive: true, force: true});
       t.end();
-    }, 400);
-  }, 400);
+    }, 150);
+  }, 150);
 });
