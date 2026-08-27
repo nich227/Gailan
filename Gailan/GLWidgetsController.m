@@ -57,15 +57,11 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
         
         dispatcher = [[GLDispatcher alloc] init];
 
-        // the menu contents are only observable while the menu is open, so
-        // store changes just mark it dirty and it is rebuilt when tracking
-        // starts. Changes that arrive while it is open still render live.
-        [[NSNotificationCenter defaultCenter]
-            addObserver: self
-               selector: @selector(menuDidBeginTracking:)
-                   name: NSMenuDidBeginTrackingNotification
-                 object: menu
-        ];
+        // The menu contents are only observable while the menu is open, so
+        // store changes mark it dirty and the rebuild happens right before it
+        // is displayed. A status item shows its menu without posting the
+        // tracking notifications, so this has to be the delegate callback.
+        [menu setDelegate:self];
         [[NSNotificationCenter defaultCenter]
             addObserver: self
                selector: @selector(menuDidEndTracking:)
@@ -120,15 +116,6 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     }
 }
 
-- (void)menuDidBeginTracking:(NSNotification*)notification
-{
-    menuOpen = YES;
-    if (menuDirty) {
-        menuDirty = NO;
-        [self renderMenu];
-    }
-}
-
 - (void)menuDidEndTracking:(NSNotification*)notification
 {
     menuOpen = NO;
@@ -166,7 +153,21 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     [menu insertItem:newItem atIndex:currentIndex];
 }
 
-- (void)menuNeedsUpdate:(NSMenu*)widgetMenu
+- (void)menuNeedsUpdate:(NSMenu*)menu
+{
+    // the status menu itself: rebuild the widget rows if anything changed
+    if (menu == mainMenu) {
+        menuOpen = YES;
+        if (menuDirty) {
+            menuDirty = NO;
+            [self renderMenu];
+        }
+        return;
+    }
+    [self populateWidgetMenu:menu];
+}
+
+- (void)populateWidgetMenu:(NSMenu*)widgetMenu
 {
     NSString* widgetId = [widgetMenu title];
     [widgetMenu removeAllItems];

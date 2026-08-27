@@ -27,14 +27,14 @@
                 <subviews>
 
                     <box title="General" fixedFrame="YES" titlePosition="atTop" translatesAutoresizingMaskIntoConstraints="NO" id="box-general">
-                        <rect key="frame" x="18" y="428" width="524" height="130"/>
+                        <rect key="frame" x="18" y="400" width="524" height="158"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="box-general-content">
-                            <rect key="frame" x="3" y="3" width="518" height="112"/>
+                            <rect key="frame" x="3" y="3" width="518" height="140"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="255">
-                                    <rect key="frame" x="14" y="80" width="100" height="16"/>
+                                    <rect key="frame" x="14" y="108" width="100" height="16"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Startup:" id="256">
                                         <font key="font" metaFont="system"/>
@@ -43,7 +43,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="178">
-                                    <rect key="frame" x="124" y="79" width="205" height="18"/>
+                                    <rect key="frame" x="124" y="107" width="205" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="check" title="Open Gailan at Login" bezelStyle="regularSquare" imagePosition="left" inset="2" id="179">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -55,7 +55,7 @@
                                 </button>
 
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5">
-                                    <rect key="frame" x="14" y="47" width="100" height="16"/>
+                                    <rect key="frame" x="14" y="75" width="100" height="16"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Widgets Folder:" id="8">
                                         <font key="font" metaFont="system"/>
@@ -64,7 +64,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <popUpButton autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="43">
-                                    <rect key="frame" x="122" y="41" width="380" height="25"/>
+                                    <rect key="frame" x="122" y="69" width="380" height="25"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="border" imageScaling="proportionallyDown" inset="2" arrowPosition="arrowAtCenter" id="44">
                                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -85,7 +85,7 @@
                                 </popUpButton>
 
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="R1C-8t-EyM">
-                                    <rect key="frame" x="14" y="12" width="100" height="17"/>
+                                    <rect key="frame" x="14" y="40" width="100" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Interaction:" id="8lm-M5-ekh">
                                         <font key="font" metaFont="system"/>
@@ -94,7 +94,7 @@
                                     </textFieldCell>
                                 </textField>
                                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jHv-DY-0s5">
-                                    <rect key="frame" x="124" y="11" width="150" height="18"/>
+                                    <rect key="frame" x="124" y="39" width="180" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="check" title="Enable interaction" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="7vp-gG-U0H">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -105,7 +105,7 @@
                                     </connections>
                                 </button>
                                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aot-00-001">
-                                    <rect key="frame" x="284" y="11" width="220" height="18"/>
+                                    <rect key="frame" x="124" y="10" width="380" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="check" title="Keep widgets above other windows" bezelStyle="regularSquare" imagePosition="left" inset="2" id="aot-00-002">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
