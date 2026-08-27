@@ -196,6 +196,13 @@ struct GLPreferencesView: View {
         }
     }
 
+    private func heading(_ title: String, help: String) -> some View {
+        HStack(spacing: 4) {
+            Text(title)
+            GLHelpButton(text: help)
+        }
+    }
+
 }
 
 // Handed to the window controller, which has no way to build a SwiftUI view
