@@ -40,9 +40,9 @@
             @"glassCurvature": @0.3,
             @"glassDispersion": @0.4,
             @"glassFrost": @2.0,
-            // which system material glasses the desktop behind a widget that
-            // asks for it; off by default
-            @"desktopGlass": @"off"
+            // which system material macOS draws behind a widget that asks
+            // for it. on by default; "off" opts out.
+            @"desktopGlass": @"frosted"
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 

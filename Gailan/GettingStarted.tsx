@@ -4,7 +4,7 @@
 // Gailan is a fork of Übersicht by Felix Hageloh. The widget API, the server
 // underneath, and the whole idea are his work: https://tracesof.net/uebersicht
 
-import { styled, Glass } from "gailan";
+import { styled } from "gailan";
 
 // this is the shell command that gets executed every time this widget
 // refreshes. id -F prints your full name; render keeps the first word.
@@ -94,14 +94,16 @@ const startDrag = (e: any) => {
   document.addEventListener("mouseup", onUp);
 };
 
-/* a macOS-ish window: translucent, blurred, hairline border, soft shadow.
-   The palette rides on CSS custom properties and follows the system
-   appearance. */
+/* a macOS-ish window: a tint over glass, hairline border, soft shadow. The
+   palette rides on CSS custom properties and follows the system appearance.
+   The fill is deliberately thin, because what shows through it is the material
+   macOS draws behind the window. */
 const Window = styled("div")`
   --bg: rgba(24, 24, 31, 0.92);
-  /* opaque by default; the glass shows through as the fill is lightened */
-  --panel: rgba(24, 24, 31, 0.92);
-  --header-bg: rgba(255, 255, 255, 0.04);
+  /* thin enough to read the frosted wallpaper through, dark enough to read
+     text on top of it */
+  --panel: rgba(20, 20, 26, 0.42);
+  --header-bg: rgba(255, 255, 255, 0.07);
   --border: rgba(255, 255, 255, 0.1);
   --text: #e6e6ec;
   --dim: #8b8b99;
@@ -109,8 +111,8 @@ const Window = styled("div")`
 
   @media (prefers-color-scheme: light) {
     --bg: rgba(250, 250, 252, 0.94);
-    --panel: rgba(250, 250, 252, 0.94);
-    --header-bg: rgba(0, 0, 0, 0.03);
+    --panel: rgba(250, 250, 252, 0.55);
+    --header-bg: rgba(255, 255, 255, 0.35);
     --border: rgba(0, 0, 0, 0.1);
     --text: #1f1f28;
     --dim: #71717d;
@@ -122,9 +124,9 @@ const Window = styled("div")`
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--border);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  /* the hairline highlight along the top edge that makes glass read as glass */
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
   font-family: "Alibaba PuHuiTi", "PingFang SC", "Helvetica Neue", sans-serif;
   font-size: 13px;
   color: var(--text);
@@ -266,15 +268,14 @@ export const render = ({ output, error }: State) => {
     : { left: "calc(50% - 170px)", top: "10%" };
 
   return (
-    <Glass radius={12}>
-      {/* Glass above refracts this widget's own content. The marker below asks
-          macOS to glass the wallpaper under the window, which the page cannot
-          reach on its own: turn it on in Preferences under Liquid Glass. */}
-      <Window
-        id={WIDGET_ID}
-        data-gailan-desktop-glass={12}
-        style={{ width: 340, ...position }}
-      >
+    // The page cannot reach what is behind its window, so the frosted
+    // wallpaper under this one is drawn by macOS: the marker claims the
+    // rectangle, System glass in Preferences picks the material.
+    <Window
+      id={WIDGET_ID}
+      data-gailan-desktop-glass={12}
+      style={{ width: 340, ...position }}
+    >
       <Header onMouseDown={startDrag}>
         <Lights>
           <Light c="#ff5f57">
@@ -298,27 +299,26 @@ export const render = ({ output, error }: State) => {
       </picture>
 
       <Body>
-          <h1>Hi, {firstName}</h1>
-          <p>
-            Thanks for trying out Gailan! This is an example widget to get you
-            started.
-          </p>
-          <p>
-            To view this example widget, choose <em>'Open Widgets Folder'</em>{" "}
-            from the status bar menu. Use it to create your own widget, or
-            simply delete it.
-          </p>
-          <p>
-            To download other widgets, choose <em>'Visit Widgets Gallery'</em>{" "}
-            from the status bar menu.
-          </p>
-        </Body>
+        <h1>Hi, {firstName}</h1>
+        <p>
+          Thanks for trying out Gailan! This is an example widget to get you
+          started.
+        </p>
+        <p>
+          To view this example widget, choose <em>'Open Widgets Folder'</em>{" "}
+          from the status bar menu. Use it to create your own widget, or
+          simply delete it.
+        </p>
+        <p>
+          To download other widgets, choose <em>'Visit Widgets Gallery'</em>{" "}
+          from the status bar menu.
+        </p>
+      </Body>
 
-        <Footer>
-          Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
-          system is. tracesof.net/uebersicht
-        </Footer>
-      </Window>
-    </Glass>
+      <Footer>
+        Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
+        system is. tracesof.net/uebersicht
+      </Footer>
+    </Window>
   );
 };
