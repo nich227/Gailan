@@ -113,6 +113,23 @@ test('closing', (t) => {
   });
 });
 
+test('stripping shell integration noise', (t) => {
+  var noisyPort = testPort();
+  var noisyServer = connect()
+    .use(commandServer(workingDir, false, SHELL))
+    .listen(noisyPort);
+
+  // what a shell integration emits around a command, which used to land in
+  // front of the widget's own output
+  var command = 'printf "\\033]697;PreExec\\007hello\\n"';
+
+  httpPost('http://localhost:' + noisyPort + '/run/', command, (res, body) => {
+    t.equal(body, 'hello\n', 'the escape sequence is gone');
+    noisyServer.closeAllConnections();
+    noisyServer.close(() => t.end());
+  });
+});
+
 test('using a login shell', (t) => {
   // its own port, so nothing can be pointing at the server that just closed
   var loginPort = testPort();

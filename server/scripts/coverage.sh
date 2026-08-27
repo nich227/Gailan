@@ -18,8 +18,11 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 rm -rf coverage
 mkdir -p coverage/tmp
 
-NODE_V8_COVERAGE=coverage/tmp npm run test-local
-NODE_V8_COVERAGE=coverage/tmp npm run test-dom
+# a failing test should still leave a report behind, so the status is carried
+# to the end instead of aborting here
+status=0
+NODE_V8_COVERAGE=coverage/tmp npm run test-local || status=$?
+NODE_V8_COVERAGE=coverage/tmp npm run test-dom || status=$?
 
 npx c8 report \
   --temp-directory=coverage/tmp \
@@ -31,3 +34,5 @@ npx c8 report \
   --reporter=text \
   --reporter=lcov \
   "$@"
+
+exit $status

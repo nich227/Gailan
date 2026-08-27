@@ -16,6 +16,18 @@
 
 const {spawn} = require('child_process');
 
+// Shell integrations (Kiro, iTerm2, Warp) announce themselves with OSC escape
+// sequences when a login shell starts, and those land in front of a widget's
+// output. Colour codes are left alone: a widget renders HTML, so it can decide
+// what to do with them, but nobody wants a terminal's private handshake.
+const OSC = /\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g;
+
+function stripControlSequences(chunk: Buffer): Buffer {
+  const text = chunk.toString('utf8');
+  if (text.indexOf('\x1b]') === -1) return chunk;
+  return Buffer.from(text.replace(OSC, ''), 'utf8');
+}
+
 type Request = {
   method: string;
   url: string;
@@ -60,12 +72,12 @@ module.exports = function commandServer(
 
       shell.stderr.on('data', (d: Buffer) => {
         setStatusOnce(500);
-        res.write(d);
+        res.write(stripControlSequences(d));
       });
 
       shell.stdout.on('data', (d: Buffer) => {
         setStatusOnce(200);
-        res.write(d);
+        res.write(stripControlSequences(d));
       });
 
       shell.on('error', (err: Error) => {
