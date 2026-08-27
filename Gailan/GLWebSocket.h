@@ -12,7 +12,7 @@
 @interface GLWebSocket : NSObject <SRWebSocketDelegate>
 
 + (id)sharedSocket;
-- (void)open:(NSURL*)aUrl;
+- (void)open:(NSURL*)aUrl withToken:(NSString*)token;
 - (void)close;
 - (void)send:(id)message;
 - (void)listen:(void (^)(id))listener;

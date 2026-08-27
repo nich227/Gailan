@@ -12,6 +12,8 @@ Settings = require('./Settings')
 StateServer = require('./StateServer')
 ensureSameHost = require('./ensureSameHost')
 ensureSameOrigin = require('./ensureSameOrigin')
+ensureToken = require('./ensureToken')
+validateTokenCookie = require('./validateTokenCookie')
 disallowIFraming = require('./disallowIFraming')
 CommandServer = require('./command_server.coffee')
 serveWidgets = require('./serveWidgets')
@@ -25,7 +27,7 @@ resolveWidget = require('./resolveWidget')
 dispatchToRemote = require('./dispatch')
 listenToRemote = require('./listen')
 
-module.exports = (port, widgetPath, settingsPath, publicPath, options, callback) ->
+module.exports = (port, widgetPath, settingsPath, publicPath, token, options, callback) ->
   options ||= {}
 
   # global store for app state
@@ -77,6 +79,7 @@ module.exports = (port, widgetPath, settingsPath, publicPath, options, callback)
     .use(disallowIFraming)
     .use(ensureSameHost(allowedHost))
     .use(ensureSameOrigin(allowedOrigin))
+    .use(ensureToken(token, options.disableToken))
     .use(CommandServer(widgetPath, options.loginShell, options.shell))
     .use(StateServer(store))
     .use(serveWidgets(bundler, widgetPath))
@@ -93,9 +96,12 @@ module.exports = (port, widgetPath, settingsPath, publicPath, options, callback)
       messageBus = MessageBus(
         server: server,
         verifyClient: (info) ->
-          info.req.headers.host == allowedHost && (info.origin == allowedOrigin || info.origin == 'Gailan')
+          originOkay = info.req.headers.host == allowedHost &&
+            (info.origin == allowedOrigin || info.origin == 'Gailan')
+          return originOkay if options.disableToken
+          originOkay && validateTokenCookie(token, info.req.headers.cookie)
       )
-      sharedSocket.open("ws://#{host}:#{port}")
+      sharedSocket.open("ws://#{host}:#{port}", token)
       callback?()
     catch e
       server.emit('error', e)

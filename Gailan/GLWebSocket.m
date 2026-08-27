@@ -13,6 +13,7 @@
     NSMutableArray* queuedMessages;
     SRWebSocket* ws;
     NSURL* url;
+    NSString* serverToken;
 }
 
 
@@ -48,15 +49,22 @@
     [listeners addObject:listener];
 }
 
-- (void)open:(NSURL*)aUrl
+- (void)open:(NSURL*)aUrl withToken:(NSString*)token
 {
     if (ws) {
         return;
     }
     
     url = aUrl;
+    serverToken = token;
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:url];
     [request setValue:@"Gailan" forHTTPHeaderField:@"Origin"];
+    if (token) {
+        [request
+            setValue:[NSString stringWithFormat:@"token=%@", token]
+            forHTTPHeaderField:@"Cookie"
+        ];
+    }
     ws = [[SRWebSocket alloc] initWithURLRequest: request];
     ws.delegate = self;
     [ws open];
@@ -76,7 +84,7 @@
 {
     [self close];
     if (url) {
-        [self open:url];
+        [self open:url withToken:serverToken];
     }
 }
 

@@ -21,6 +21,10 @@
 
 int const PORT = 41416;
 
+@interface GLAppDelegate ()
+@property (nonatomic, copy, readwrite) NSString *serverToken;
+@end
+
 @implementation GLAppDelegate {
     NSStatusItem* statusBarItem;
     NSTask* widgetServer;
@@ -148,7 +152,11 @@ int const PORT = 41416;
 
 - (NSDictionary*)fetchState
 {
-    NSURL *urlPath = [[self serverUrl:@"http"] URLByAppendingPathComponent: @"state/"];
+    NSURL *urlPath = [NSURL URLWithString:[NSString
+        stringWithFormat:@"%@state/?token=%@",
+        [[self serverUrl:@"http"] absoluteString],
+        self.serverToken
+    ]];
     NSData *jsonData = [NSData dataWithContentsOfURL:urlPath];
     NSError *error = nil;
     NSDictionary *dataDictionary = [NSJSONSerialization
@@ -168,7 +176,9 @@ int const PORT = 41416;
     void (^handleData)(NSString*) = ^(NSString* output) {
         // note that these might be called several times
         if ([output rangeOfString:@"server started"].location != NSNotFound) {
-            [[GLWebSocket sharedSocket] open:[self serverUrl:@"ws"]];
+            [[GLWebSocket sharedSocket]
+                open:[self serverUrl:@"ws"]
+                withToken:self.serverToken];
             [self->widgetsStore reset: [self fetchState]];
             // this will trigger a render
             [self->screensController syncScreens];
@@ -260,8 +270,12 @@ int const PORT = 41416;
     ];
     NSString* shell = preferences.shell;
 
+    // a fresh secret per server launch; stdin, so it never shows in ps
+    self.serverToken = [[NSUUID UUID] UUIDString];
+
     NSTask *task = [[NSTask alloc] init];
 
+    [task setStandardInput:[NSPipe pipe]];
     [task setStandardOutput:[NSPipe pipe]];
     [task.standardOutput fileHandleForReading].readabilityHandler = ^(NSFileHandle *handle) {
         NSData *output = [handle availableData];
@@ -294,6 +308,12 @@ int const PORT = 41416;
     ]];
     
     [task launch];
+
+    NSFileHandle* stdinHandle = [task.standardInput fileHandleForWriting];
+    [stdinHandle writeData:
+        [self.serverToken dataUsingEncoding:NSUTF8StringEncoding]];
+    [stdinHandle closeFile];
+
     return task;
 }
 

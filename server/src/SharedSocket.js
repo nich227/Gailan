@@ -29,8 +29,12 @@ function handleError(err) {
   console.error(err);
 }
 
-exports.open = function open(url) {
-  ws = new WebSocket(url, ['ws'], {origin: 'Gailan'});
+exports.open = function open(url, token) {
+  const options = {origin: 'Gailan'};
+  if (token) {
+    options.headers = {Cookie: `token=${encodeURIComponent(token)}`};
+  }
+  ws = new WebSocket(url, ['ws'], options);
 
   if (ws.on) {
     ws.on('open', handleWSOpen);

@@ -10,6 +10,7 @@
 #import "GLLocation.h"
 #import "GLWebView.h"
 #import "GLWindow.h"
+#import "GLAppDelegate.h"
 
 
 @implementation GLWebViewController {
@@ -43,6 +44,12 @@
             break;
         default:
             break;
+    }
+    NSString* token = [(GLAppDelegate*)[NSApp delegate] serverToken];
+    if (token) {
+        url = [NSURL URLWithString:[NSString
+            stringWithFormat:@"%@?token=%@", [url absoluteString], token
+        ]];
     }
     [(WKWebView*)view loadRequest:[NSURLRequest requestWithURL: url]];
 }
@@ -156,7 +163,8 @@
 - (void)webView:(WKWebView *)webView
     didFinishNavigation:(WKNavigation*)navigation
 {
-    NSLog(@"loaded %@", webView.URL);
+    // the query carries the token, keep it out of the log
+    NSLog(@"loaded %@", webView.URL.path);
 }
 
 - (void)webView:(WKWebView *)sender

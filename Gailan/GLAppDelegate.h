@@ -18,6 +18,7 @@
 @interface GLAppDelegate : NSObject <NSApplicationDelegate, UNUserNotificationCenterDelegate, GLScreenChangeListener>
 
 @property (weak) IBOutlet NSMenu *statusBarMenu;
+@property (nonatomic, copy, readonly) NSString *serverToken;
 @property (readonly) NSArray* widgets;
 
 - (void)widgetDirDidChange;
