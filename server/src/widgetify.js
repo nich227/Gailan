@@ -108,18 +108,20 @@ function getWidgetObjectExpression(tree) {
   return undefined;
 }
 
+// the rewrite itself, so both the stream transform and the esbuild plugin can
+// use it
+function widgetifySource(src, widgetId) {
+  return escodegen.generate(modifyAST(esprima.parse(src), widgetId));
+}
+
 module.exports = function(file, options) {
   var widgetId = options.id;
   var src = '';
 
   function write(buf, enc, next) { src += buf; next(); }
   function flush(next) {
-    var tree;
     try {
-      tree = esprima.parse(src);
-      if (tree) {
-        this.push(escodegen.generate(modifyAST(tree, widgetId)));
-      }
+      this.push(widgetifySource(src, widgetId));
     } catch (e) {
       this.emit('error', e);
     }
@@ -129,4 +131,6 @@ module.exports = function(file, options) {
 
   return new Transform({transform: write, flush: flush});
 };
+
+module.exports.transform = widgetifySource;
 

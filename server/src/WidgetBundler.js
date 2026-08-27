@@ -1,6 +1,6 @@
 'use strict';
 
-const bundleWidget = require('./bundleWidget');
+const bundleWidget = require('./esbuildWidget');
 const fs = require('fs');
 
 module.exports = function WidgetBundler() {

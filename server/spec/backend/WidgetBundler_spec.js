@@ -29,11 +29,12 @@ test('bundling widgets', (t) => {
       'it also contains a string with the widget source code',
     );
 
-    const widget = eval(event.widget.body)('widget-1');
+    // the bundle publishes itself into the registry the client reads
+    eval(event.widget.body);
     t.equal(
-      widget.command,
+      globalThis.__gailanWidgets['widget-1'].command,
       'foo',
-      'the source evals to a require function which returns the widget by id',
+      'the source registers the widget under its id',
     );
     callback = () => {};
     t.end();

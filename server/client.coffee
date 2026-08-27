@@ -93,7 +93,7 @@ fetchWidget = (id) -> new Promise (resolve, reject) ->
   scriptTag.src = '/widgets/' + id
   scriptTag.onload = ->
     document.head.removeChild(scriptTag)
-    resolve(require(id))
+    resolve(window.__gailanWidgets?[id] ? require(id))
   scriptTag.onerror = (err) ->
     document.head.removeChild(scriptTag)
     reject(err)
