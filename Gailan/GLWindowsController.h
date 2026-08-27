@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)wallpaperChanged;
 - (void)showDebugConsolesForScreen:(NSNumber*)screenId;
 - (nullable WKWebView*)webViewInView:(NSView*)view;
+- (void)keepInspectorDetached;
 - (NSScreen*)getNSScreen:(NSNumber*)screenId;
 
 @end

@@ -103,4 +103,24 @@
     XCTAssertEqual([controller webViewInView:webView], webView, @"or itself");
 }
 
+// The inspector must never dock to the bottom of the screen, since that is
+// where the widgets are. WebKit decides from this default.
+- (void)testTheInspectorIsKeptInItsOwnWindow
+{
+    NSString* key =
+        @"__WebInspectorPageGroupLevel1__.WebKit2InspectorStartsAttached";
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+
+    // whatever it was left as, including docked from a previous session
+    [defaults setBool:YES forKey:key];
+    XCTAssertTrue([defaults boolForKey:key]);
+
+    [[[GLWindowsController alloc] init] keepInspectorDetached];
+
+    XCTAssertFalse(
+        [defaults boolForKey:key],
+        @"the inspector opens as a window, not attached to the web view"
+    );
+}
+
 @end

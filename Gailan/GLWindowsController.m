@@ -185,10 +185,7 @@ static NSString* const GLInspectorStartsAttachedKey =
 
     WKInspectorRef inspector = WKPageGetInspector(page);
 
-    [[NSUserDefaults standardUserDefaults]
-        setBool: NO
-         forKey: GLInspectorStartsAttachedKey
-    ];
+    [self keepInspectorDetached];
 
     [NSApp activateIgnoringOtherApps:YES];
     WKInspectorShowConsole(inspector);
@@ -200,6 +197,14 @@ static NSString* const GLInspectorStartsAttachedKey =
         performSelector: @selector(detachInspector:)
         withObject: (__bridge id)(inspector)
         afterDelay: 0
+    ];
+}
+
+- (void)keepInspectorDetached
+{
+    [[NSUserDefaults standardUserDefaults]
+        setBool: NO
+         forKey: GLInspectorStartsAttachedKey
     ];
 }
 
