@@ -34,6 +34,8 @@ function scratch() {
   return {root: root, widgets: widgets};
 }
 
+let collected = '';
+
 function startServer(args, token, onReady) {
   const child = spawn(process.execPath, [entry].concat(args), {
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -42,6 +44,7 @@ function startServer(args, token, onReady) {
   let output = '';
   const watch = (chunk) => {
     output += chunk;
+    collected += chunk;
     if (output.indexOf('server started on port') > -1) {
       onReady(child, output);
       onReady = () => {};
@@ -89,12 +92,14 @@ test('the server the app launches', (t) => {
     token,
     (proc, output) => {
       t.ok(output.indexOf('server started on port') > -1, 'it says it started');
-      t.ok(
-        output.indexOf('CORS Anywhere on port ' + (port + 1)) > -1,
-        'and brings up the proxy beside it'
-      );
 
       get(port, '/state/?token=' + token, (res) => {
+        // the proxy announces itself just after the server, so by now both
+        // lines have been written
+        t.ok(
+          collected.indexOf('CORS Anywhere on port ' + (port + 1)) > -1,
+          'and it brings up the proxy beside it'
+        );
         t.equal(res.statusCode, 200, 'the token from stdin is the one it wants');
 
         get(port, '/state/', (plain) => {
