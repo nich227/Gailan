@@ -13,8 +13,11 @@
 #import <Cocoa/Cocoa.h>
 
 @interface GLPreferencesController : NSWindowController
+    <NSTableViewDataSource, NSTableViewDelegate>
 
 @property (weak) IBOutlet NSPopUpButton *filePicker;
+@property (weak) IBOutlet NSTableView *categoryTable;
+@property (weak) IBOutlet NSTabView *panes;
 @property BOOL startAtLogin;
 @property BOOL compatibilityMode;
 @property NSURL* widgetDir;

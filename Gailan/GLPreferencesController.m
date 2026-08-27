@@ -16,6 +16,46 @@
 
 @implementation GLPreferencesController
 
+// the sidebar rows, in the order the panes appear in the xib
+static NSArray* categories(void)
+{
+    return @[@"General", @"Appearance", @"Shell", @"Liquid Glass"];
+}
+
+- (void)windowDidLoad
+{
+    [super windowDidLoad];
+    [self.categoryTable reloadData];
+    [self.categoryTable
+        selectRowIndexes: [NSIndexSet indexSetWithIndex:0]
+        byExtendingSelection: NO
+    ];
+}
+
+#
+#pragma mark Sidebar
+#
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView*)tableView
+{
+    return categories().count;
+}
+
+- (id)tableView:(NSTableView*)tableView
+    objectValueForTableColumn:(NSTableColumn*)column
+    row:(NSInteger)row
+{
+    return categories()[row];
+}
+
+- (void)tableViewSelectionDidChange:(NSNotification*)notification
+{
+    NSInteger row = self.categoryTable.selectedRow;
+    if (row >= 0 && row < (NSInteger)categories().count) {
+        [self.panes selectTabViewItemAtIndex:row];
+    }
+}
+
 @synthesize filePicker;
 
 - (id)initWithWindowNibName:(NSString *)windowNibName
