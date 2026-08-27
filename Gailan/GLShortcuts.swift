@@ -50,17 +50,24 @@ struct WidgetQuery: EntityQuery, EntityStringQuery {
     }
 }
 
-@MainActor
+// Where the actions look for widgets. It reads the app's live list, and is a
+// property so tests can hand over a known set instead of racing the state the
+// app fetches from the server at launch.
+enum WidgetLookup {
+    static var all: () -> [GLWidgetForScripting] = {
+        guard let delegate = NSApp.delegate as? GLAppDelegate else { return [] }
+        return (delegate.widgets as? [GLWidgetForScripting]) ?? []
+    }
+}
+
 private func scriptingWidgets() -> [GLWidgetForScripting] {
-    guard let delegate = NSApp.delegate as? GLAppDelegate else { return [] }
-    return (delegate.widgets as? [GLWidgetForScripting]) ?? []
+    WidgetLookup.all()
 }
 
 private func allWidgetIds() async -> [String] {
     await MainActor.run { scriptingWidgets().map(\.id) }
 }
 
-@MainActor
 private func scriptingWidget(_ id: String) throws -> GLWidgetForScripting {
     guard let widget = scriptingWidgets().first(where: { $0.id == id }) else {
         throw GailanIntentError.noSuchWidget(id)

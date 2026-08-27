@@ -19,41 +19,37 @@ import XCTest
 // real widget store. Declaring an action is not the same as it working, which
 // is what these check.
 final class GLShortcutsTests: XCTestCase {
-    private var delegate: GLAppDelegate {
-        NSApp.delegate as! GLAppDelegate
-    }
-
-    private var store: GLWidgetsStore {
-        delegate.value(forKey: "widgetsStore") as! GLWidgetsStore
-    }
-
     private let seeded = ["alpha-widget", "beta-widget"]
+    private var widgets: [GLWidgetForScripting] = []
 
-    // The host app has only just launched, so nothing has been bundled yet.
-    // Seeding the store keeps these from depending on load timing or on
-    // whatever happens to be in the widget folder.
+    // The app fetches its real state from the server just after launch and
+    // resets the store, so anything seeded there gets wiped mid-test. These
+    // hand the actions a known list instead.
     override func setUp() {
         super.setUp()
-        store.reset([
-            "widgets": [
-                "alpha-widget": ["id": "alpha-widget"],
-                "beta-widget": ["id": "beta-widget"],
-            ],
-            "settings": [
-                "alpha-widget": ["hidden": false, "showOnAllScreens": true],
-                "beta-widget": ["hidden": true, "showOnMainScreen": true],
-            ],
-        ])
+        widgets = [
+            GLWidgetForScripting(
+                id: "alpha-widget",
+                andSettings: ["hidden": false, "showOnAllScreens": true]
+            ),
+            GLWidgetForScripting(
+                id: "beta-widget",
+                andSettings: ["hidden": true, "showOnMainScreen": true]
+            ),
+        ]
+        WidgetLookup.all = { [widgets] in widgets }
     }
 
     override func tearDown() {
-        store.reset(["widgets": [:], "settings": [:]])
+        WidgetLookup.all = {
+            guard let delegate = NSApp.delegate as? GLAppDelegate else { return [] }
+            return (delegate.widgets as? [GLWidgetForScripting]) ?? []
+        }
         super.tearDown()
     }
 
     private func anyWidgetId() throws -> String {
-        let widgets = (delegate.widgets as? [GLWidgetForScripting]) ?? []
-        return try XCTUnwrap(widgets.first?.id, "the store was not seeded")
+        try XCTUnwrap(widgets.first?.id)
     }
 
     func testQueryOffersTheWidgetsOnScreen() async throws {
@@ -109,22 +105,29 @@ final class GLShortcutsTests: XCTestCase {
         hide.widget = WidgetEntity(id: id)
         hide.visible = false
         _ = try await hide.perform()
+        XCTAssertTrue(widgets[0].hidden, "hiding reached the widget")
 
         let show = SetWidgetVisibilityIntent()
         show.widget = WidgetEntity(id: id)
         show.visible = true
         _ = try await show.perform()
+        XCTAssertFalse(widgets[0].hidden, "and showing it again")
     }
 
     func testScreenChoiceReachesTheWidget() async throws {
         let id = try anyWidgetId()
 
-        for choice in [WidgetScreens.allScreens, .mainScreen] {
-            let intent = SetWidgetScreensIntent()
-            intent.widget = WidgetEntity(id: id)
-            intent.screens = choice
-            _ = try await intent.perform()
-        }
+        let toAll = SetWidgetScreensIntent()
+        toAll.widget = WidgetEntity(id: id)
+        toAll.screens = .allScreens
+        _ = try await toAll.perform()
+        XCTAssertTrue(widgets[0].showOnAllScreens)
+
+        let toMain = SetWidgetScreensIntent()
+        toMain.widget = WidgetEntity(id: id)
+        toMain.screens = .mainScreen
+        _ = try await toMain.perform()
+        XCTAssertTrue(widgets[0].showOnMainScreen)
     }
 
     func testActingOnAMissingWidgetFails() async throws {
