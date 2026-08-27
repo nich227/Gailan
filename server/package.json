@@ -8,7 +8,8 @@
     "test-local": "node spec/run.js -r coffeescript/register 'spec/backend/**/*'",
     "start": "coffee server.coffee",
     "fetch-node": "../scripts/fetch-node.sh",
-    "release": "npm run-script fetch-node && npm run-script build-client && npm run-script build-server",
+    "fetch-esbuild": "../scripts/fetch-esbuild.sh",
+    "release": "npm run-script fetch-node && npm run-script build-client && npm run-script build-server && npm run-script fetch-esbuild",
     "build-client": "browserify -i ws -t coffeeify -t babelify -r ./src/gailan.js:gailan -r ./src/legacyAlias.js:uebersicht client.coffee | terser -c > release/public/client.js",
     "build-server": "browserify -t coffeeify --node --detect-globals false --no-bundle-external server.coffee > release/server.js && cd release && npm prune --production && npm install --production --no-progress",
     "test-dom": "node spec/run.js -r coffeescript/register -r ./spec/helpers/domEnv.js 'spec/frontend/*.js'"
