@@ -29,8 +29,9 @@ const serveWidgets = require('../../src/serveWidgets');
 
 test('settings that cannot be written', (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-settings-'));
-  // a directory where the file should be, so the write fails
+  // a directory where the settings file should be, so writing it fails
   fs.mkdirSync(path.join(dir, 'settings'));
+  fs.mkdirSync(path.join(dir, 'settings', 'WidgetSettings.json'));
 
   const logged = [];
   const realLog = console.log;
