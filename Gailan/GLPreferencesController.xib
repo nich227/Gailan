@@ -36,7 +36,7 @@
                             <rect key="frame" x="0.0" y="0.0" width="176" height="440"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
-                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="26" rowSizeStyle="automatic" viewBased="NO" selectionHighlightStyle="sourceList" gridStyleMask="none" headerView="none" id="sb-table">
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="26" viewBased="NO" selectionHighlightStyle="sourceList" gridStyleMask="none" headerView="none" id="sb-table">
                                     <rect key="frame" x="0.0" y="0.0" width="176" height="440"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="4"/>
