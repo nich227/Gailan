@@ -17,7 +17,16 @@ installs beside Übersicht instead of replacing it, and Übersicht's own updater
 offer it. Widget code carries over, since the widget API is the same; settings and the
 widgets folder do not, and have to be moved by hand. The bundled Node also jumped from 16
 to 26, so a widget whose command depends on old Node behaviour, or that bundles a native
-module built for Node 16, needs rebuilding.
+module built for Node 16, needs rebuilding. Upstream breaking changes: Node
+[18](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md),
+[20](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V20.md),
+[22](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V22.md),
+[24](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V24.md),
+[26](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V26.md) ·
+[React 19](https://react.dev/blog/2024/04/25/react-19-upgrade-guide) ·
+[CoffeeScript 2](https://coffeescript.org/#breaking-changes) ·
+[Emotion 11](https://emotion.sh/docs/emotion-11) ·
+[ws 8](https://github.com/websockets/ws/releases/tag/8.0.0)
 
 The specifics:
 
