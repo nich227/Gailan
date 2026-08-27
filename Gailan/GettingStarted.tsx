@@ -59,6 +59,34 @@ try {
   /* first run */
 }
 
+/* macOS grays a window's traffic lights until you click it. Tracked here rather
+   than in render, the way pos is, because the widget re-renders on every command
+   and this has to survive that. */
+let active = false;
+
+const markActive = (next: boolean) => {
+  active = next;
+  const el = document.getElementById(WIDGET_ID);
+  if (el) el.setAttribute("data-active", next ? "true" : "false");
+};
+
+/* Once per page, not once per render. A mousedown anywhere else in the page,
+   another widget included, puts this one back to sleep. Clicks on the desktop
+   itself never reach here: the window ignores the mouse unless the pointer is
+   over a widget. */
+if (!(window as any).__gailanWelcomeWatching) {
+  (window as any).__gailanWelcomeWatching = true;
+  document.addEventListener(
+    "mousedown",
+    (e) => {
+      const el = document.getElementById(WIDGET_ID);
+      if (!el) return;
+      markActive(el.contains(e.target as Node));
+    },
+    true
+  );
+}
+
 const startDrag = (e: any) => {
   if (e.button !== 0) return;
   const el = document.getElementById(WIDGET_ID);
@@ -108,6 +136,7 @@ const Window = styled("div")`
   --text: #e6e6ec;
   --dim: #8b8b99;
   --accent: #5aa7f5;
+  --light-off: #4c4c54;
 
   @media (prefers-color-scheme: light) {
     --bg: rgba(250, 250, 252, 0.94);
@@ -116,6 +145,7 @@ const Window = styled("div")`
     --border: rgba(0, 0, 0, 0.1);
     --text: #1f1f28;
     --dim: #71717d;
+    --light-off: #d2d2d2;
   }
 
   pointer-events: auto;
@@ -127,6 +157,22 @@ const Window = styled("div")`
   /* the hairline highlight along the top edge that makes glass read as glass */
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
+
+  /* Asleep, like any window you have not clicked: gray lights, a dimmer title
+     and a shallower shadow. Hovering the lights brings their colour back, which
+     is what the real ones do too. */
+  &[data-active="false"] [data-lights]:not(:hover) > * {
+    --light: var(--light-off);
+  }
+
+  &[data-active="false"] [data-title] {
+    opacity: 0.55;
+  }
+
+  &[data-active="false"] {
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
   font-family: "Alibaba PuHuiTi", "PingFang SC", "Helvetica Neue", sans-serif;
   font-size: 13px;
   color: var(--text);
@@ -159,11 +205,13 @@ const Lights = styled("div")`
    ones when pressed, but close/minimize/zoom make no sense for a widget.
    The glyphs are svg geometry, not text, so they center exactly. */
 const Light = styled("div")`
+  --light: ${(p: { c: string }) => p.c};
   width: 12px;
   height: 12px;
   border-radius: 50%;
   cursor: default;
-  background: ${(p: { c: string }) => p.c};
+  background: var(--light);
+  transition: background 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -274,10 +322,11 @@ export const render = ({ output, error }: State) => {
     <Window
       id={WIDGET_ID}
       data-gailan-desktop-glass={12}
+      data-active={active ? "true" : "false"}
       style={{ width: 340, ...position }}
     >
       <Header onMouseDown={startDrag}>
-        <Lights>
+        <Lights data-lights>
           <Light c="#ff5f57">
             <CloseGlyph />
           </Light>
@@ -288,7 +337,7 @@ export const render = ({ output, error }: State) => {
             <ZoomGlyph />
           </Light>
         </Lights>
-        <Title>
+        <Title data-title>
           <b>gailan</b>.welcome
         </Title>
       </Header>

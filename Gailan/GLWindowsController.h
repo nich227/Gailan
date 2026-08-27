@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)closeAll;
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
-- (void)showDebugConsolesForScreen:(NSNumber*)screenId;
+// layer: 1 foreground, 2 background, 0 both
+- (void)showDebugConsolesForScreen:(NSNumber*)screenId layer:(NSInteger)layer;
 - (nullable WKWebView*)webViewInView:(NSView*)view;
 - (void)keepInspectorDetached;
 - (NSScreen*)getNSScreen:(NSNumber*)screenId;

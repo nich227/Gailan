@@ -140,14 +140,20 @@
 }
 
 
-- (void)showDebugConsolesForScreen:(NSNumber*)screenId
+- (void)showDebugConsolesForScreen:(NSNumber*)screenId layer:(NSInteger)layer
 {
-    NSWindow* window;
-    window = [(GLWindowGroup*)windows[screenId] foreground];
-    if (window) [self showDebugConsoleForWindow: window];
-    
-    window = [(GLWindowGroup*)windows[screenId] background];
-    if (window) [self showDebugConsoleForWindow: window];
+    GLWindowGroup* group = (GLWindowGroup*)windows[screenId];
+    if (!group) return;
+
+    if (layer != 2) {
+        NSWindow* foreground = [group foreground];
+        if (foreground) [self showDebugConsoleForWindow:foreground];
+    }
+
+    if (layer != 1) {
+        NSWindow* background = [group background];
+        if (background) [self showDebugConsoleForWindow:background];
+    }
 }
 
 // The inspector remembers whether it was docked, and docked means it takes over

@@ -683,11 +683,31 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="T85-qJ-hLx"/>
-                <menuItem title="Show Debug Console" id="mKH-1l-jB3">
+                <menuItem title="Web Inspector" id="mKH-1l-jB3">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="showDebugConsole:" target="494" id="WYx-qr-JoR"/>
-                    </connections>
+                    <menu key="submenu" title="Web Inspector" id="GL1-in-sp0">
+                        <items>
+                            <menuItem title="Foreground Widgets" tag="1" id="GL1-in-sp1">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showDebugConsole:" target="494" id="GL1-in-ac1"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Background Widgets" tag="2" id="GL1-in-sp2">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showDebugConsole:" target="494" id="GL1-in-ac2"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="GL1-in-sp3"/>
+                            <menuItem title="Both" tag="0" id="GL1-in-sp4">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showDebugConsole:" target="494" id="GL1-in-ac3"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
                 </menuItem>
                 <menuItem title="Refresh All Widgets" id="wAr-ms-Hyi">
                     <modifierMask key="keyEquivalentModifierMask"/>
