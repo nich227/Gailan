@@ -182,7 +182,8 @@ int const PORT = 41416;
         addGlobalMonitorForEventsMatchingMask: NSEventMaskLeftMouseDown |
                                                NSEventMaskRightMouseDown
         handler: ^(NSEvent* event) {
-            if (![windowsController pointerIsOverWidget]) {
+            // through self, so it is clear the block holds on to it
+            if (![self->windowsController pointerIsOverWidget]) {
                 [self widgetsLostFocus];
             }
         }
