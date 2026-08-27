@@ -48,7 +48,7 @@ export const className = `
 `;
 
 /* Window position lives outside render (and in localStorage) so dragging
-   survives re-renders and widget reloads — same pattern as RamMonitor. */
+   survives re-renders and widget reloads. */
 const WIDGET_ID = "gailan-welcome";
 const POS_KEY = "gailan.welcome.pos";
 
@@ -151,7 +151,8 @@ const Lights = styled("div")`
 `;
 
 /* decorative only — they reveal their glyphs on hover and dip like the real
-   ones when pressed, but close/minimize/zoom make no sense for a widget */
+   ones when pressed, but close/minimize/zoom make no sense for a widget.
+   The glyphs are svg geometry, not text, so they center exactly. */
 const Light = styled("div")`
   width: 12px;
   height: 12px;
@@ -161,17 +162,14 @@ const Light = styled("div")`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.55);
   transition: filter 0.1s ease, transform 0.1s ease;
 
-  span {
+  svg {
+    display: block;
     opacity: 0;
   }
 
-  &:hover span {
+  &:hover svg {
     opacity: 1;
   }
 
@@ -180,6 +178,35 @@ const Light = styled("div")`
     transform: scale(0.92);
   }
 `;
+
+const GLYPH = "rgba(0, 0, 0, 0.55)";
+
+const CloseGlyph = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12">
+    <path
+      d="M3.7 3.7 L8.3 8.3 M8.3 3.7 L3.7 8.3"
+      stroke={GLYPH} strokeWidth="1.3" strokeLinecap="round" fill="none"
+    />
+  </svg>
+);
+
+const MinimizeGlyph = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12">
+    <path
+      d="M3.1 6 L8.9 6"
+      stroke={GLYPH} strokeWidth="1.3" strokeLinecap="round" fill="none"
+    />
+  </svg>
+);
+
+/* two filled triangles pointing to opposite corners, like the real zoom
+   button: one at the top left, one at the bottom right */
+const ZoomGlyph = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12">
+    <path d="M3.2 3.2 h3.9 L3.2 7.1 Z" fill={GLYPH} />
+    <path d="M8.8 8.8 h-3.9 L8.8 4.9 Z" fill={GLYPH} />
+  </svg>
+);
 
 const Title = styled("span")`
   margin-left: 4px;
@@ -240,13 +267,13 @@ export const render = ({ output, error }: State) => {
       <Header onMouseDown={startDrag}>
         <Lights>
           <Light c="#ff5f57">
-            <span>&times;</span>
+            <CloseGlyph />
           </Light>
           <Light c="#febc2e">
-            <span>&minus;</span>
+            <MinimizeGlyph />
           </Light>
           <Light c="#28c840">
-            <span>+</span>
+            <ZoomGlyph />
           </Light>
         </Lights>
         <Title>
