@@ -27,8 +27,16 @@ NODE_V8_COVERAGE=coverage/tmp npm run test-local || status=$?
 NODE_V8_COVERAGE=coverage/tmp npm run test-integration || status=$?
 NODE_V8_COVERAGE=coverage/tmp npm run test-dom || status=$?
 
+# The floor sits a little under where coverage currently is, so a real regression
+# fails the build while a refactor that removes a covered line does not. Coverage
+# on new code is the gate that matters, and scripts/new-code-coverage.js does that.
 npx c8 report \
   --temp-directory=coverage/tmp \
+  --check-coverage \
+  --statements=98 \
+  --branches=90 \
+  --functions=97 \
+  --lines=98 \
   --all \
   --include='src/**' \
   --include='client.ts' \
