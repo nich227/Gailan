@@ -171,3 +171,75 @@ test('editing a widget emits an update', async (t) => {
   t.equal(result, 'update', 'the watcher noticed the edit');
   t.end();
 });
+
+test('emotion styles are labelled with the component they came from', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-labels-'));
+  const file = path.join(dir, 'labelled.tsx');
+  fs.writeFileSync(
+    file,
+    [
+      'import { styled, css } from "gailan";',
+      'const Panel = styled("div")`color: red;`;',
+      'const heading = css`font-weight: 600;`;',
+      'export const render = () => <Panel className={heading} />;',
+    ].join('\n') + '\n'
+  );
+
+  const source = await bundle('labelled', file);
+
+  t.ok(
+    source.indexOf('label: "Panel"') > -1,
+    'a styled component is named in its class'
+  );
+  t.ok(
+    source.indexOf('label:heading') > -1 || source.indexOf('heading') > -1,
+    'and so is a css call'
+  );
+  t.equal(
+    source.indexOf('sourceMappingURL=data:application/json;base64'),
+    source.lastIndexOf('sourceMappingURL=data:application/json;base64'),
+    'with one source map, not one embedded per style'
+  );
+
+  fs.rmSync(dir, {recursive: true, force: true});
+  t.end();
+});
+
+test('the legacy module name is labelled too', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-labels-'));
+  const file = path.join(dir, 'old.tsx');
+  fs.writeFileSync(
+    file,
+    [
+      'import { styled } from "uebersicht";',
+      'const Legacy = styled("div")`color: blue;`;',
+      'export const render = () => <Legacy />;',
+    ].join('\n') + '\n'
+  );
+
+  const source = await bundle('old', file);
+  t.ok(
+    source.indexOf('label: "Legacy"') > -1,
+    'a widget written for Ubersicht gets the same labels'
+  );
+
+  fs.rmSync(dir, {recursive: true, force: true});
+  t.end();
+});
+
+test('a jsx widget that will not parse', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-badjsx-'));
+  const file = path.join(dir, 'bad.tsx');
+  fs.writeFileSync(file, 'export const render = () => <div><;\n');
+
+  try {
+    await bundle('bad', file);
+    t.fail('it should not have bundled');
+  } catch (err) {
+    t.ok(err.message.length > 0, 'the parse failure is reported');
+    t.ok(err.line > 0, 'with a line');
+  }
+
+  fs.rmSync(dir, {recursive: true, force: true});
+  t.end();
+});

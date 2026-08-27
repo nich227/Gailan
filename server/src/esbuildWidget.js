@@ -56,6 +56,81 @@ function realPath(filePath) {
   }
 }
 
+// Emotion's own babel plugin, for the labels that make a generated class name
+// say which component it came from: css-1a2b3c-Window rather than css-1a2b3c.
+// Widgets import styled and css from "gailan", so the plugin has to be told
+// those are emotion's, or it leaves them alone.
+//
+// It costs about 55ms once, mostly loading babel, and 6ms per rebuild. Emotion's
+// per-style source maps are left off: they embed a copy of the file's map into
+// every styled call, which took the starter widget from 30KB to 302KB.
+const EMOTION_IMPORTS = {
+  styled: {canonicalImport: ['@emotion/styled', 'default']},
+  css: {canonicalImport: ['@emotion/css', 'css']},
+};
+
+function emotionLabels() {
+  return {
+    name: 'emotion-labels',
+    setup(build) {
+      // required lazily so a classic widget never pays for babel
+      let babel = null;
+      let plugin = null;
+
+      build.onLoad({filter: /\.(jsx|tsx)$/}, async (args) => {
+        if (!babel) {
+          babel = require('@babel/core');
+          plugin = [
+            require('@emotion/babel-plugin'),
+            {
+              autoLabel: 'always',
+              labelFormat: '[local]',
+              sourceMap: false,
+              importMap: {
+                gailan: EMOTION_IMPORTS,
+                uebersicht: EMOTION_IMPORTS,
+              },
+            },
+          ];
+        }
+
+        const source = fs.readFileSync(args.path, 'utf8');
+        try {
+          const result = await babel.transformAsync(source, {
+            filename: args.path,
+            babelrc: false,
+            configFile: false,
+            plugins: [plugin],
+            // babel only parses here; esbuild still does the compiling, so the
+            // jsx and the types are printed back out untouched
+            parserOpts: {plugins: ['jsx', 'typescript']},
+          });
+          return {
+            contents: result.code,
+            loader: path.extname(args.path).slice(1),
+          };
+        } catch (err) {
+          return {
+            errors: [
+              {
+                text: err.message.split('\n')[0],
+                location: err.loc
+                  ? {
+                      file: args.path,
+                      line: err.loc.line,
+                      column: err.loc.column,
+                      lineText: source.split('\n')[err.loc.line - 1] || '',
+                    }
+                  : null,
+              },
+            ],
+          };
+        }
+      });
+    },
+  };
+}
+
 // classic widgets: a bare object literal whose style is stylus and whose
 // refreshFrequency may be "10s". widgetify rewrites all that.
 function classicWidget(id, entry) {
@@ -172,7 +247,7 @@ module.exports = function esbuildWidget(id, filePath) {
     logLevel: 'silent',
     plugins: isClassic
       ? [hostModules(), classicWidget(id, filePath)]
-      : [hostModules()],
+      : [hostModules(), emotionLabels()],
   };
 
   const api = {
