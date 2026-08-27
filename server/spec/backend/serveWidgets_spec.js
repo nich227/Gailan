@@ -98,11 +98,19 @@ test('mapping an error position back to widget source', (t) => {
     bundle.close();
     t.error(err, 'the widget bundles');
 
+    // line 1 of a bundle is esbuild's own prelude, so ask about the line the
+    // widget's own markup ended up on
+    const code = String(source);
+    const lines = code.split('\n');
+    const target =
+      lines.findIndex((line) => line.indexOf('output') > -1) + 1;
+    const column = Math.max(lines[target - 1].indexOf('output'), 0);
+
     // a jsx widget carries an inline source map, which is what makes this work
     serve(
-      fakeBundler({mapped: String(source)}),
+      fakeBundler({mapped: code}),
       dir,
-      '/widgets/mapped?line=1&column=1',
+      `/widgets/mapped?line=${target}&column=${column}`,
       (res, body) => {
         t.equal(res.statusCode, 200, 'it answers');
 
