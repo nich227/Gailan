@@ -397,6 +397,84 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
     ];
 }
 
+#pragma mark Overview window
+
+- (NSArray<NSDictionary*>*)widgetsOverview
+{
+    NSMutableArray* result = [NSMutableArray array];
+
+    for (NSString* widgetId in [widgets sortedWidgets]) {
+        NSDictionary* widget = [widgets get:widgetId] ?: @{};
+        NSDictionary* settings = [widgets getSettings:widgetId] ?: @{};
+        NSString* filePath = widget[@"filePath"] ?: @"";
+
+        [result addObject:@{
+            @"id": widgetId,
+            @"filePath": filePath,
+            @"fileName": [filePath lastPathComponent] ?: @"",
+            @"hidden": @([settings[@"hidden"] boolValue]),
+            @"inBackground": @([settings[@"inBackground"] boolValue]),
+            @"showOnAllScreens": @([settings[@"showOnAllScreens"] boolValue]),
+            @"showOnMainScreen": @([settings[@"showOnMainScreen"] boolValue]),
+            @"hasError": @(widget[@"error"] != nil),
+        }];
+    }
+
+    return result;
+}
+
+- (void)setHidden:(BOOL)hidden forWidget:(NSString*)widgetId
+{
+    [dispatcher
+        dispatch: hidden ? @"WIDGET_SET_TO_HIDE" : @"WIDGET_SET_TO_SHOW"
+        withPayload: widgetId
+    ];
+}
+
+- (void)setInBackground:(BOOL)inBackground forWidget:(NSString*)widgetId
+{
+    [dispatcher
+        dispatch: inBackground
+            ? @"WIDGET_SET_TO_BACKGROUND"
+            : @"WIDGET_SET_TO_FOREGROUND"
+        withPayload: widgetId
+    ];
+}
+
+// mode is "all", "main" or "selected", matching the menu's three choices
+- (void)setScreenMode:(NSString*)mode forWidget:(NSString*)widgetId
+{
+    NSString* action = @"WIDGET_SET_TO_SELECTED_SCREENS";
+    if ([mode isEqualToString:@"all"]) action = @"WIDGET_SET_TO_ALL_SCREENS";
+    if ([mode isEqualToString:@"main"]) action = @"WIDGET_SET_TO_MAIN_SCREEN";
+
+    [dispatcher dispatch:action withPayload:widgetId];
+}
+
+- (void)refreshWidgetWithId:(NSString*)widgetId
+{
+    [dispatcher dispatch:@"WIDGET_WANTS_REFRESH" withPayload:widgetId];
+}
+
+- (void)openWidgetFile:(NSString*)widgetId
+{
+    NSString* filePath = [widgets get:widgetId][@"filePath"];
+    if (!filePath) return;
+
+    if (![[NSWorkspace sharedWorkspace]
+            openURL: [NSURL fileURLWithPath:filePath]]) {
+        [self
+            notifyUser: [NSString
+                stringWithFormat: @"Please configure an app to edit .%@ files",
+                                  [filePath pathExtension]
+            ]
+             withTitle: @"No Editor Configured."
+        ];
+    }
+}
+
+#pragma mark Menu actions
+
 - (void)toggleHidden:(id)sender
 {
     NSString* widgetId = [(NSMenuItem*)sender representedObject];

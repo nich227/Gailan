@@ -20,6 +20,15 @@
        preferences:(GLPreferencesController*)preferences;
 - (void)render;
 - (NSArray*)widgetsForScripting;
+
+// For the overview window. One dictionary per widget, and setters that go
+// through the same dispatcher the menu does, so both stay in step.
+- (NSArray<NSDictionary*>*)widgetsOverview;
+- (void)setHidden:(BOOL)hidden forWidget:(NSString*)widgetId;
+- (void)setInBackground:(BOOL)inBackground forWidget:(NSString*)widgetId;
+- (void)setScreenMode:(NSString*)mode forWidget:(NSString*)widgetId;
+- (void)refreshWidgetWithId:(NSString*)widgetId;
+- (void)openWidgetFile:(NSString*)widgetId;
 - (void)reloadWidget:(NSString*)widgetId;
 
 @end

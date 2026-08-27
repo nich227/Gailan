@@ -131,36 +131,36 @@ const startDrag = (e: any) => {
    The fill is deliberately thin, because what shows through it is the material
    macOS draws behind the window. */
 const Window = styled("div")`
-  --bg: rgba(24, 24, 31, 0.92);
+  --bg: rgba(11, 11, 12, 0.92);
   /* thin enough to read the frosted wallpaper through, dark enough to read
      text on top of it */
-  --panel: rgba(20, 20, 26, 0.42);
-  --header-bg: rgba(255, 255, 255, 0.07);
-  --border: rgba(255, 255, 255, 0.1);
-  --text: #e6e6ec;
-  --dim: #8b8b99;
-  --accent: #5aa7f5;
-  --light-off: #4c4c54;
+  --panel: rgba(11, 11, 12, 0.46);
+  --header-bg: rgba(244, 244, 242, 0.05);
+  --border: rgba(244, 244, 242, 0.14);
+  --text: #f4f4f2;
+  --dim: rgba(244, 244, 242, 0.45);
+  --accent: #d71921;
+  --light-off: rgba(244, 244, 242, 0.22);
 
   @media (prefers-color-scheme: light) {
-    --bg: rgba(250, 250, 252, 0.94);
-    --panel: rgba(250, 250, 252, 0.55);
-    --header-bg: rgba(255, 255, 255, 0.35);
-    --border: rgba(0, 0, 0, 0.1);
-    --text: #1f1f28;
-    --dim: #71717d;
-    --light-off: #d2d2d2;
+    --bg: rgba(241, 241, 239, 0.94);
+    --panel: rgba(241, 241, 239, 0.58);
+    --header-bg: rgba(11, 11, 12, 0.04);
+    --border: rgba(11, 11, 12, 0.16);
+    --text: #0b0b0c;
+    --dim: rgba(11, 11, 12, 0.5);
+    --light-off: rgba(11, 11, 12, 0.18);
   }
 
   pointer-events: auto;
   position: absolute;
-  border-radius: 12px;
+  /* barely rounded: a panel, not a bubble */
+  border-radius: 5px;
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--border);
-  /* the hairline highlight along the top edge that makes glass read as glass */
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  /* one hairline, no glow: the border does the work a shadow would */
+  box-shadow: inset 0 1px 0 rgba(244, 244, 242, 0.08);
 
   /* Asleep, like any window you have not clicked: gray lights, a dimmer title
      and a shallower shadow. Hovering the lights brings their colour back, which
@@ -174,11 +174,10 @@ const Window = styled("div")`
   }
 
   &[data-active="false"] {
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: none;
   }
-  font-family: "Alibaba PuHuiTi", "PingFang SC", "Helvetica Neue", sans-serif;
-  font-size: 13px;
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12.5px;
   color: var(--text);
   line-height: 1.55;
 `;
@@ -268,12 +267,13 @@ const ZoomGlyph = () => (
 const Title = styled("span")`
   margin-left: 4px;
   color: var(--dim);
-  font-size: 11px;
-  letter-spacing: 0.4px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 
   b {
     color: var(--accent);
-    font-weight: 600;
+    font-weight: 500;
   }
 `;
 
@@ -288,12 +288,15 @@ const Body = styled("div")`
   padding: 4px 18px 16px;
 
   h1 {
-    font-size: 19px;
-    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
   }
 
   p {
     margin-bottom: 10px;
+    line-height: 1.65;
   }
 
   p:last-child {
@@ -307,10 +310,12 @@ const Body = styled("div")`
 `;
 
 const Footer = styled("div")`
-  padding: 8px 18px;
+  padding: 9px 18px;
   border-top: 1px solid var(--border);
   color: var(--dim);
-  font-size: 11px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 `;
 
 export const render = ({ output, error }: State) => {
@@ -325,7 +330,7 @@ export const render = ({ output, error }: State) => {
     // rectangle, System glass in Preferences picks the material.
     <Window
       id={WIDGET_ID}
-      data-gailan-desktop-glass={12}
+      data-gailan-desktop-glass={5}
       data-active={active ? "true" : "false"}
       style={{ width: 340, ...position }}
     >

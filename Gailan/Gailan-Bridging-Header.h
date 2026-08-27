@@ -7,3 +7,4 @@
 #import "GLAppDelegate.h"
 #import "GLWidgetForScripting.h"
 #import "GLWidgetsStore.h"
+#import "GLWidgetsController.h"

@@ -683,6 +683,12 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="T85-qJ-hLx"/>
+                <menuItem title="Widgets..." id="GL6-ov-er0">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="showWidgetsOverview:" target="494" id="GL6-ov-ac0"/>
+                    </connections>
+                </menuItem>
                 <menuItem title="Web Inspector" id="mKH-1l-jB3">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Web Inspector" id="GL1-in-sp0">

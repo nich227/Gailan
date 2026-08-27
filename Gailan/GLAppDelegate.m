@@ -104,6 +104,11 @@ int const PORT = 41416;
     ];
     [widgetsStore onChange: ^(NSDictionary* widgets) {
         [self->widgetsController render];
+        // the store takes one handler, so anything else that cares listens here
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName: @"GLWidgetsDidChange"
+                          object: nil
+        ];
     }];
     
     [GLPreferencesController applyAppearance];
@@ -463,6 +468,11 @@ int const PORT = 41416;
 // the menu item's tag says which layer to inspect: 1 foreground, 2 background,
 // 0 both. widgets sit in one layer or the other, so inspecting the wrong one
 // shows an empty page.
+- (IBAction)showWidgetsOverview:(id)sender
+{
+    [GLWidgetsOverviewWindow show:widgetsController];
+}
+
 - (IBAction)showDebugConsole:(id)sender
 {
     NSNumber* currentScreen = [[NSScreen mainScreen]

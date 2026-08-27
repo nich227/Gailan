@@ -29,6 +29,7 @@
 - (void)screensChanged:(NSDictionary*)screens;
 - (IBAction)showPreferences:(id)sender;
 - (IBAction)openWidgetDir:(id)sender;
+- (IBAction)showWidgetsOverview:(id)sender;
 - (IBAction)showDebugConsole:(id)sender;
 - (IBAction)refreshWidgets:(id)sender;
 - (void)reloadWidget:(NSString*)widgetId;
