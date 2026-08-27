@@ -23,7 +23,7 @@ var IS_LOGIN =
     : 'shopt -q login_shell && echo on || echo off';
 
 var workingDir = path.resolve(__dirname, path.join('..', 'test_widgets'));
-var port = testPort(8887);
+var port = testPort();
 var server = connect().use(commandServer(workingDir, false, SHELL)).listen(port);
 
 var url = 'http://localhost:' + port + '/run/';
@@ -69,7 +69,7 @@ test('shell type', (t) => {
 
 if (has('fish')) {
   test('running commands in fish', (t) => {
-    var fishPort = testPort(8886);
+    var fishPort = testPort();
     var fishServer = connect()
       .use(commandServer(workingDir, false, 'fish'))
       .listen(fishPort);
@@ -115,7 +115,7 @@ test('closing', (t) => {
 
 test('using a login shell', (t) => {
   // its own port, so nothing can be pointing at the server that just closed
-  var loginPort = testPort(port + 1);
+  var loginPort = testPort();
   var loginServer = connect()
     .use(commandServer(workingDir, true, SHELL))
     .listen(loginPort);

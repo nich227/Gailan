@@ -2,7 +2,7 @@ var test = require('tape');
 var WebSocket = require('ws');
 var testPort = require('../helpers/testPort');
 
-var port = testPort(8889);
+var port = testPort();
 var server = new WebSocket.Server({ port: port });
 var sharedSocket = require('../../src/SharedSocket');
 var listen = require('../../src/listen');

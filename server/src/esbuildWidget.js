@@ -55,7 +55,27 @@ function classicWidget(id, entry) {
       build.onLoad({filter: /\.js$/}, (args) => {
         if (path.resolve(args.path) !== path.resolve(entry)) return null;
         const source = fs.readFileSync(args.path, 'utf8');
-        return {contents: rewrite(`({${source}})`, args.path), loader: 'js'};
+        try {
+          // the wrapper adds no lines, so the parser's positions still point
+          // at the widget's own source
+          return {contents: rewrite(`({${source}})`, args.path), loader: 'js'};
+        } catch (err) {
+          return {
+            errors: [
+              {
+                text: err.description || err.message,
+                location: err.lineNumber
+                  ? {
+                      file: args.path,
+                      line: err.lineNumber,
+                      column: err.column ? err.column - 1 : 0,
+                      lineText: source.split('\n')[err.lineNumber - 1] || '',
+                    }
+                  : null,
+              },
+            ],
+          };
+        }
       });
 
       // only the widget itself is an object literal; its imports are modules

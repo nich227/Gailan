@@ -139,10 +139,10 @@ test('a widget with a syntax error reports where', async (t) => {
     await bundle('broken', path.join(widgets, 'broken-widget.js'));
     t.fail('it should not have bundled');
   } catch (err) {
-    t.equal(err.message, 'unexpected indentation', 'the coffee error survives');
-    t.equal(err.line, 5, 'with the line');
+    t.equal(err.message, 'Unexpected token }', 'the parser error survives');
+    t.equal(err.line, 6, 'with the line');
     t.ok(
-      err.annotated.indexOf('> 5 |') > -1,
+      err.annotated.indexOf('> 6 |') > -1,
       'and a frame pointing at it'
     );
   }
@@ -151,14 +151,14 @@ test('a widget with a syntax error reports where', async (t) => {
 
 test('editing a widget emits an update', async (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-watch-'));
-  const file = path.join(dir, 'watched.coffee');
-  fs.writeFileSync(file, 'command: "echo one"\nrender: -> "one"\n');
+  const file = path.join(dir, 'watched.js');
+  fs.writeFileSync(file, 'command: "echo one",\nrender: () => "one"\n');
 
   const widget = esbuildWidget('watched', file);
   await new Promise((resolve) => widget.bundle(resolve));
 
   const updated = new Promise((resolve) => widget.on('update', resolve));
-  fs.writeFileSync(file, 'command: "echo two"\nrender: -> "two"\n');
+  fs.writeFileSync(file, 'command: "echo two",\nrender: () => "two"\n');
 
   const result = await Promise.race([
     updated.then(() => 'update'),

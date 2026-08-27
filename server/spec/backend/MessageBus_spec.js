@@ -6,7 +6,7 @@ var MessageBus = require('../../src/MessageBus');
 // the mac app's SocketRocket client only understands text frames, so a text
 // frame in must come back out as a text frame, not binary
 test('rebroadcasting preserves the frame type', (t) => {
-  var port = testPort(8890);
+  var port = testPort();
   var bus = MessageBus({port: port});
 
   var sender = new WebSocket('ws://localhost:' + port);

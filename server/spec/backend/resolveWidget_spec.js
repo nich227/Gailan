@@ -45,10 +45,16 @@ test('separating widgets from non-wigets', (t) => {
   t.ok(!!action, 'it accepts js files');
 
   action = resolveWidget({
+    filePath: '/widget/dir/file.ts',
+    rootPath: '/widget/dir/',
+  });
+  t.ok(!!action, 'it accepts ts files');
+
+  action = resolveWidget({
     filePath: '/widget/dir/file.coffee',
     rootPath: '/widget/dir/',
   });
-  t.ok(!!action, 'it accepts coffee files');
+  t.ok(!action, 'it no longer accepts coffee files');
 
   action = resolveWidget({
     filePath: '/widget/dir/file.jsx',

@@ -1,7 +1,24 @@
-// Specs want a fixed port, but it might be taken on a dev machine. Probing has
-// to happen in a child process so it can stay synchronous: the specs open their
-// servers while the module is still loading.
+//
+//  testPort.js
+//  Gailan
+//
+//  Copyright (c) 2026 Kevin Chen.
+//
+//  Released under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version. See <http://www.gnu.org/licenses/> for
+//  details.
+//
+'use strict';
+
+// Specs need a port before they listen, so it cannot be left to the OS with
+// listen(0). Every one is random and probed for being free, which is the only
+// way two runs, or a run and whatever else is on the machine, cannot collide.
+// Probing has to happen in a child process to stay synchronous: the specs open
+// their servers while the module is still loading.
 var execFileSync = require('child_process').execFileSync;
+
+var handedOut = {};
 
 function isFree(port) {
   var probe =
@@ -19,13 +36,13 @@ function isFree(port) {
   }
 }
 
-module.exports = function testPort(preferred) {
-  if (isFree(preferred)) return preferred;
-
-  for (var i = 0; i < 50; i++) {
-    var port = 1024 + Math.floor(Math.random() * 60000);
+module.exports = function testPort() {
+  for (var i = 0; i < 100; i++) {
+    // the ephemeral range, where nothing is registered
+    var port = 49152 + Math.floor(Math.random() * 16000);
+    if (handedOut[port]) continue;
     if (isFree(port)) {
-      console.log('# port ' + preferred + ' is taken, using ' + port);
+      handedOut[port] = true;
       return port;
     }
   }
