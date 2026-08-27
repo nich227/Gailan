@@ -70,7 +70,13 @@ window.onload = () => {
   reportGlassRegions.watch();
 
   getState((err: unknown, initialState: any) => {
-    if (err != null) bail(err, 10000);
+    // upstream carried on from here and dereferenced a null state, throwing
+    // before the reload it had just scheduled could happen
+    if (err != null) {
+      bail(err, 10000);
+      return;
+    }
+
     const store = redux.createStore(reducer, initialState);
 
     Object.keys(initialState.widgets).forEach((id) => {
