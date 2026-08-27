@@ -102,7 +102,7 @@ test('deriving widget ids', (t) => {
     rootPath: '/widget/dir/',
   });
   t.equal(
-    action.id, 'spaces_in____the__Name-js', 'it replaces spaces with underscores'
+    action.id, 'spaces_in____the__Name', 'it replaces spaces with underscores'
   );
 
   action = resolveWidget({
@@ -111,7 +111,7 @@ test('deriving widget ids', (t) => {
     rootPath: '/widget/dir/',
   });
   t.equal(
-    action.id, 'some-dir-widget-js', 'it replaces slashes with dashes'
+    action.id, 'some-dir-widget', 'it replaces slashes with dashes'
   );
 
   t.end();
