@@ -20,7 +20,7 @@ and points a WKWebView per screen at it. Widgets are esbuild bundles built on th
 the client mounts them with React. browserify still builds the client and server bundles.
 
 `src/esbuildWidget.js` holds the widget pipeline. esbuild has no opinion about the parts
-that are ours, so they are plugins: compiling coffee, wrapping a classic widget's object
+that are ours, so they are plugins: wrapping a classic widget's object
 literal so `widgetify` can rewrite it (stylus in `style`, `ms` in `refreshFrequency`, the
 injected `id`), and resolving `gailan` out of the client bundle through
 `globalThis.require` so widgets do not each carry a copy of React. Only builds the watcher
@@ -28,7 +28,7 @@ starts emit `update`; rebuilds we ask for do not, or `WidgetBundler` rebuilding 
 would loop forever.
 
 Bundles publish themselves into `globalThis.__gailanWidgets[id]`, which is what
-`client.coffee` reads after the script tag loads. esbuild ships as a native binary per
+`client.ts` reads after the script tag loads. esbuild ships as a native binary per
 architecture, fetched by `scripts/fetch-esbuild.sh` with pinned hashes and ad-hoc signed
 there, because Xcode's strip phase errors on an unsigned binary and skips a signed one.
 
@@ -120,7 +120,8 @@ Keychain; the output is the same ed25519 signature either way.
 
   - Objective-C classes use the `GL` prefix. Two-space indent, brace on its own line
     for methods.
-  - The node code is a mix of CoffeeScript (2.x) and JavaScript; prettier config is in
+  - The node code is TypeScript and JavaScript, no build step: node strips the types,
+    which is why requires of `.ts` files carry the extension. prettier config is in
     `.prettierrc` (single quotes, trailing commas, no bracket spacing).
   - Comments are sparse and lowercase. Explain why, not what, and only when it is not
     obvious from the code.

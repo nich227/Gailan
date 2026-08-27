@@ -5,11 +5,11 @@ For general info check out the [Übersicht website.](http://tracesof.net/uebersi
 
 ## Writing Widgets
 
-In essence, widgets are plain JavaScript objects that define a few key properties and methods. They need to be defined in a single file with a `.js` or `.coffee` extension for Gailan to pick them up. Gailan will listen to file changes inside your widget directory, so you can edit widgets and see the result live.
+In essence, widgets are plain JavaScript objects that define a few key properties and methods. They need to be defined in a single file with a `.js` extension for Gailan to pick them up. Gailan will listen to file changes inside your widget directory, so you can edit widgets and see the result live.
 
 You can also include node modules and split your widget into separate files using [NodeJS' module syntax](https://www.sitepoint.com/understanding-module-exports-exports-node-js/). Any file that is in a directory called `/node_modules`, `/lib` or `/src` will be treated as a module and will not show up as a separate widget.
 
-Currently they are best written in [CoffeeScript](http://coffeescript.org). Plain JS widgets work as well, but it currently doesn't have CommonJS support. This documentation will use the CoffeScript syntax, but here is a small example widget [in pure JavaScript](https://gist.github.com/felixhageloh/34645a899a0f22f583bb). As an alternative, you could use CoffeScript's back-tick <tt>`</tt> operator to only write the relevant parts in JavaScript.
+Upstream wrote these in CoffeeScript, which Gailan no longer supports. The examples below have been translated to JavaScript. This API still works, but new widgets are better off as `.tsx` modules; see the [README](README.md#writing-widgets).
 
 The following properties and methods are currently supported:
 
@@ -20,23 +20,23 @@ A **string** containing the shell command to be executed, or
 a **function(callback)** which eventually calls callback with some data.
 For example:
 
-```coffeescript
+```js
 command: "echo Hello World"
 ```
 
 Watch out for quotes inside commands. Often they need to properly escaped, like:
 
-```coffeescript
+```js
 command: "ps axo \"rss,pid,ucomm\" | sort -nr | head -n3"
 ```
 
 Example using a command function:
 
-```coffeescript
-command: (callback) ->
-  # example function that fetches data from a server
-  fetchData 'some/url', (error, data) ->
-    callback(error, data)
+```js
+command: (callback) => {
+  // example function that fetches data from a server
+  fetchData('some/url', (error, data) => callback(error, data));
+}
 ```
 
 The first and only argument passed to a command function is a callback, which must be called to continue running the widget. It follows the standard NodeJS [error-first callback pattern](http://fredkschott.com/post/2014/03/understanding-error-first-callbacks-in-node-js/).
@@ -46,14 +46,14 @@ The first and only argument passed to a command function is a callback, which mu
 
 An **integer** specifying how often the above command is executed. It defines the delay in milliseconds between consecutive commands executions. Example:
 
-```coffeescript
+```js
 refreshFrequency: 10000
 ```
 
 You can also specify `refreshFrequency` as a string, like '2 days', '1d', '10h', '2.5 hrs', '2h', '1m', or '5s'.
 
-```coffeescript
-refreshFrequency: '10s'  # equates to 10000
+```js
+refreshFrequency: '10s'  // equates to 10000
 ```
 
 The default is 1000 (1s). If set to `false` the widget won't refresh automatically.
@@ -62,15 +62,15 @@ The default is 1000 (1s). If set to `false` the widget won't refresh automatical
 
 A **string** defining the css style of this widget, which is also used to control the position. In order to allow for easy scoping of CSS rules, styles are written using the [Stylus](http://learnboost.github.io/stylus/) preprocessor. Example:
 
-```coffeescript
-style: """
+```js
+style: `
   top:  0
   left: 0
   color: #fff
 
   .some-class
     box-shadow: 0 0 2px rgba(#000, 0.1)
-"""
+`
 ```
 
 For convenience, the [nib library](https://tj.github.io/nib/) for Stylus is included, so mixins for CSS3 are available.
@@ -82,12 +82,12 @@ Note that widgets are positioned absolute in relation to the screen (minus the m
 
 A **function** returning a HTML string to render this widget. It gets the output of `command` passed in as a string. For example, a widget with:
 
-```coffeescript
-command: "echo Hello World!"
+```js
+command: "echo Hello World!",
 
-render: (output) -> """
-  <h1>#{output}</h1>
-"""
+render: (output) => `
+  <h1>${output}</h1>
+`
 ```
 
 would render as **Hello World!**. Usually, your `output` will be something more complicated, for example a JSON string, so you will have to parse it first.
@@ -105,14 +105,15 @@ A **function** implementing update behavior of this widget. If specified, `rende
 
 Since `render` will simply replace the inner HTML of a widget every time, you can use render to do a partial update of your widgets, kick off animations etc. For example, if the output of your command returns a percentage, you could do something like:
 
-```coffeescript
-# we don't care about output here
-render: (_) -> """
+```js
+// we don't care about output here
+render: (_) => `
   <div class='bar'></div>
-"""
+`,
 
-update: (output, domEl) ->
-  $(domEl).find('.bar').css height: output+'%'
+update: (output, domEl) => {
+  $(domEl).find('.bar').css({height: output + '%'});
+}
 ```
 
 This will set the height of .bar every time this widget refreshes. As you can see, jQuery is available.
@@ -141,15 +142,15 @@ Runs a shell command and calls callback with the result. Command is a string con
 
 While the WebView used by Gailan seems to provide the standard HTML5 geolocation API, it is not functional and there seems to be no way to enable it. Gailan now provides a custom implementation, which tries to follow the standard implementation as closely as possible. However, so far it provides only the basics and might still be somewehat unstable. The api can be found under `window.geolocation` (instead of `window.navigator.geolocation`). And supports the following methods
 
-```coffeescript
+```js
 geolocation.getCurrentPosition(callback)
 ```
 
-```coffeescript
+```js
 geolocation.watchPosition(callback)
 ```
 
-```coffeescript
+```js
 geolocation.clearWatch(watchId)
 ```
 
@@ -201,9 +202,9 @@ refreshes widget with id "my-widget".
 
 lists all widgets.
 
-    tell application "Gailan" to set hidden of widget id "top-cpu-coffee" to false
+    tell application "Gailan" to set hidden of widget id "top-cpu-js" to false
 
-hides the widget with ID "top-cpu-coffee"
+hides the widget with ID "top-cpu-js"
 
 ### Typing the umlaut 'Ü'
 
@@ -241,8 +242,8 @@ The code base consists of two parts, a cocoa app and a NodeJS app inside `server
 
 The node app can be run standalone using
 
-```coffeescript
-coffee server/server.coffee -d <path/to/widget/dir> -p <port>
+```sh
+node server/server.ts -d <path/to/widget/dir> -p <port>
 ```
 
 # Building in Xcode

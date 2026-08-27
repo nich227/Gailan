@@ -42,7 +42,7 @@ The specifics:
   - if Übersicht is running when Gailan starts, a dialog offers to quit one of them
     (Gailan is an upgraded Übersicht, so running both doubles every widget)
   - widgets are bundled with **esbuild** rather than browserify. `.jsx`, `.tsx` and
-    classic CoffeeScript widgets all still work; what changed is that a widget bundle
+    classic object-literal widgets all still work; what changed is that a widget bundle
     publishes itself into `globalThis.__gailanWidgets` instead of registering with
     browserify's require, and the Emotion Babel plugin is gone, so generated class names
     no longer carry component labels
@@ -62,7 +62,7 @@ Against Übersicht 1.6.82, the most recent release at the time of the fork:
 | bundled Node | 16.1.0 | 24.20.0 |
 | minimum macOS | 10.11 (Podfile), 12.0 (target) | 13.5 |
 | React | 16.13 | 19.2 |
-| CoffeeScript | `coffee-script` 1.12 (deprecated package) | `coffeescript` 2.7 |
+| CoffeeScript | `coffee-script` 1.12, for widgets and the server | removed; the server is TypeScript |
 | Emotion | 10 (`emotion`, `@emotion/core`) | 11 (`@emotion/css`, `@emotion/react`) |
 | widget bundler | browserify 16.5 | esbuild 0.25 |
 | browserify | 16.5 | 17.0, client and server bundles only |
@@ -77,7 +77,7 @@ Against Übersicht 1.6.82, the most recent release at the time of the fork:
 | jQuery | 3.5 | 3.7, deliberately not 4.x |
 | Sparkle API | `SUUpdater` (Sparkle 1, deprecated) | `SPUStandardUpdaterController` |
 
-jQuery stays on 3.x because 4.0 removes APIs that classic CoffeeScript widgets use.
+jQuery stays on 3.x because 4.0 removes APIs that classic widgets use.
 Everything else is the current release of its line.
 
 ## Migrating from Übersicht
@@ -118,12 +118,12 @@ Gailan offers to do that for you when it starts.
     breaking changes linked above.
 
 Nothing else about a widget changes: `command`, `refreshFrequency`, `render`,
-`updateState`, `className`, the classic CoffeeScript widgets, `window.$`, and the
+`updateState`, `className`, the classic object-literal widgets, `window.$`, and the
 `/run/` proxy all behave as they did.
 
 ## Writing Widgets
 
-In essence, widgets are TypeScript (or JavaScript) modules that expose a few key properties and methods. They need to be defined in a single file with a `.tsx` (or `.jsx`) extension for Gailan to pick them up. Types are stripped when the widget is bundled, not checked. Widgets could previously be written in CoffeeScript, and those are still supported. Check [the old documentation](ClassicWidgets.md) for details. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
+In essence, widgets are TypeScript (or JavaScript) modules that expose a few key properties and methods. They need to be defined in a single file with a `.tsx` (or `.jsx`) extension for Gailan to pick them up. Types are stripped when the widget is bundled, not checked. CoffeeScript widgets are not supported: Übersicht's classic API still works, but the file has to be `.js`. Check [the old documentation](ClassicWidgets.md) for that API. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
 
 Widget rendering is done using [React](https://react.dev) and its [JSX](https://react.dev/learn/writing-markup-with-jsx) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which are processed by a single `updateState` function that returns the new state, which is then passed to your widget's render function.
 
@@ -518,9 +518,9 @@ refreshes the widget with id "my-widget".
 
 lists all widgets.
 
-    tell application id "com.nich227.Gailan" to set hidden of widget id "top-cpu-coffee" to false
+    tell application id "com.nich227.Gailan" to set hidden of widget id "top-cpu-js" to false
 
-shows the widget with id "top-cpu-coffee"
+shows the widget with id "top-cpu-js"
 
 
 ## Building Gailan
@@ -562,7 +562,7 @@ The codebase consists of two parts: a Cocoa app, and a Node.js app inside `serve
 The Node app can be run standalone using
 
 ```
-cd server && npx coffee server.coffee -d <path/to/widget/dir> -p <port>
+cd server && node server.ts -d <path/to/widget/dir> -p <port>
 ```
 
 `-s` points at a settings directory and `--login-shell` runs widget commands through a
