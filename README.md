@@ -46,6 +46,32 @@ The specifics:
 
 The Node runtime is Node 24, the current LTS, and is no longer checked into git; see [Building Gailan](#building-gailan).
 
+### Dependency versions
+
+Against Übersicht 1.6.82, the most recent release at the time of the fork:
+
+| | Übersicht | Gailan |
+|---|---|---|
+| bundled Node | 16.1.0 | 24.20.0 |
+| minimum macOS | 10.11 (Podfile), 12.0 (target) | 13.5 |
+| React | 16.13 | 19.2 |
+| CoffeeScript | `coffee-script` 1.12 (deprecated package) | `coffeescript` 2.7 |
+| Emotion | 10 (`emotion`, `@emotion/core`) | 11 (`@emotion/css`, `@emotion/react`) |
+| browserify | 16.5 | 17.0 |
+| ws | 6.0 | 8.21 |
+| redux | 3.7 | 5.0 |
+| superagent | 3.8 | 10.3 |
+| esprima / escodegen | 2.7 / 1.14 | 4.0 / 2.1 |
+| minifier | uglify-js 3.10 | terser 5.51 |
+| stylus | 0.54 | 0.64 |
+| tape | 4.13 | 5.10 |
+| through2 | 2.0 | replaced by node streams |
+| jQuery | 3.5 | 3.7, deliberately not 4.x |
+| Sparkle API | `SUUpdater` (Sparkle 1, deprecated) | `SPUStandardUpdaterController` |
+
+jQuery stays on 3.x because 4.0 removes APIs that classic CoffeeScript widgets use.
+Everything else is the current release of its line.
+
 ## Migrating from Übersicht
 
 Copy your widgets across and they will run. Gailan reads the same widget API, so the
