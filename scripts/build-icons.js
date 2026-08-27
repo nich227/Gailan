@@ -1,7 +1,31 @@
 // Renders the Gailan branding assets: bootstrap window-dock with a tiny pair of
 // eyeglasses sitting in the middle of the desktop area.
 const fs = require('fs');
+const path = require('path');
+const {execFileSync} = require('child_process');
 const {Resvg} = require('@resvg/resvg-js');
+
+// Alibaba PuHuiTi, free for commercial use, covers the latin and the hanzi.
+// Fetched on demand like the node runtime is.
+const FONT_DIR = path.join(process.env.TMPDIR || '/tmp', 'gailan-fonts');
+const FONTS = [
+  ['PuHuiTi-Regular.ttf',
+   'https://raw.githubusercontent.com/chinayin/fonts-alibaba-puhuiti-regular/master/Alibaba-PuHuiTi-Regular.ttf'],
+  ['PuHuiTi-Bold.ttf',
+   'https://raw.githubusercontent.com/chinayin/fonts-alibaba-puhuiti-bold/master/Alibaba-PuHuiTi-Bold.ttf'],
+];
+
+function fontFiles() {
+  fs.mkdirSync(FONT_DIR, {recursive: true});
+  return FONTS.map(([name, url]) => {
+    const file = path.join(FONT_DIR, name);
+    if (!fs.existsSync(file)) {
+      console.log('fetching', name);
+      execFileSync('curl', ['-fsSL', '-o', file, url]);
+    }
+    return file;
+  });
+}
 
 const OUT = require('path').join(__dirname, '..', 'Gailan');
 const NAVY = '#151b2c';
@@ -29,7 +53,11 @@ function mark(color, glassesScale) {
 
 function render(svg, width) {
   return new Resvg(svg, {
-    font: {loadSystemFonts: true, defaultFontFamily: 'Noto Sans'},
+    font: {
+      loadSystemFonts: false,
+      fontFiles: fontFiles(),
+      defaultFontFamily: 'Alibaba PuHuiTi',
+    },
     fitTo: {mode: 'width', value: width},
   })
     .render()
@@ -41,9 +69,16 @@ function write(file, buffer) {
   console.log(file, buffer.length, 'bytes');
 }
 
-// app icon: the mark on a white disc
+// app icon: the mark on the softly tinted disc the original Übersicht used
 const appIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <circle cx="512" cy="512" r="502" fill="#ffffff" stroke="${NAVY}" stroke-width="6"/>
+  <defs>
+    <linearGradient id="disc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7ecf0"/>
+      <stop offset="0.55" stop-color="#eaeaf1"/>
+      <stop offset="1" stop-color="#dae5f1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="512" cy="512" r="502" fill="url(#disc)" stroke="${NAVY}" stroke-width="6"/>
   <g transform="translate(212 250) scale(37.5)">${mark(NAVY, 0.4)}</g>
 </svg>`;
 
@@ -73,9 +108,10 @@ write('status-icon@2x.png', render(statusIcon, 32));
 // wordmark, copied into the default widget directory as logo.png
 const logo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 168">
   <g transform="translate(6 18) scale(6.5)">${mark(NAVY, 0.4)}</g>
-  <text x="124" y="104" font-family="Noto Sans" font-size="62" fill="${NAVY}">Gailan</text>
+  <text x="124" y="104" font-family="Alibaba PuHuiTi" font-weight="bold"
+        font-size="62" fill="${NAVY}">Gailan</text>
   <line x1="6" y1="132" x2="346" y2="132" stroke="${NAVY}" stroke-width="1" opacity="0.35"/>
-  <text x="346" y="158" font-family="Noto Sans" font-size="20" fill="#5b6070"
+  <text x="346" y="158" font-family="Alibaba PuHuiTi" font-size="20" fill="#5b6070"
         text-anchor="end">概览 · gàilǎn</text>
 </svg>`;
 
