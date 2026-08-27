@@ -184,11 +184,17 @@ module.exports = function ClassicWidget(widgetObject: any) {
     }
   }
 
+  // Replacing a script tag is how a widget's scripts actually get fetched: the
+  // ones innerHTML creates are inert. The swap has to happen at the script's own
+  // parent, since upstream asked the widget's root to replace a grandchild and
+  // the DOM refused, leaving the widget showing an error instead of its markup.
   function loadScripts(domEl: HTMLElement) {
     Array.from(domEl.getElementsByTagName('script')).forEach((script) => {
-      const s = document.createElement('script');
-      s.src = script.src;
-      domEl.replaceChild(s, script);
+      const replacement = document.createElement('script');
+      replacement.src = script.src;
+      if (script.parentNode) {
+        script.parentNode.replaceChild(replacement, script);
+      }
     });
   }
 
