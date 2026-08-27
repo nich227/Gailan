@@ -30,13 +30,21 @@ NODE_V8_COVERAGE=coverage/tmp npm run test-dom || status=$?
 # The floor sits a little under where coverage currently is, so a real regression
 # fails the build while a refactor that removes a covered line does not. Coverage
 # on new code is the gate that matters, and scripts/new-code-coverage.js does that.
+#
+# Only macOS is held to it. This is a macOS app, and it is the only platform where
+# the whole suite runs: elsewhere fsevents is a stub, the directory watcher specs
+# cannot pass, and the total lands around 46%, which would fail a threshold for
+# reasons that have nothing to do with the change being tested.
+gate=""
+if [ "$(uname -s)" = "Darwin" ]; then
+  gate="--check-coverage --statements=98 --branches=90 --functions=97 --lines=98"
+else
+  echo "not macOS: reporting coverage without holding it to a threshold" >&2
+fi
+
 npx c8 report \
   --temp-directory=coverage/tmp \
-  --check-coverage \
-  --statements=98 \
-  --branches=90 \
-  --functions=97 \
-  --lines=98 \
+  $gate \
   --all \
   --include='src/**' \
   --include='client.ts' \

@@ -76,6 +76,20 @@ having unpacked nothing. Those specs now run in jsdom via `spec/helpers/domEnv.j
 which also maps `superagent` to its xhr build, because that is what browserify picks
 for the widget bundle and what the specs' fake server can intercept.
 
+`npm run coverage` runs all three suites and reports the total, holding it to a
+floor of 98% statements, 90% branches, 97% functions. `npm run coverage:new` checks
+only the lines a change touched, against 80%, which is the number SonarQube's
+default gate uses and the more useful of the two: a repository at 99% can still
+take an untested change without the total moving enough to notice.
+
+Both are enforced on macOS only. This is a macOS app and macOS is the only place
+the whole suite runs; elsewhere fsevents is a stub, the directory watcher specs
+cannot pass, and the total lands near 46%, which would fail for reasons unrelated
+to the change. On other platforms both commands report and exit clean.
+
+Treat the numbers as a floor rather than a goal. They say a line ran, not that
+anything was asserted about it.
+
 Run tape through `spec/run.js` rather than piping to a formatter directly. `tape | tap-arc`
 throws away tape's exit status, so a suite that dies on load prints "total: 0" and exits
 0, and sh has no pipefail.

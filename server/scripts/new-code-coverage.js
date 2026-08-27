@@ -25,6 +25,10 @@ const fs = require('fs');
 const path = require('path');
 
 const THRESHOLD = Number(process.env.NEW_CODE_COVERAGE || 80);
+
+// Same reason as the overall floor: only macOS runs the whole suite, so only
+// macOS is held to a number. Elsewhere this reports and exits clean.
+const ENFORCED = process.platform === 'darwin';
 const root = path.join(__dirname, '..');
 const lcovPath = path.join(root, 'coverage', 'lcov.info');
 
@@ -130,6 +134,12 @@ if (misses.length > 0) {
 }
 
 if (percent + 1e-9 < THRESHOLD) {
+  if (!ENFORCED) {
+    console.log(
+      `\nbelow ${THRESHOLD}%, but only macOS is held to it, so not failing here`
+    );
+    process.exit(0);
+  }
   console.error(
     `\nnew code coverage ${percent.toFixed(2)}% is below ${THRESHOLD}%`
   );

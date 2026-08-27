@@ -13,12 +13,21 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+      - uses: actions/checkout@v7
+        with:
+          # the new-code gate diffs against the base, so it needs the history
+          fetch-depth: 0
       - run: npm install --no-progress
         working-directory: server
-      - run: npm run test-local
+      # runs every suite and holds the total to a floor. macOS only, which this
+      # job is: elsewhere fsevents is a stub and the watcher specs cannot pass.
+      - run: npm run coverage
         working-directory: server
-      - run: npm run test-dom
+      - name: coverage of the lines this change touched
         working-directory: server
+        env:
+          COVERAGE_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD~1' }}
+        run: npm run coverage:new
 
   build-app:
     runs-on: macos-latest
