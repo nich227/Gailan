@@ -35,8 +35,10 @@ test('a widget appearing', (t) => {
         filePath: '/widgets/a-widget.jsx',
         error: null,
         mtime: 1234,
-        // the schema travels with the widget; this one declared none
+        // these travel with the widget from its manifest; this one has none
         settingsSchema: undefined,
+        title: undefined,
+        savedConfig: undefined,
       },
     },
     'carries what the store needs and leaves the source behind'

@@ -27,6 +27,8 @@ test('WIDGET_ADDED', (t) => {
       showOnSelectedScreens: false,
       hidden: false,
       screens: [],
+      // a widget's own settings start empty, or hold what settings.json had
+      config: {},
     },
     'it initializes settings for a widget'
   );
