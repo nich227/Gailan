@@ -190,7 +190,9 @@ final class GLWidgetUpdatesTests: XCTestCase {
     /// failed when there is no network, since that says nothing about the code.
     @MainActor
     func testAWidgetIsUpdatedFromTheHub() async throws {
-        try await XCTSkipUnless(hubIsReachable(), "GailanHub is not reachable")
+        // the skip takes a value, not an await, so the probe runs first
+        let reachable = await hubIsReachable()
+        try XCTSkipUnless(reachable, "GailanHub is not reachable")
 
         // an old clock, and a settings file the user chose
         try install(folder: "clock", version: "0.0.1")
@@ -231,7 +233,9 @@ final class GLWidgetUpdatesTests: XCTestCase {
 
     @MainActor
     func testAWidgetAtTheHubVersionIsNotOffered() async throws {
-        try await XCTSkipUnless(hubIsReachable(), "GailanHub is not reachable")
+        // the skip takes a value, not an await, so the probe runs first
+        let reachable = await hubIsReachable()
+        try XCTSkipUnless(reachable, "GailanHub is not reachable")
 
         // read the version the hub holds, install exactly that, expect nothing
         let model = WidgetUpdatesModel(widgetDirectory: widgetDir)
