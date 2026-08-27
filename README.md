@@ -47,6 +47,14 @@ The specifics:
     browserify's require
   - a widget can ask macOS to glass the desktop behind it; see
     [Glass over the desktop](#glass-over-the-desktop)
+  - **Widgets…** in the menu opens a window showing every installed widget as a
+    card, with a switch, its screens, and the settings the widget declares. See
+    [Widget settings](#widget-settings)
+  - a widget can declare **its own settings**, which the app turns into controls
+    and saves beside the widget
+  - widget ids no longer carry the file extension: `Clock.jsx` is `Clock`, not
+    `Clock-jsx`, and a widget in its own folder takes the folder's name. Anything
+    referring to a widget by id, AppleScript included, needs updating
   - **Open Widgets Hub** in the menu opens
     [GailanHub](https://github.com/nich227/GailanHub) rather than Übersicht's
     gallery. Übersicht widgets still work, so that gallery is worth a look too
@@ -227,6 +235,74 @@ export const render = ({output, error}) => {
 ```
 
 The default implementation of render just returns `output`.
+
+### Widget settings
+
+A widget can declare settings of its own in a `widget.json` beside it. Gailan turns
+each into a control in the Widgets window, saves what you choose, and hands the
+values to `render` as `props.settings`.
+
+```json
+{
+  "title": "Clock",
+  "settings": [
+    {
+      "key": "size",
+      "type": "choice",
+      "label": "Size",
+      "default": "medium",
+      "options": [
+        {"value": "small", "label": "Small"},
+        {"value": "medium", "label": "Medium"},
+        {"value": "large", "label": "Large"}
+      ]
+    },
+    {"key": "showSeconds", "type": "toggle", "label": "Show seconds", "default": true},
+    {"key": "opacity", "type": "number", "label": "Opacity", "default": 42, "min": 10, "max": 90}
+  ]
+}
+```
+
+```tsx
+export const render = ({output, settings = {}}) => (
+  <div style={{opacity: (settings.opacity ?? 42) / 100}}>
+    {settings.size === "large" ? <big>{output}</big> : output}
+  </div>
+)
+```
+
+Five types, each becoming one control:
+
+| type | control | extras |
+|---|---|---|
+| `choice` | segmented picker | `options`, as strings or `{value, label}` |
+| `toggle` | switch | |
+| `number` | slider with its value | `min`, `max`, `step` |
+| `text` | text field | |
+| `color` | color well with opacity | stored as `#rrggbbaa` |
+
+Every setting needs a `key` and a `type`. `label`, `help` and `default` are
+optional, though a `default` is worth setting: it is what the control shows before
+anything has been chosen.
+
+`title` is separate from the settings and is the name the Widgets window shows,
+falling back to the widget id.
+
+What you choose is written to `settings.json` in the widget's own folder, so the
+settings travel with the widget: copy the folder to another Mac and it looks the
+same. That file is not a widget, so saving one does not trigger a rebuild. Edit it
+by hand if you prefer; it is read when the widget loads.
+
+Widgets in their own folder are the tidy way to do this:
+
+```
+~/Library/Application Support/Gailan/widgets/
+  clock/
+    index.tsx        the widget, and the id becomes "clock"
+    widget.json      title and settings
+    settings.json    written by Gailan
+    preview.png      shown on the card in the Widgets window
+```
 
 ### updateState : event, previousState
 

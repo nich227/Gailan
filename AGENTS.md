@@ -146,6 +146,44 @@ bash keep the stdin protocol. The deployment target is 13.5 (Node 24 requires it
 SMAppService), and `LSMinimumSystemVersion` enforces it at launch. Posting a widget-error
 notification uses UserNotifications, which asks the user for authorization once.
 
+## Widget settings and the Widgets window
+
+A widget declares its settings in a `widget.json` beside it. `readWidgetSettings.js`
+reads and normalizes them and `WidgetBundler` attaches the result to the widget, so
+the schema travels with `WIDGET_ADDED` and the page and the app both see it without
+a second source of truth. The same manifest supplies `title`.
+
+Values live under `settings[id].config`, so they cannot collide with `hidden`,
+`screens` and the rest. `WIDGET_CONFIG_CHANGED` carries `{id, key, value}` and is
+handled in three places, all of which have to agree:
+
+  - `reducer.js`, for the server and the page
+  - `GLWidgetsStore`, for the app. Forgetting this one means a control in the
+    Widgets window reverts the moment it is moved, because the app never learns
+    what it just asked for
+  - `widgetConfigFile.js`, which writes `settings.json` into the widget's folder
+    from `app.ts`'s store subscription, skipping the write when nothing changed
+
+The file is read back on `WIDGET_ADDED` and seeds only what the store does not
+already know, so a rebuild cannot undo a change made since. It is not a widget
+path, so the watcher ignores it.
+
+`render.js` merges the config into the widget object and compares it alongside
+`mtime`, since a settings change has to redraw a widget whose file has not moved.
+`VirtualDomWidget` layers the saved values over the manifest defaults and passes
+them as `props.settings`.
+
+`GLWidgetsOverview.swift` is the window: a card per widget with its `preview.png`,
+and one `case` per setting type in `GLWidgetSettings.control`, which is the whole
+translator. Two traps worth remembering:
+
+  - the sheet takes a widget **id**, not a `WidgetSummary`. A snapshot cannot see
+    the change the control just made
+  - `NSDictionary` bridges to `[AnyHashable: Any]`, not `[String: Any]`
+
+Widget ids drop the file extension, and a widget in its own folder is named after
+the folder rather than its `index` file.
+
 ## Migrating a widget from Übersicht
 
 Asked to port a widget, the work is usually nothing. Check these in order and change only
