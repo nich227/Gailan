@@ -4,6 +4,7 @@
 //
 //  Created by Felix Hageloh on 20/3/14.
 //  Copyright (c) 2014 Felix Hageloh.
+//  Copyright (c) 2026 Kevin Chen.
 //
 //  Released under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or

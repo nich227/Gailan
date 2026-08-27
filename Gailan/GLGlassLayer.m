@@ -47,16 +47,10 @@
 
 - (NSVisualEffectMaterial)material
 {
-    if ([materialName isEqualToString:@"hud"]) {
-        return NSVisualEffectMaterialHUDWindow;
-    }
-    if ([materialName isEqualToString:@"popover"]) {
-        return NSVisualEffectMaterialPopover;
-    }
-    if ([materialName isEqualToString:@"window"]) {
+    if ([materialName isEqualToString:@"subtle"]) {
         return NSVisualEffectMaterialUnderWindowBackground;
     }
-    if ([materialName isEqualToString:@"menu"]) {
+    if ([materialName isEqualToString:@"heavy"]) {
         return NSVisualEffectMaterialMenu;
     }
     return NSVisualEffectMaterialSidebar;

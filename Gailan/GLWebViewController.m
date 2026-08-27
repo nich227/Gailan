@@ -4,6 +4,7 @@
 //
 //  Created by Felix Hageloh on 2/7/16.
 //  Copyright © 2016 tracesOf. All rights reserved.
+//  Copyright (c) 2026 Kevin Chen.
 //
 
 #import "GLWebViewController.h"

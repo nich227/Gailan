@@ -1,8 +1,9 @@
 //
 //  GLWidgetsController.m
-//  
+//  Gailan
 //
 //  Created by Felix Hageloh on 2/12/15.
+//  Copyright (c) 2026 Kevin Chen.
 //
 //
 

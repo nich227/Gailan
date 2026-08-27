@@ -4,6 +4,7 @@
 //
 //  Created by Felix Hageloh on 05/10/2020.
 //  Copyright © 2020 tracesOf. All rights reserved.
+//  Copyright (c) 2026 Kevin Chen.
 //
 
 #import "GLWindowGroup.h"

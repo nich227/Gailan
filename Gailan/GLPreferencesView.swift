@@ -158,8 +158,28 @@ struct GLPreferencesView: View {
         }
     }
 
-    // two sections now, so the builder has to be explicit
+    // two glasses, and they are easy to mix up, so each says what it is
     @ViewBuilder private var glass: some View {
+        Section {
+            Picker("Frost the desktop", selection: $prefs.desktopGlassTag) {
+                Text("Off").tag(0)
+                Text("Subtle").tag(1)
+                Text("Frosted").tag(2)
+                Text("Heavy").tag(3)
+            }
+        } header: {
+            heading(
+                "System glass",
+                help: """
+                    macOS frosts your wallpaper underneath a widget that asks \
+                    for it. The widget draws nothing: the system draws the \
+                    material behind the page, in the shape the widget claims. \
+                    The sliders below do not apply to it, because macOS has no \
+                    refraction to tune.
+                    """
+            )
+        }
+
         Section {
             Toggle("Available to widgets", isOn: $prefs.glassEnabled)
             optic("Refraction", $prefs.glassStrength, max: 1)
@@ -167,25 +187,29 @@ struct GLPreferencesView: View {
             optic("Curvature", $prefs.glassCurvature, max: 1)
             optic("Dispersion", $prefs.glassDispersion, max: 1)
             optic("Frost", $prefs.glassFrost, max: 10)
+        } header: {
+            heading(
+                "Widget glass",
+                help: """
+                    A lens the widget draws itself, with <Glass> from the \
+                    gailan module. It bends what is inside the page: the \
+                    widget's own content, or another widget behind it. It \
+                    cannot reach your wallpaper, so use System glass for that.
+                    """
+            )
         } footer: {
             Text("These are the defaults widgets inherit. A widget can override any of them.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
+    }
 
-        Section {
-            Picker("Behind widgets", selection: $prefs.desktopGlassTag) {
-                Text("Off").tag(0)
-                Text("Sidebar").tag(1)
-                Text("HUD").tag(2)
-                Text("Popover").tag(3)
-                Text("Window").tag(4)
-                Text("Menu").tag(5)
-            }
-        } footer: {
-            Text("The system glasses the desktop behind widgets that ask for it. The optics above do not apply, because macOS draws this one.")
-                .font(.callout)
+    private func heading(_ title: String, help: String) -> some View {
+        HStack(spacing: 4) {
+            Text(title)
+            Image(systemName: "info.circle")
                 .foregroundStyle(.secondary)
+                .help(help)
         }
     }
 
