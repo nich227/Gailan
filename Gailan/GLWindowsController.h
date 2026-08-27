@@ -8,7 +8,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
+
+// forward declared rather than imported: the project redeclares WKWebView in
+// WKWebViewInternal.h to reach _pageForTesting
+@class WKWebView;
 
 NS_ASSUME_NONNULL_BEGIN
 
