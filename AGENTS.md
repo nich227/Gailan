@@ -82,6 +82,11 @@ verified on macOS. Say so rather than implying it was tested.
 
 ## Releasing
 
+1.0.0 was published and taken down because it was only ad-hoc signed. See
+`docs/RERELEASING-1.0.0.md` for what is left to do once an Apple Developer
+certificate exists.
+
+
 Push a tag like `v1.0.2` and the release workflow does the rest: builds the app,
 zips it, signs the zip with the EdDSA key in the `SPARKLE_ED_PRIVATE_KEY` secret,
 publishes a GitHub Release, and adds an item to `updates.xml.rss` on `gh-pages`,
