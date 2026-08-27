@@ -26,7 +26,9 @@
         NSData* defaultWidgetDir = [self ensureDefaultsWidgetDir];
         NSDictionary *appDefaults = @{
             @"widgetDirectory": defaultWidgetDir,
-            @"enableInteraction": @YES
+            @"enableInteraction": @YES,
+            @"shell": @"zsh",
+            @"appearance": @"system"
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
@@ -194,6 +196,70 @@
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:@(enabled) forKey:@"enableInteraction"];
     [(GLAppDelegate *)[NSApp delegate] interactionDidChange];
+}
+
+#
+#pragma mark Shell
+#
+
+- (NSString*)shell
+{
+    NSString* name = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"shell"
+    ];
+    return [name isEqualToString:@"fish"] ? @"fish" : @"zsh";
+}
+
+- (NSInteger)shellTag
+{
+    return [[self shell] isEqualToString:@"fish"] ? 1 : 0;
+}
+
+- (void)setShellTag:(NSInteger)tag
+{
+    [[NSUserDefaults standardUserDefaults]
+        setObject: tag == 1 ? @"fish" : @"zsh"
+           forKey: @"shell"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] shellDidChange];
+}
+
+#
+#pragma mark Appearance
+#
+
++ (void)applyAppearance
+{
+    NSString* name = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"appearance"
+    ];
+    if ([name isEqualToString:@"light"]) {
+        NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+    } else if ([name isEqualToString:@"dark"]) {
+        NSApp.appearance =
+            [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
+    } else {
+        NSApp.appearance = nil;
+    }
+}
+
+- (NSInteger)appearanceTag
+{
+    NSString* name = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"appearance"
+    ];
+    if ([name isEqualToString:@"light"]) return 1;
+    if ([name isEqualToString:@"dark"]) return 2;
+    return 0;
+}
+
+- (void)setAppearanceTag:(NSInteger)tag
+{
+    NSString* name = tag == 1 ? @"light" : tag == 2 ? @"dark" : @"system";
+    [[NSUserDefaults standardUserDefaults]
+        setObject:name forKey:@"appearance"
+    ];
+    [GLPreferencesController applyAppearance];
 }
 
 #

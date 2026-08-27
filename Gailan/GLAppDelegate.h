@@ -29,5 +29,6 @@
 - (IBAction)refreshWidgets:(id)sender;
 - (void)reloadWidget:(NSString*)widgetId;
 - (void)loginShellDidChange;
+- (void)shellDidChange;
 
 @end

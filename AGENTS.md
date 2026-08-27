@@ -104,6 +104,17 @@ Keychain; the output is the same ed25519 signature either way.
     obvious from the code.
   - Commit messages: short imperative subject, then prose explaining the reasoning.
 
+## Settings
+
+User defaults (registered in `GLPreferencesController`): `shell` (`zsh` default, `fish`),
+`appearance` (`system`, `light`, `dark` — applied to `NSApp.appearance`, which widgets see
+via `prefers-color-scheme`), `loginShell`, `enableInteraction`, `widgetDirectory`. The
+shell reaches the node server as `--shell`; changing it restarts the server. fish gets
+commands via `-c` because it cannot read them from the stdin pipe node hands it; zsh and
+bash keep the stdin protocol. The deployment target is 13.5 (Node 26 requires it, so does
+SMAppService), and `LSMinimumSystemVersion` enforces it at launch. Posting a widget-error
+notification uses UserNotifications, which asks the user for authorization once.
+
 ## Compatibility to keep in mind
 
   - Widgets are user-written and live outside the repo. The public surface is the

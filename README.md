@@ -1,8 +1,7 @@
 # Gailan (概览 · Gàilǎn)
 *Keep an eye on what's happening on your machine and in the world.*
 
-**Gailan** (概览 - Gàilǎn) is the exact translation of *Übersicht* ("Overview") — a clean, six-letter
-romanization that feels like a native developer tool in Latin script.
+**Gailan** (概览 - Gàilǎn) is the exact translation of *Übersicht* ("Overview").
 
 Read it in Cantonese instead and you get 芥蘭 🥦, Chinese broccoli. That wasn't the plan, but a leafy
 green that sits there quietly and asks nothing of you is not the worst thing to name a desktop
@@ -21,7 +20,14 @@ upgrading it:
   - the widget API module is imported as `gailan`; `uebersicht` still resolves, so existing
     widgets keep working
   - the container element is `#gailan`, so user CSS targeting `#uebersicht` needs updating
-  - requires macOS 13.5 or later, because the bundled Node runtime does
+  - widget commands run through **zsh** by default; Preferences has a dropdown to use
+    **fish** instead (Übersicht used bash — plain POSIX commands work the same in zsh,
+    bash-specific syntax may need adjusting)
+  - Preferences also has an appearance override: System, Light or Dark, which widgets
+    see through `prefers-color-scheme`
+  - if Übersicht is running when Gailan starts, a dialog offers to quit one of them
+  - **requires macOS 13.5 or later** (the bundled Node runtime and the modern system
+    APIs need it) — the app will not launch on anything older
 
 The Node runtime is Node 26 and is no longer checked into git; see [Building Gailan](#building-gailan).
 

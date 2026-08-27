@@ -20,6 +20,11 @@
 @property NSURL* widgetDir;
 @property BOOL loginShell;
 @property BOOL enableInteraction;
+@property NSInteger shellTag;
+@property NSInteger appearanceTag;
+
+- (NSString*)shell;
++ (void)applyAppearance;
 
 - (IBAction)showFilePicker:(id)sender;
 

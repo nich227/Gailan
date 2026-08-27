@@ -15,6 +15,7 @@ try
   publicPath = path.resolve(__dirname, './public')
   options =
     loginShell: args['login-shell']
+    shell: args['shell']
 
   server = GailanServer(
     Number(port),

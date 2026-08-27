@@ -37,8 +37,36 @@ int const PORT = 41416;
 
 @synthesize statusBarMenu;
 
+// Gailan and Übersicht fight over the desktop and the widgets they render,
+// so only one of them should run
+- (void)resolveUbersichtConflict
+{
+    NSArray<NSRunningApplication*>* others = [NSRunningApplication
+        runningApplicationsWithBundleIdentifier:@"tracesOf.Uebersicht"
+    ];
+    if (others.count == 0) return;
+
+    NSAlert* alert = [[NSAlert alloc] init];
+    alert.messageText = @"Übersicht is running";
+    alert.informativeText =
+        @"Gailan and Übersicht will fight over your desktop. "
+        @"Only one of them should run.";
+    [alert addButtonWithTitle:@"Quit Übersicht"];   // first button = default
+    [alert addButtonWithTitle:@"Quit Gailan"];
+
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        for (NSRunningApplication* app in others) {
+            [app terminate];
+        }
+    } else {
+        [NSApp terminate:nil];
+    }
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    [self resolveUbersichtConflict];
+
     needsRefresh = YES;
     statusBarItem = [self addStatusItemToMenu: statusBarMenu];
     preferences = [[GLPreferencesController alloc]
@@ -68,6 +96,8 @@ int const PORT = 41416;
         [self->widgetsController render];
     }];
     
+    [GLPreferencesController applyAppearance];
+
     // make sure notifications always show, even while we are frontmost
     UNUserNotificationCenter* unc =
         [UNUserNotificationCenter currentNotificationCenter];
@@ -227,6 +257,7 @@ int const PORT = 41416;
     BOOL loginShell = [[NSUserDefaults standardUserDefaults]
         boolForKey:@"loginShell"
     ];
+    NSString* shell = preferences.shell;
 
     NSTask *task = [[NSTask alloc] init];
 
@@ -257,6 +288,7 @@ int const PORT = 41416;
         @"-d", widgetPath,
         @"-p", [NSString stringWithFormat:@"%d", PORT + portOffset],
         @"-s", [[self getPreferencesDir] path],
+        @"--shell", shell,
         loginShell ? @"--login-shell" : @""
     ]];
     
@@ -317,6 +349,11 @@ int const PORT = 41416;
 }
 
 - (void)loginShellDidChange
+{
+    [self shutdown:true];
+}
+
+- (void)shellDidChange
 {
     [self shutdown:true];
 }

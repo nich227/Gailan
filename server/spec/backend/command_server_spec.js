@@ -7,9 +7,24 @@ var testPort = require('../helpers/testPort');
 var httpPost = require('../helpers/httpPost');
 var commandServer = require('../../src/command_server.coffee');
 
+var {execSync} = require('child_process');
+
+function has(shell) {
+  try { execSync('command -v ' + shell, {stdio: 'ignore'}); return true; }
+  catch (e) { return false; }
+}
+
+// the default is zsh; on machines without it (linux dev boxes) the suite
+// exercises the same plumbing through bash
+var SHELL = has('zsh') ? 'zsh' : 'bash';
+var IS_LOGIN =
+  SHELL === 'zsh'
+    ? '[[ -o login ]] && echo on || echo off'
+    : 'shopt -q login_shell && echo on || echo off';
+
 var workingDir = path.resolve(__dirname, path.join('..', 'test_widgets'));
 var port = testPort(8887);
-var server = connect().use(commandServer(workingDir)).listen(port);
+var server = connect().use(commandServer(workingDir, false, SHELL)).listen(port);
 
 var url = 'http://localhost:' + port + '/run/';
 
@@ -46,11 +61,26 @@ test('running commands', (t) => {
 });
 
 test('shell type', (t) => {
-  httpPost(url, 'echo $(shopt | grep login_shell)', (res, body) => {
-    t.equal(body, 'login_shell off\n', 'it is not a login shell');
+  httpPost(url, IS_LOGIN, (res, body) => {
+    t.equal(body, 'off\n', 'it is not a login shell');
     t.end();
   });
 });
+
+if (has('fish')) {
+  test('running commands in fish', (t) => {
+    var fishPort = testPort(8886);
+    var fishServer = connect()
+      .use(commandServer(workingDir, false, 'fish'))
+      .listen(fishPort);
+
+    httpPost('http://localhost:' + fishPort + '/run/', 'status is-login; and echo on; or echo off', (res, body) => {
+      t.equal(body, 'off\n', 'fish runs commands and is not a login shell');
+      fishServer.closeAllConnections();
+      fishServer.close(() => t.end());
+    });
+  });
+}
 
 test('running broken commands', (t) => {
   t.plan(2);
@@ -88,14 +118,14 @@ test('using a login shell', (t) => {
   // its own port, so nothing can be pointing at the server that just closed
   var loginPort = testPort(port + 1);
   var loginServer = connect()
-    .use(commandServer(workingDir, true))
+    .use(commandServer(workingDir, true, SHELL))
     .listen(loginPort);
 
-  httpPost('http://localhost:' + loginPort + '/run/', 'echo $(shopt | grep login_shell)', (res, body) => {
+  httpPost('http://localhost:' + loginPort + '/run/', IS_LOGIN, (res, body) => {
     const lines = body.trim().split('\n');
     t.equal(
       lines[lines.length - 1],
-      'login_shell on',
+      'on',
       'it indeed runs in a login shell',
     );
     loginServer.closeAllConnections();
