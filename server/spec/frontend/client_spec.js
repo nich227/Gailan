@@ -12,6 +12,7 @@
 'use strict';
 
 const test = require('tape');
+const sinon = require('sinon');
 const path = require('path');
 
 // The page's entry point. It waits for onload, asks the server for state, then
@@ -253,18 +254,22 @@ test('the deprecated background slice helper', (t) => {
   t.end();
 });
 
-test('the state request failing', async (t) => {
+test('the state request failing', (t) => {
   preparePage();
   stateFails = true;
 
+  // bail schedules a page reload ten seconds out. jsdom cannot navigate, and
+  // letting that timer fire during a later spec takes the run down with it, so
+  // time is held still here.
+  const clock = sinon.useFakeTimers({toFake: ['setTimeout']});
   const logged = [];
   const realLog = console.log;
   console.log = (message) => logged.push(message);
 
   window.onload();
-  await settle();
 
   console.log = realLog;
+  clock.restore();
   stateFails = false;
 
   t.equal(logged.length, 1, 'the failure is reported');
