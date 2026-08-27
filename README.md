@@ -402,7 +402,12 @@ Light mode gives widgets dark styling.
 ### Liquid Glass
 
 Gailan bundles [Liquid Glass](https://github.com/samasante/liquid-glass), which refracts
-whatever is behind it, the wallpaper or other widgets, the way Apple's material does.
+the DOM behind the lens. All widgets on a screen share one page, so a glass widget can
+refract another widget behind it, or its own content. It cannot refract the wallpaper: the
+web view is transparent and composited over the desktop by the window server, and the page
+has no access to what sits underneath. WebKit also does not support
+`backdrop-filter: url()`, so the bend comes from the library's DOM copy rather than from a
+backdrop filter.
 Import `Glass` from the `gailan` module and wrap anything:
 
 ```tsx
