@@ -1,7 +1,7 @@
 {
   "name": "gailan-server",
   "version": "0.0.0",
-  "description": "Node.js backend for Gailan, a fork of \u00dcbersicht by Felix Hageloh",
+  "description": "Node.js backend for Gailan, a fork of Übersicht by Felix Hageloh",
   "main": "server.ts",
   "scripts": {
     "test": "npm run-script test-local && npm run-script test-integration && npm run-script test-dom",
@@ -35,6 +35,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@babel/core": "^7.29.7",
     "@emotion/babel-plugin": "^11.13.5",
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.14.0",
