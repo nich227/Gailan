@@ -31,8 +31,14 @@ function settingsAfter(action, settings) {
 test('showing a widget everywhere', (t) => {
   t.deepEqual(
     settingsAfter({type: 'WIDGET_SET_TO_ALL_SCREENS', payload: 'a-widget'}),
-    {showOnAllScreens: true, showOnMainScreen: false},
-    'all screens, and not just the main one'
+    {
+      showOnAllScreens: true,
+      showOnSelectedScreens: false,
+      showOnMainScreen: false,
+      hidden: false,
+      screens: [],
+    },
+    'all screens, which clears the other choices and any screen list'
   );
   t.end();
 });
@@ -41,10 +47,16 @@ test('showing a widget on chosen screens', (t) => {
   t.deepEqual(
     settingsAfter(
       {type: 'WIDGET_SET_TO_SELECTED_SCREENS', payload: 'a-widget'},
-      {showOnAllScreens: true, showOnMainScreen: true}
+      {showOnAllScreens: true, showOnMainScreen: true, screens: [2]}
     ),
-    {showOnAllScreens: false, showOnMainScreen: false},
-    'neither of the shortcuts, so the screen list decides'
+    {
+      showOnSelectedScreens: true,
+      showOnAllScreens: false,
+      showOnMainScreen: false,
+      hidden: false,
+      screens: [2],
+    },
+    'the screen list decides, and it is kept'
   );
   t.end();
 });
@@ -52,8 +64,14 @@ test('showing a widget on chosen screens', (t) => {
 test('showing a widget on the main screen', (t) => {
   t.deepEqual(
     settingsAfter({type: 'WIDGET_SET_TO_MAIN_SCREEN', payload: 'a-widget'}),
-    {showOnMainScreen: true, showOnAllScreens: false},
-    'the main screen only'
+    {
+      showOnSelectedScreens: false,
+      showOnAllScreens: false,
+      showOnMainScreen: true,
+      hidden: false,
+      screens: [],
+    },
+    'the main screen only, and the screen list is cleared'
   );
   t.end();
 });
@@ -150,6 +168,16 @@ test('a widget finishing loading', (t) => {
     state.widgets['a-widget'].implementation,
     impl,
     'the implementation is attached to the widget'
+  );
+  t.end();
+});
+
+test('a widget loading that is no longer there', (t) => {
+  const state = stateWith();
+  t.equal(
+    reduce(state, {type: 'WIDGET_LOADED', id: 'gone', payload: {}}),
+    state,
+    'a widget removed while its bundle was loading is ignored'
   );
   t.end();
 });

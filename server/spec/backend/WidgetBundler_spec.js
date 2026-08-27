@@ -76,6 +76,47 @@ test('removing widgets', (t) => {
   bundler.push(action, (event) => callback(event));
 });
 
+test('reading a bundle back by id', (t) => {
+  const fresh = WidgetBundler();
+  const action = {
+    type: 'added',
+    filePath: path.join(fixturePath, 'widget-2.js'),
+    id: 'widget-2',
+  };
+
+  fresh.push(action, () => {
+    t.ok(
+      fresh.get('widget-2').length > 0,
+      'the source is available under the widget id'
+    );
+    fresh.close();
+    t.end();
+  });
+});
+
+test('a widget that will not bundle', (t) => {
+  const broken = WidgetBundler();
+  const action = {
+    type: 'added',
+    filePath: path.join(fixturePath, 'broken-widget.js'),
+    id: 'broken-widget',
+  };
+
+  broken.push(action, (event) => {
+    t.equal(event.type, 'added', 'it is still reported');
+    t.notOk(event.widget.body, 'with no source');
+
+    const error = JSON.parse(event.widget.error);
+    t.equal(error.message, 'Unexpected token }', 'and the parser error');
+    t.equal(error.line, 6, 'with the line it happened on');
+    t.ok(error.lines.indexOf('> 6 |') > -1, 'and a frame around it');
+    t.equal(error.path, action.filePath, 'named by file');
+
+    broken.close();
+    t.end();
+  });
+});
+
 test('closing', (t) => {
   bundler.close();
   t.pass('it closes');
