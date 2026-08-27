@@ -42,7 +42,7 @@
 	<key>NSHomeKitUsageDescription</key>
 	<string>A widget would like to make use of HomeKit.</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2026 Kevin Chen. Based on Übersicht by Felix Hageloh. Released under the GNU General Public License v3.</string>
+	<string>Copyright © 2026 Kevin Chen. Released under the GNU General Public License v3.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>A widget would like to access your current locatiuon.</string>
 	<key>NSMainNibFile</key>
