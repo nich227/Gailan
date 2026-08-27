@@ -10,7 +10,20 @@ userCssLink = null
 detectWidgetHover = require './src/detectWidgetHover'
 
 
+# widgets style against this instead of guessing: html[data-appearance="dark"]
+applyAppearance = ->
+  dark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  document.documentElement.dataset.appearance = if dark then 'dark' else 'light'
+
 window.onload = ->
+  applyAppearance()
+  # glass settings travel in the page url so widgets can read them off the dom
+  params = new URLSearchParams(window.location.search)
+  glass = params.get('glass')
+  document.documentElement.dataset.glass = glass if glass
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', applyAppearance)
   sharedSocket.open("ws://#{window.location.host}")
   path = window.location.pathname.split('/')
   screen =

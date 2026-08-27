@@ -1,7 +1,7 @@
 # Gailan (概览 · Gàilǎn)
 *Keep an eye on what's happening on your machine and in the world.*
 
-**Gailan** (概览 - Gàilǎn) is the exact translation of *Übersicht* ("Overview").
+**Gailan** (概览 - Gàilǎn) is the Mandarin Chinese translation of the German *Übersicht* ("Overview").
 
 Read it in Cantonese instead and you get 芥蘭 🥦, Chinese broccoli. That wasn't the plan, but a leafy
 green that sits there quietly and asks nothing of you is not the worst thing to name a desktop
@@ -299,6 +299,54 @@ export const render = ({ colors }) => {
 
 Finally, since you can also install and import any module you like, you can use your favorite styling library instead.
 
+### Light and dark
+
+Preferences has an appearance setting (System, Light or Dark). Widgets see the result two
+ways: the standard `prefers-color-scheme` media query, and a `data-appearance` attribute
+on the root element, which is often easier to nest inside a styled component:
+
+```tsx
+export const className = `
+  color: #1f1f28;
+
+  html[data-appearance="dark"] & {
+    color: #e6e6ec;
+  }
+`
+```
+
+Both follow Gailan's setting rather than the system's, so choosing Dark while macOS is in
+Light mode gives widgets dark styling.
+
+### Liquid Glass
+
+Gailan bundles [Liquid Glass](https://github.com/samasante/liquid-glass), which refracts
+whatever is behind it — the wallpaper, other widgets — the way Apple's material does.
+Import `Glass` from the `gailan` module and wrap anything:
+
+```tsx
+import { Glass } from "gailan"
+
+export const render = ({output}) => (
+  <Glass radius={16}>
+    <div style={{padding: 20}}>{output}</div>
+  </Glass>
+)
+```
+
+The look is tuned in Preferences (refraction, depth, curvature, dispersion, frost), and
+those values are the defaults every widget inherits, so one setting restyles every glass
+widget on the desktop. A widget can override any of them per instance with the library's
+own vocabulary:
+
+```tsx
+<Glass radius={16} optics={{dispersion: 0.8, frost: 6}}>…</Glass>
+```
+
+If Liquid Glass is switched off in Preferences, `<Glass>` renders its children plainly, so
+a widget using it still works. `GlassSurface` and `GlassMaterial` are exported too, for
+video and canvas lenses — see the upstream README for those.
+
 ## Running Shell Commands
 
 If you need to run extra shell commands without using the [command](#command) property, you can import the `run` function from the `gailan` module.
@@ -325,7 +373,11 @@ export const render = (props, dispatch) => {
 
 ## Geolocation API
 
-While the WebView used by Gailan seems to provide the standard HTML5 geolocation API, it is not functional and there seems to be no way to enable it. Gailan provides its own implementation, which tries to follow the standard implementation as closely as possible. However, so far it provides only the basics and might still be somewhat unstable. The API can be found under `window.geolocation` (instead of `window.navigator.geolocation`), and supports the following methods:
+`navigator.geolocation`, the standard browser API, cannot be used from a widget: a
+`WKWebView` hosted in an app has no way to prompt for location, so the standard API is
+present but never returns a position. Gailan therefore asks macOS for the location
+itself and hands it to widgets through `window.geolocation`, which mirrors the standard
+API as closely as it can. It covers the basics:
 
 ```js
 geolocation.getCurrentPosition(callback)
@@ -453,3 +505,6 @@ The source is released under the GNU General Public License as published by the 
 The app icon, menu bar icon and wordmark are built from the *window-dock* and *eyeglasses*
 icons of [Bootstrap Icons](https://github.com/twbs/icons), © 2019–2024 The Bootstrap Authors,
 [MIT licensed](licenses/bootstrap-icons.txt).
+
+Liquid Glass is © 2026 Sam Asante, [MIT licensed](licenses/liquid-glass-LICENSE.txt), and is
+vendored in `server/src/vendor/liquidGlass.js`.

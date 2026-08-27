@@ -12,6 +12,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "GLScreenChangeListener.h"
+@class GLPreferencesController;
 
 @import UserNotifications;
 
@@ -19,6 +20,7 @@
 
 @property (weak) IBOutlet NSMenu *statusBarMenu;
 @property (nonatomic, copy, readonly) NSString *serverToken;
+@property (nonatomic, readonly) GLPreferencesController *preferences;
 @property (readonly) NSArray* widgets;
 
 - (void)widgetDirDidChange;
@@ -32,5 +34,6 @@
 - (void)loginShellDidChange;
 - (void)shellDidChange;
 - (void)alwaysOnTopDidChange;
+- (void)glassDidChange;
 
 @end

@@ -23,12 +23,13 @@ int const PORT = 41416;
 
 @interface GLAppDelegate ()
 @property (nonatomic, copy, readwrite) NSString *serverToken;
+@property (nonatomic, readwrite) GLPreferencesController *preferences;
 @end
+
 
 @implementation GLAppDelegate {
     NSStatusItem* statusBarItem;
     NSTask* widgetServer;
-    GLPreferencesController* preferences;
     GLScreensController* screensController;
     GLWindowsController* windowsController;
     BOOL shuttingDown;
@@ -73,7 +74,7 @@ int const PORT = 41416;
 
     needsRefresh = YES;
     statusBarItem = [self addStatusItemToMenu: statusBarMenu];
-    preferences = [[GLPreferencesController alloc]
+    self.preferences = [[GLPreferencesController alloc]
         initWithWindowNibName:@"GLPreferencesController"
     ];
 
@@ -94,14 +95,14 @@ int const PORT = 41416;
         initWithMenu: statusBarMenu
         widgets: widgetsStore
         screens: screensController
-        preferences: preferences
+        preferences: self.preferences
     ];
     [widgetsStore onChange: ^(NSDictionary* widgets) {
         [self->widgetsController render];
     }];
     
     [GLPreferencesController applyAppearance];
-    [windowsController setAlwaysOnTop:preferences.alwaysOnTop];
+    [windowsController setAlwaysOnTop:self.preferences.alwaysOnTop];
 
     // make sure notifications always show, even while we are frontmost
     UNUserNotificationCenter* unc =
@@ -208,7 +209,7 @@ int const PORT = 41416;
     shuttingDown = NO;
     keepServerAlive = YES;
     widgetServer = [self
-        launchWidgetServer: [preferences.widgetDir path]
+        launchWidgetServer: [self.preferences.widgetDir path]
         onData: handleData
         onExit: handleExit
     ];
@@ -268,7 +269,7 @@ int const PORT = 41416;
     BOOL loginShell = [[NSUserDefaults standardUserDefaults]
         boolForKey:@"loginShell"
     ];
-    NSString* shell = preferences.shell;
+    NSString* shell = self.preferences.shell;
 
     // a fresh secret per server launch; stdin, so it never shows in ps
     self.serverToken = [[NSUUID UUID] UUIDString];
@@ -352,7 +353,7 @@ int const PORT = 41416;
         [windowsController
             updateWindows:screens
             baseUrl: [self serverUrl: @"http"]
-            interactionEnabled: preferences.enableInteraction
+            interactionEnabled: self.preferences.enableInteraction
             forceRefresh: needsRefresh
         ];
         needsRefresh = NO;
@@ -379,10 +380,16 @@ int const PORT = 41416;
     [self shutdown:true];
 }
 
+// widgets read the glass settings at render time, so a reload is enough
+- (void)glassDidChange
+{
+    [windowsController reloadAll];
+}
+
 // a level change, not a window rebuild: rebuilding reloads every widget
 - (void)alwaysOnTopDidChange
 {
-    [windowsController setAlwaysOnTop:preferences.alwaysOnTop];
+    [windowsController setAlwaysOnTop:self.preferences.alwaysOnTop];
 }
 
 - (void)interactionDidChange
@@ -394,14 +401,14 @@ int const PORT = 41416;
 
 - (IBAction)showPreferences:(id)sender
 {
-    [preferences showWindow:nil];
+    [self.preferences showWindow:nil];
     [NSApp activateIgnoringOtherApps:YES];
-    [preferences.window makeKeyAndOrderFront:self];
+    [self.preferences.window makeKeyAndOrderFront:self];
 }
 
 - (IBAction)openWidgetDir:(id)sender
 {
-    [[NSWorkspace sharedWorkspace]openURL:preferences.widgetDir];
+    [[NSWorkspace sharedWorkspace]openURL:self.preferences.widgetDir];
 }
 
 - (IBAction)visitWidgetGallery:(id)sender

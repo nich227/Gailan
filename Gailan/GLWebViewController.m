@@ -11,6 +11,7 @@
 #import "GLWebView.h"
 #import "GLWindow.h"
 #import "GLAppDelegate.h"
+#import "GLPreferencesController.h"
 
 
 @implementation GLWebViewController {
@@ -45,10 +46,24 @@
         default:
             break;
     }
-    NSString* token = [(GLAppDelegate*)[NSApp delegate] serverToken];
+    GLAppDelegate* app = (GLAppDelegate*)[NSApp delegate];
+    NSString* token = [app serverToken];
+    NSString* glass = [[app preferences] glassSettingsJSON];
+    NSMutableArray* query = [NSMutableArray array];
     if (token) {
+        [query addObject:[NSString stringWithFormat:@"token=%@", token]];
+    }
+    if (glass) {
+        [query addObject:[NSString stringWithFormat:@"glass=%@",
+            [glass stringByAddingPercentEncodingWithAllowedCharacters:
+                [NSCharacterSet alphanumericCharacterSet]]
+        ]];
+    }
+    if (query.count > 0) {
         url = [NSURL URLWithString:[NSString
-            stringWithFormat:@"%@?token=%@", [url absoluteString], token
+            stringWithFormat:@"%@?%@",
+            [url absoluteString],
+            [query componentsJoinedByString:@"&"]
         ]];
     }
     [(WKWebView*)view loadRequest:[NSURLRequest requestWithURL: url]];

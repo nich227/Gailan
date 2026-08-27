@@ -22,6 +22,14 @@
 @property BOOL enableInteraction;
 @property NSInteger shellTag;
 @property BOOL alwaysOnTop;
+@property BOOL glassEnabled;
+@property double glassStrength;
+@property double glassDepth;
+@property double glassCurvature;
+@property double glassDispersion;
+@property double glassFrost;
+
+- (NSString*)glassSettingsJSON;
 @property NSInteger appearanceTag;
 
 - (NSString*)shell;

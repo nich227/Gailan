@@ -29,7 +29,15 @@
             @"enableInteraction": @YES,
             @"shell": @"zsh",
             @"appearance": @"system",
-            @"alwaysOnTop": @NO
+            @"alwaysOnTop": @NO,
+            // the liquid glass look widgets inherit; the names are the
+            // optics vocabulary of the glass library
+            @"glassEnabled": @YES,
+            @"glassStrength": @0.5,
+            @"glassDepth": @0.4,
+            @"glassCurvature": @0.3,
+            @"glassDispersion": @0.4,
+            @"glassFrost": @2.0
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
@@ -236,6 +244,62 @@
         setBool:flag forKey:@"alwaysOnTop"
     ];
     [(GLAppDelegate *)[NSApp delegate] alwaysOnTopDidChange];
+}
+
+#
+#pragma mark Liquid glass
+#
+
+- (BOOL)glassEnabled
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"glassEnabled"];
+}
+
+- (void)setGlassEnabled:(BOOL)enabled
+{
+    [[NSUserDefaults standardUserDefaults]
+        setBool:enabled forKey:@"glassEnabled"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] glassDidChange];
+}
+
+#define GL_GLASS_OPTIC(prop, key)                                             \
+- (double)prop                                                                \
+{                                                                             \
+    return [[NSUserDefaults standardUserDefaults] doubleForKey:key];          \
+}                                                                             \
+                                                                              \
+- (void)set##prop:(double)value                                               \
+{                                                                             \
+    [[NSUserDefaults standardUserDefaults] setDouble:value forKey:key];       \
+    [(GLAppDelegate *)[NSApp delegate] glassDidChange];                       \
+}
+
+GL_GLASS_OPTIC(GlassStrength, @"glassStrength")
+GL_GLASS_OPTIC(GlassDepth, @"glassDepth")
+GL_GLASS_OPTIC(GlassCurvature, @"glassCurvature")
+GL_GLASS_OPTIC(GlassDispersion, @"glassDispersion")
+GL_GLASS_OPTIC(GlassFrost, @"glassFrost")
+
+// travels to the widgets in the page url
+- (NSString*)glassSettingsJSON
+{
+    NSDictionary* settings = @{
+        @"enabled": @(self.glassEnabled),
+        @"optics": @{
+            @"strength": @(self.glassStrength),
+            @"depth": @(self.glassDepth),
+            @"curvature": @(self.glassCurvature),
+            @"dispersion": @(self.glassDispersion),
+            @"frost": @(self.glassFrost),
+        }
+    };
+    NSData* json = [NSJSONSerialization
+        dataWithJSONObject:settings options:0 error:nil
+    ];
+    return [[NSString alloc]
+        initWithData:json encoding:NSUTF8StringEncoding
+    ];
 }
 
 #
