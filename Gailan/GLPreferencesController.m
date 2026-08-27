@@ -22,16 +22,6 @@ static NSArray* categories(void)
     return @[@"General", @"Appearance", @"Shell", @"Liquid Glass"];
 }
 
-- (void)windowDidLoad
-{
-    [super windowDidLoad];
-    [self.categoryTable reloadData];
-    [self.categoryTable
-        selectRowIndexes: [NSIndexSet indexSetWithIndex:0]
-        byExtendingSelection: NO
-    ];
-}
-
 #
 #pragma mark Sidebar
 #
@@ -94,6 +84,12 @@ static NSArray* categories(void)
     [[self.window standardWindowButton:NSWindowZoomButton] setEnabled:NO];
     
     [self widgetDirChanged:self.widgetDir];
+
+    [self.categoryTable reloadData];
+    [self.categoryTable
+        selectRowIndexes: [NSIndexSet indexSetWithIndex:0]
+        byExtendingSelection: NO
+    ];
 }
 
 #
