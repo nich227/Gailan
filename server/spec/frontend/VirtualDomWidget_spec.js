@@ -36,12 +36,13 @@ function settle() {
 
 test('a jsx widget renders its output', async (t) => {
   const widget = build({
-    command: (dispatch) => dispatch({type: 'UB/COMMAND_RAN', output: 'hello'}),
+    // a function command hands back the output, which updateState turns into
+    // the render's props
+    command: () => 'hello',
     render: ({output}) => html('h1', null, output),
   });
 
   const el = widget.create();
-  document.body.appendChild(el);
   await settle();
 
   t.equal(el.id, 'react-widget', 'the element carries the widget id');
@@ -62,7 +63,6 @@ test('a widget with no command still renders', async (t) => {
   });
 
   const el = widget.create();
-  document.body.appendChild(el);
   await settle();
 
   t.equal(
@@ -81,22 +81,25 @@ test('replacing a widget implementation', async (t) => {
   });
 
   const el = widget.create();
-  document.body.appendChild(el);
   await settle();
   t.equal(el.querySelector('p').textContent, 'before', 'the first version');
 
   widget.update({
     id: 'react-widget',
     filePath: '/widgets/react-widget.jsx',
-    implementation: {render: () => html('p', null, 'after')},
+    implementation: {
+      className: 'top: 10px',
+      render: () => html('p', null, 'after'),
+    },
   });
   await settle();
 
   t.equal(
-    widget.domEl().querySelector('p').textContent,
+    el.querySelector('p').textContent,
     'after',
-    'the replacement renders'
+    'the replacement renders into the same element'
   );
+  t.ok(el.className.indexOf('css-') > -1, 'and its className is applied');
 
   widget.destroy();
   t.end();
@@ -105,15 +108,13 @@ test('replacing a widget implementation', async (t) => {
 test('destroying a widget takes it off the page', async (t) => {
   const widget = build({render: () => html('p', null, 'here')});
   const el = widget.create();
-  document.body.appendChild(el);
   await settle();
 
-  t.ok(widget.isRendered(), 'it reports itself rendered');
+  t.ok(document.body.contains(el), 'it is on the page');
   widget.destroy();
   await settle();
 
-  t.notOk(widget.isRendered(), 'and not once destroyed');
-  t.notOk(document.body.contains(el), 'the element is gone');
+  t.notOk(document.body.contains(el), 'and gone once destroyed');
   t.end();
 });
 
@@ -145,7 +146,6 @@ test('a widget whose render throws shows the error', async (t) => {
   });
 
   const el = widget.create();
-  document.body.appendChild(el);
   await settle();
   await settle();
 
@@ -166,6 +166,11 @@ test('a widget whose render throws shows the error', async (t) => {
   t.ok(
     el.querySelector('em'),
     'and the column is marked within the failing line'
+  );
+  t.equal(
+    el.querySelectorAll('em').length,
+    1,
+    'only on the line that failed'
   );
 
   global.fetch = realFetch;
@@ -191,7 +196,6 @@ test('a widget that arrives already broken', async (t) => {
   );
 
   const el = widget.create();
-  document.body.appendChild(el);
   await settle();
 
   t.ok(
@@ -207,15 +211,14 @@ test('a widget that arrives already broken', async (t) => {
 test('forcing a refresh reruns the command', async (t) => {
   let runs = 0;
   const widget = build({
-    command: (dispatch) => {
+    command: () => {
       runs += 1;
-      dispatch({type: 'UB/COMMAND_RAN', output: 'run ' + runs});
+      return 'run ' + runs;
     },
     render: ({output}) => html('p', null, output),
   });
 
   const el = widget.create();
-  document.body.appendChild(el);
   await settle();
   t.equal(runs, 1, 'the command ran once on create');
 
