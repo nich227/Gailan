@@ -229,6 +229,14 @@ struct GLPreferencesView: View {
 // Handed to the window controller, which has no way to build a SwiftUI view
 // itself.
 @objc(GLPreferencesHosting)
+final class GLPreferencesHosting: NSObject {
+
+    @objc static func viewFor(_ controller: GLPreferencesController) -> NSView {
+        let prefs = GLPreferences(controller: controller)
+        return NSHostingView(rootView: GLPreferencesView(prefs: prefs))
+    }
+}
+
 // The info button next to a section title. .help alone is hover only, which
 // makes an icon that looks clickable do nothing when clicked.
 private struct GLHelpButton: View {
@@ -253,12 +261,5 @@ private struct GLHelpButton: View {
                 .padding(14)
         }
         .accessibilityLabel("About this setting")
-    }
-}
-
-final class GLPreferencesHosting: NSObject {
-    @objc static func viewFor(_ controller: GLPreferencesController) -> NSView {
-        let prefs = GLPreferences(controller: controller)
-        return NSHostingView(rootView: GLPreferencesView(prefs: prefs))
     }
 }
