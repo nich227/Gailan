@@ -218,8 +218,9 @@ test('the server with no arguments at all', (t) => {
   setTimeout(() => {
     child.kill('SIGKILL');
     t.ok(
-      output.indexOf('41416') > -1 || output.indexOf('could not find') > -1,
-      'it uses the default port, or says the default folder is missing'
+      output.indexOf('41416') > -1 ||
+        output.indexOf('no such file or directory') > -1,
+      'it falls back to ./widgets beside the script, and says so if it is absent'
     );
     t.end();
   }, 700);
