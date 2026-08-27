@@ -32,7 +32,7 @@ The bundled node binaries are not in git (~145MB each, over GitHub's file limit)
 `scripts/fetch-node.sh` downloads them and checks them against the SHA256 sums
 published by the Node project. To move versions, edit `NODE_VERSION` and both
 checksums at the top of that script. Node 26 needs macOS 13.5, which is also the
-project's deployment target — keep the two in step.
+project's deployment target, so keep the two in step.
 
 `scripts/build-icons.js` regenerates the app icon, status icon and wordmark from the
 bootstrap window-dock and eyeglasses paths. It needs `@resvg/resvg-js`, which is not a
@@ -84,7 +84,7 @@ verified on macOS. Say so rather than implying it was tested.
 
 Push a tag like `v1.0.2` and the release workflow does the rest: builds the app,
 zips it, signs the zip with the EdDSA key in the `SPARKLE_ED_PRIVATE_KEY` secret,
-publishes a GitHub Release, and adds an item to `updates.xml.rss` on `gh-pages` —
+publishes a GitHub Release, and adds an item to `updates.xml.rss` on `gh-pages`,
 the appcast running apps poll via `SUFeedURL`. Sparkle compares the build number,
 derived from the tag as `x*10000 + y*100 + z`, so it rises with the version; the
 `CURRENT_PROJECT_VERSION` in the project stays at its dev value and is overridden
@@ -107,7 +107,7 @@ Keychain; the output is the same ed25519 signature either way.
 ## Settings
 
 User defaults (registered in `GLPreferencesController`): `shell` (`zsh` default, `fish`),
-`appearance` (`system`, `light`, `dark` — applied to `NSApp.appearance`, which widgets see
+`appearance` (`system`, `light`, `dark`, applied to `NSApp.appearance`, which widgets see
 via `prefers-color-scheme`), `loginShell`, `enableInteraction`, `widgetDirectory`. The
 shell reaches the node server as `--shell`; changing it restarts the server. fish gets
 commands via `-c` because it cannot read them from the stdin pipe node hands it; zsh and

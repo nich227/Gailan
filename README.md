@@ -3,9 +3,8 @@
 
 **Gailan** (概览 - Gàilǎn) is the Mandarin Chinese translation of the German *Übersicht* ("Overview").
 
-Read it in Cantonese instead and you get 芥蘭 🥦, Chinese broccoli. That wasn't the plan, but a leafy
-green that sits there quietly and asks nothing of you is not the worst thing to name a desktop
-widget host after.
+Read it in Cantonese instead and you get 芥蘭 🥦, Chinese broccoli. That wasn't the plan, but
+it's a fine vegetable and I'm not fighting it.
 
 Gailan is a fork of [felixhageloh/uebersicht](https://github.com/felixhageloh/uebersicht). For general
 info on the original project, check out the [Übersicht website](http://tracesof.net/uebersicht).
@@ -21,14 +20,14 @@ upgrading it:
     widgets keep working
   - the container element is `#gailan`, so user CSS targeting `#uebersicht` needs updating
   - widget commands run through **zsh** by default; Preferences has a dropdown to use
-    **fish** instead (Übersicht used bash — plain POSIX commands work the same in zsh,
-    bash-specific syntax may need adjusting)
+    **fish** instead. Übersicht used bash, so plain POSIX commands work the same in zsh,
+    though bash-specific syntax may need adjusting
   - Preferences also has an appearance override: System, Light or Dark, which widgets
     see through `prefers-color-scheme`
   - if Übersicht is running when Gailan starts, a dialog offers to quit one of them
     (Gailan is an upgraded Übersicht, so running both doubles every widget)
-  - **requires macOS 13.5 or later** (the bundled Node runtime and the modern system
-    APIs need it) — the app will not launch on anything older
+  - **requires macOS 13.5 or later**, which the bundled Node runtime and the system APIs
+    it uses both need. The app will not launch on anything older
 
 The Node runtime is Node 26 and is no longer checked into git; see [Building Gailan](#building-gailan).
 
@@ -321,7 +320,7 @@ Light mode gives widgets dark styling.
 ### Liquid Glass
 
 Gailan bundles [Liquid Glass](https://github.com/samasante/liquid-glass), which refracts
-whatever is behind it — the wallpaper, other widgets — the way Apple's material does.
+whatever is behind it, the wallpaper or other widgets, the way Apple's material does.
 Import `Glass` from the `gailan` module and wrap anything:
 
 ```tsx
@@ -345,7 +344,7 @@ own vocabulary:
 
 If Liquid Glass is switched off in Preferences, `<Glass>` renders its children plainly, so
 a widget using it still works. `GlassSurface` and `GlassMaterial` are exported too, for
-video and canvas lenses — see the upstream README for those.
+video and canvas lenses; see the upstream README for those.
 
 ## Running Shell Commands
 
@@ -456,7 +455,7 @@ cd server && npm install
 
 ### the bundled Node runtime
 
-The `node` binaries that ship inside `Gailan.app` are not checked into git — a single darwin
+The `node` binaries that ship inside `Gailan.app` are not checked into git, because a single darwin
 build is around 145MB, which is over GitHub's 100MB file limit. `scripts/fetch-node.sh`
 downloads them, verifies them against the SHA256 sums published by the Node project, and
 drops them in `server/release/`:

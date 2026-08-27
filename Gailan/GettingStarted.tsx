@@ -150,7 +150,7 @@ const Lights = styled("div")`
   padding-right: 2px;
 `;
 
-/* decorative only — they reveal their glyphs on hover and dip like the real
+/* decorative only: they reveal their glyphs on hover and dip like the real
    ones when pressed, but close/minimize/zoom make no sense for a widget.
    The glyphs are svg geometry, not text, so they center exactly. */
 const Light = styled("div")`
@@ -304,8 +304,8 @@ export const render = ({ output, error }: State) => {
         </Body>
 
       <Footer>
-        Gailan is a fork of Übersicht by Felix Hageloh — the widget system is
-        his work. tracesof.net/uebersicht
+        Gailan is a fork of Übersicht by Felix Hageloh, whose work the widget
+        system is. tracesof.net/uebersicht
       </Footer>
     </Window>
   );
