@@ -148,10 +148,14 @@
                          error:&error];
     
     NSURL* logo = [[NSBundle mainBundle] URLForResource:@"gailan-logo" withExtension:@"png"];
+    NSURL* darkLogo = [[NSBundle mainBundle] URLForResource:@"gailan-logo-dark" withExtension:@"png"];
     
     [fileManager copyItemAtURL:logo
                          toURL:[defaultWidgetDir URLByAppendingPathComponent:@"logo.png"]
                          error:&error];
+    [fileManager copyItemAtURL:darkLogo
+                         toURL:[defaultWidgetDir URLByAppendingPathComponent:@"logo-dark.png"]
+                         error:nil];
     
     if (error) {
         NSLog(@"%@", error);

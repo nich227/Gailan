@@ -1,61 +1,44 @@
-// the starter widget that ships with Gailan. edit it, copy it, delete it —
-// it lives in your widgets folder, and saving any change re-renders it live.
+// This is the example widget that ships with Gailan. You can modify it as you
+// see fit, or simply delete the file to remove it.
 //
-// Gailan is a fork of Übersicht by Felix Hageloh. the widget API, the server
+// Gailan is a fork of Übersicht by Felix Hageloh. The widget API, the server
 // underneath, and the whole idea are his work: https://tracesof.net/uebersicht
 
 import { styled } from "gailan";
 
-// runs once — your name doesn't change between refreshes. id -F prints the
-// full name ("Kevin Chen"), the render keeps the first word
+// this is the shell command that gets executed every time this widget
+// refreshes. id -F prints your full name; render keeps the first word.
 export const command = "id -F";
+
+// the refresh frequency in milliseconds; your name doesn't change, so this
+// widget doesn't refresh
 export const refreshFrequency: number | false = false;
 
-// widget state: the command output, plus the window controls up top.
-// events flow through updateState (a tiny redux), which is the documented
-// way to keep state in a widget — the traffic lights are wired through it.
+// Widget state, typed. Events flow through updateState (a tiny redux),
+// which is the documented way to keep state in a widget.
 type State = {
   output: string;
   error?: string;
-  closed: boolean;
-  collapsed: boolean;
-  zoomed: boolean;
 };
 
-type Event =
-  | { type: "UB/COMMAND_RAN"; output: string; error?: string }
-  | { type: "CLOSE" }
-  | { type: "COLLAPSE" }
-  | { type: "ZOOM" };
+type Event = { type: "UB/COMMAND_RAN"; output: string; error?: string };
 
-export const initialState: State = {
-  output: "",
-  closed: false,
-  collapsed: false,
-  zoomed: false,
-};
+export const initialState: State = { output: "" };
 
 export const updateState = (event: Event, previous: State): State => {
-  switch (event.type) {
-    case "UB/COMMAND_RAN":
-      return { ...previous, output: event.output || "", error: event.error };
-    case "CLOSE":
-      return { ...previous, closed: true };
-    case "COLLAPSE":
-      return { ...previous, collapsed: !previous.collapsed };
-    case "ZOOM":
-      return { ...previous, zoomed: !previous.zoomed };
-    default:
-      return previous;
+  if (event.type === "UB/COMMAND_RAN") {
+    return { output: event.output || "", error: event.error };
   }
+  return previous;
 };
 
 export const className = `
-  top: 10%;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
-  display: flex;
-  justify-content: center;
+  bottom: 0;
 
   * {
     box-sizing: border-box;
@@ -64,8 +47,55 @@ export const className = `
   }
 `;
 
+/* Window position lives outside render (and in localStorage) so dragging
+   survives re-renders and widget reloads — same pattern as RamMonitor. */
+const WIDGET_ID = "gailan-welcome";
+const POS_KEY = "gailan.welcome.pos";
+
+let pos: { left: number; top: number } | null = null;
+try {
+  pos = JSON.parse(localStorage.getItem(POS_KEY) || "null");
+} catch (e) {
+  /* first run */
+}
+
+const startDrag = (e: any) => {
+  if (e.button !== 0) return;
+  const el = document.getElementById(WIDGET_ID);
+  if (!el) return;
+  e.preventDefault();
+
+  const rect = el.getBoundingClientRect();
+  const dx = e.clientX - rect.left;
+  const dy = e.clientY - rect.top;
+
+  const onMove = (ev: MouseEvent) => {
+    const left = Math.max(
+      0,
+      Math.min(window.innerWidth - rect.width, ev.clientX - dx)
+    );
+    const top = Math.max(0, Math.min(window.innerHeight - 40, ev.clientY - dy));
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    pos = { left, top };
+  };
+
+  const onUp = () => {
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    try {
+      localStorage.setItem(POS_KEY, JSON.stringify(pos));
+    } catch (e) {
+      /* position still holds for this session */
+    }
+  };
+
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onUp);
+};
+
 /* a macOS-ish window: translucent, blurred, hairline border, soft shadow.
-   the palette rides on CSS custom properties and follows the system
+   The palette rides on CSS custom properties and follows the system
    appearance. */
 const Window = styled("div")`
   --bg: rgba(24, 24, 31, 0.92);
@@ -83,6 +113,8 @@ const Window = styled("div")`
     --dim: #71717d;
   }
 
+  pointer-events: auto;
+  position: absolute;
   border-radius: 12px;
   overflow: hidden;
   background: var(--bg);
@@ -103,7 +135,12 @@ const Header = styled("div")`
   padding: 10px 12px;
   background: var(--header-bg);
   border-bottom: 1px solid var(--border);
+  cursor: grab;
   user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
 `;
 
 /* 12pt lights on a 20pt pitch, like the real ones */
@@ -113,11 +150,13 @@ const Lights = styled("div")`
   padding-right: 2px;
 `;
 
+/* decorative only — they reveal their glyphs on hover and dip like the real
+   ones when pressed, but close/minimize/zoom make no sense for a widget */
 const Light = styled("div")`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  cursor: pointer;
+  cursor: default;
   background: ${(p: { c: string }) => p.c};
   display: flex;
   align-items: center;
@@ -126,6 +165,7 @@ const Light = styled("div")`
   font-weight: 700;
   line-height: 1;
   color: rgba(0, 0, 0, 0.55);
+  transition: filter 0.1s ease, transform 0.1s ease;
 
   span {
     opacity: 0;
@@ -133,6 +173,11 @@ const Light = styled("div")`
 
   &:hover span {
     opacity: 1;
+  }
+
+  &:active {
+    filter: brightness(0.8);
+    transform: scale(0.92);
   }
 `;
 
@@ -148,8 +193,15 @@ const Title = styled("span")`
   }
 `;
 
+/* the wordmark spans the full window width; the dark variant is swapped in
+   by the <picture> below when the system is in dark mode */
+const Logo = styled("img")`
+  display: block;
+  width: 100%;
+`;
+
 const Body = styled("div")`
-  padding: 16px 18px;
+  padding: 4px 18px 16px;
 
   h1 {
     font-size: 19px;
@@ -158,7 +210,6 @@ const Body = styled("div")`
 
   p {
     margin-bottom: 10px;
-    color: var(--text);
   }
 
   p:last-child {
@@ -171,12 +222,6 @@ const Body = styled("div")`
   }
 `;
 
-const Logo = styled("img")`
-  display: block;
-  width: 150px;
-  margin-bottom: 12px;
-`;
-
 const Footer = styled("div")`
   padding: 8px 18px;
   border-top: 1px solid var(--border);
@@ -184,26 +229,23 @@ const Footer = styled("div")`
   font-size: 11px;
 `;
 
-export const render = (
-  { output, error, closed, collapsed, zoomed }: State,
-  dispatch: (event: Event) => void
-) => {
-  if (closed) return null;
+export const render = ({ output, error }: State) => {
+  const firstName = error ? "there" : output.trim().split(/\s+/)[0] || "there";
+  const position = pos
+    ? { left: `${pos.left}px`, top: `${pos.top}px` }
+    : { left: "calc(50% - 170px)", top: "10%" };
 
   return (
-    <Window style={{ width: zoomed ? 460 : 340 }}>
-      <Header>
+    <Window id={WIDGET_ID} style={{ width: 340, ...position }}>
+      <Header onMouseDown={startDrag}>
         <Lights>
-          <Light c="#ff5f57" title="close (until the widget reloads)"
-            onClick={() => dispatch({ type: "CLOSE" })}>
+          <Light c="#ff5f57">
             <span>&times;</span>
           </Light>
-          <Light c="#febc2e" title="collapse"
-            onClick={() => dispatch({ type: "COLLAPSE" })}>
+          <Light c="#febc2e">
             <span>&minus;</span>
           </Light>
-          <Light c="#28c840" title="zoom"
-            onClick={() => dispatch({ type: "ZOOM" })}>
+          <Light c="#28c840">
             <span>+</span>
           </Light>
         </Lights>
@@ -212,33 +254,32 @@ export const render = (
         </Title>
       </Header>
 
-      {!collapsed && (
-        <Body>
-          <Logo src="/logo.png" />
-          <h1>hi, {error ? "there" : output.trim().split(/\s+/)[0] || "there"}</h1>
+      <picture>
+        <source srcSet="/logo-dark.png" media="(prefers-color-scheme: dark)" />
+        <Logo src="/logo.png" />
+      </picture>
+
+      <Body>
+          <h1>Hi, {firstName}</h1>
           <p>
-            this is the starter widget. it lives in your widgets folder — grab
-            it via <em>Open Widgets Folder</em> in the menu bar, edit it, save,
-            and it re-renders live. delete it whenever.
+            Thanks for trying out Gailan! This is an example widget to get you
+            started.
           </p>
           <p>
-            widgets are just tsx files: a shell command, a refresh interval,
-            and a render function. the traffic lights up there go through{" "}
-            <em>updateState</em>, so this file is also the crib sheet.
+            To view this example widget, choose <em>'Open Widgets Folder'</em>{" "}
+            from the status bar menu. Use it to create your own widget, or
+            simply delete it.
           </p>
           <p>
-            more widgets: <em>Visit Widgets Gallery</em>, also in the menu bar.
-            clicks need the interaction shortcut and accessibility access.
+            To download other widgets, choose <em>'Visit Widgets Gallery'</em>{" "}
+            from the status bar menu.
           </p>
         </Body>
-      )}
 
-      {!collapsed && (
-        <Footer>
-          gailan is a fork of Übersicht by Felix Hageloh — the widget system is
-          his work. tracesof.net/uebersicht
-        </Footer>
-      )}
+      <Footer>
+        Gailan is a fork of Übersicht by Felix Hageloh — the widget system is
+        his work. tracesof.net/uebersicht
+      </Footer>
     </Window>
   );
 };
