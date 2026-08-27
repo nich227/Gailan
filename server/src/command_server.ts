@@ -18,7 +18,7 @@ const {spawn} = require('child_process');
 
 // Shell integrations (Kiro, iTerm2, Warp) announce themselves with OSC escape
 // sequences when a login shell starts, and those land in front of a widget's
-// output. Colour codes are left alone: a widget renders HTML, so it can decide
+// output. Color codes are left alone: a widget renders HTML, so it can decide
 // what to do with them, but nobody wants a terminal's private handshake.
 const OSC = /\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g;
 

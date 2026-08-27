@@ -163,7 +163,7 @@ const Window = styled("div")`
   box-shadow: inset 0 1px 0 rgba(244, 244, 242, 0.08);
 
   /* Asleep, like any window you have not clicked: gray lights, a dimmer title
-     and a shallower shadow. Hovering the lights brings their colour back, which
+     and a shallower shadow. Hovering the lights brings their color back, which
      is what the real ones do too. */
   &[data-active="false"] [data-lights]:not(:hover) > * {
     --light: var(--light-off);

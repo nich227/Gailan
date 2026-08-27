@@ -172,9 +172,9 @@ test('editing a widget emits an update', async (t) => {
   t.end();
 });
 
-test('emotion styles are labelled with the component they came from', async (t) => {
+test('emotion styles are labeled with the component they came from', async (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-labels-'));
-  const file = path.join(dir, 'labelled.tsx');
+  const file = path.join(dir, 'labeled.tsx');
   fs.writeFileSync(
     file,
     [
@@ -185,7 +185,7 @@ test('emotion styles are labelled with the component they came from', async (t) 
     ].join('\n') + '\n'
   );
 
-  const source = await bundle('labelled', file);
+  const source = await bundle('labeled', file);
 
   t.ok(
     source.indexOf('label: "Panel"') > -1,
@@ -205,7 +205,7 @@ test('emotion styles are labelled with the component they came from', async (t) 
   t.end();
 });
 
-test('the legacy module name is labelled too', async (t) => {
+test('the legacy module name is labeled too', async (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-labels-'));
   const file = path.join(dir, 'old.tsx');
   fs.writeFileSync(

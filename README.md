@@ -16,7 +16,7 @@ app is a separate application with its own name, bundle id and support directory
 installs beside Übersicht instead of replacing it, and Übersicht's own updater will never
 offer it. Widget code carries over, since the widget API is the same; settings and the
 widgets folder do not, and have to be moved by hand. The bundled Node also jumped from 16
-to 24, so a widget whose command depends on old Node behaviour, or that bundles a native
+to 24, so a widget whose command depends on old Node behavior, or that bundles a native
 module built for Node 16, needs rebuilding. Upstream breaking changes: Node
 [18](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md),
 [20](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V20.md),
@@ -116,7 +116,7 @@ Gailan offers to do that for you when it starts.
     Preferences. Widget commands run through zsh by default, where Übersicht used bash.
     Plain POSIX commands behave the same in both.
   - **native modules** bundled inside a widget need rebuilding against Node 24.
-  - **Widget commands that depend on old Node behaviour** need looking at, per the
+  - **Widget commands that depend on old Node behavior** need looking at, per the
     breaking changes linked above.
 
 Nothing else about a widget changes: `command`, `refreshFrequency`, `render`,
@@ -433,7 +433,7 @@ legible.
 
 Preferences carries what macOS actually exposes. `Frost the desktop` picks the material
 and is on by default; `Off` opts out. On macOS 26 there is also a `Style` of Regular or
-Clear and a `Tint` colour, where no opacity means untinted. There is no blur radius or
+Clear and a `Tint` color, where no opacity means untinted. There is no blur radius or
 refraction setting, because AppKit has none to offer: `NSGlassEffectView` takes a corner
 radius, a tint and those two styles, and nothing else.
 
