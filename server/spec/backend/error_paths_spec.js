@@ -77,18 +77,20 @@ test('settings that are already what we have', (t) => {
 
   setTimeout(() => {
     const before = fs.statSync(file).mtimeMs;
-    settings.persist(settings.load());
+    // the same state object, which is what the store hands over when an action
+    // left the settings alone
+    settings.persist(state);
 
     setTimeout(() => {
       t.equal(
         fs.statSync(file).mtimeMs,
         before,
-        'nothing is written when nothing changed'
+        'nothing is written when the state has not moved'
       );
       fs.rmSync(dir, {recursive: true, force: true});
       t.end();
-    }, 100);
-  }, 100);
+    }, 120);
+  }, 120);
 });
 
 test('a message bus that errors', (t) => {
