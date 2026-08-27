@@ -14,6 +14,20 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>', {
   virtualConsole,
 });
 
+// jsdom has no matchMedia, and the client asks it about the appearance
+if (!dom.window.matchMedia) {
+  dom.window.matchMedia = (query) => ({
+    media: query,
+    matches: false,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  });
+}
+
 global.window = dom.window;
 global.document = dom.window.document;
 
