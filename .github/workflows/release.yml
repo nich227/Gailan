@@ -50,6 +50,10 @@ jobs:
       - name: archive
         run: ditto -c -k --sequesterRsrc --keepParent dd/Build/Products/Release/Gailan.app "Gailan-${{ steps.v.outputs.version }}.zip"
 
+      # the zip is what Sparkle downloads; the dmg is what people download
+      - name: disk image
+        run: ./scripts/make-dmg.sh dd/Build/Products/Release/Gailan.app "${{ steps.v.outputs.version }}" "Gailan-${{ steps.v.outputs.version }}.dmg"
+
       - name: sign
         id: sign
         env:
@@ -59,11 +63,19 @@ jobs:
       - name: publish release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create "$GITHUB_REF_NAME"
-          "Gailan-${{ steps.v.outputs.version }}.zip"
-          --title "Gailan ${{ steps.v.outputs.version }}"
-          --generate-notes
+        run: |
+          NOTES=notes.md
+          if [ -f "docs/release-notes/${{ steps.v.outputs.version }}.md" ]; then
+            cp "docs/release-notes/${{ steps.v.outputs.version }}.md" "$NOTES"
+          else
+            echo "Gailan ${{ steps.v.outputs.version }}." > "$NOTES"
+          fi
+          printf '\n\n## Install\n\nOpen the dmg and drag Gailan to Applications. Requires macOS 13.5 or later.\n' >> "$NOTES"
+          gh release create "$GITHUB_REF_NAME" \
+            "Gailan-${{ steps.v.outputs.version }}.dmg" \
+            "Gailan-${{ steps.v.outputs.version }}.zip" \
+            --title "Gailan ${{ steps.v.outputs.version }}" \
+            --notes-file "$NOTES"
 
       - name: update appcast
         env:
