@@ -131,12 +131,10 @@
 {
     switch (newType) {
         case GLWindowTypeForeground:
-            [self setLevel:kCGNormalWindowLevel-1];
             [self updateTrackingArea];
             break;
         case GLWindowTypeBackground:
         case GLWindowTypeAgnostic:
-            [self setLevel:kCGDesktopWindowLevel];
             if (trackingArea != nil) {
                 [self.contentView removeTrackingArea:trackingArea];
             }
@@ -146,6 +144,26 @@
             break;
     }
     type = newType;
+    [self applyLevel];
+}
+
+// levels are mutable, so floating widgets is a setLevel call, not a window
+// rebuild: rebuilding would tear down and reload every webview
+- (void)setAlwaysOnTop:(BOOL)flag
+{
+    _alwaysOnTop = flag;
+    [self applyLevel];
+}
+
+- (void)applyLevel
+{
+    if (type == GLWindowTypeForeground) {
+        [self setLevel:
+            _alwaysOnTop ? kCGFloatingWindowLevel : kCGNormalWindowLevel-1];
+    } else {
+        [self setLevel:
+            _alwaysOnTop ? kCGFloatingWindowLevel-1 : kCGDesktopWindowLevel];
+    }
 }
 
 - (GLWindowType)windowType

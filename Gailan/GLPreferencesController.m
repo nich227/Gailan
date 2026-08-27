@@ -28,7 +28,8 @@
             @"widgetDirectory": defaultWidgetDir,
             @"enableInteraction": @YES,
             @"shell": @"zsh",
-            @"appearance": @"system"
+            @"appearance": @"system",
+            @"alwaysOnTop": @NO
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
@@ -222,6 +223,19 @@
            forKey: @"shell"
     ];
     [(GLAppDelegate *)[NSApp delegate] shellDidChange];
+}
+
+- (BOOL)alwaysOnTop
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"alwaysOnTop"];
+}
+
+- (void)setAlwaysOnTop:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults]
+        setBool:flag forKey:@"alwaysOnTop"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] alwaysOnTopDidChange];
 }
 
 #

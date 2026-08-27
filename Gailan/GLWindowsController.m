@@ -42,6 +42,7 @@
             windowGroup = [[GLWindowGroup alloc]
                 initWithInteractionEnabled: interactionEnabled
             ];
+            [windowGroup setAlwaysOnTop:self.alwaysOnTop];
             [windows setObject:windowGroup forKey:screenId];
             [windowGroup loadUrl: [self screenUrl:screenId baseUrl:baseUrl]];
         } else {
@@ -101,6 +102,14 @@
     for (NSNumber* screenId in windows) {
         GLWindowGroup* window = windows[screenId];
         [window reload];
+    }
+}
+
+- (void)setAlwaysOnTop:(BOOL)flag
+{
+    _alwaysOnTop = flag;
+    for (GLWindowGroup* group in [windows allValues]) {
+        [group setAlwaysOnTop:flag];
     }
 }
 

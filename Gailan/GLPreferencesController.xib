@@ -177,6 +177,17 @@
                             <binding destination="-2" name="selectedTag" keyPath="appearanceTag" id="apP-00-007"/>
                         </connections>
                     </popUpButton>
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aot-00-001">
+                        <rect key="frame" x="220" y="24" width="290" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Keep widgets above other windows" bezelStyle="regularSquare" imagePosition="left" inset="2" id="aot-00-002">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="-2" name="value" keyPath="alwaysOnTop" id="aot-00-003"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <connections>

@@ -23,6 +23,7 @@ typedef NS_ENUM(NSInteger, GLWindowType) {
 @interface GLWindow : NSWindow
 
 @property GLWindowType windowType;
+@property (nonatomic) BOOL alwaysOnTop;
 
 - (id)initWithWindowType:(GLWindowType)type;
 - (void)loadUrl:(NSURL*)url;

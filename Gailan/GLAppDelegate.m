@@ -97,6 +97,7 @@ int const PORT = 41416;
     }];
     
     [GLPreferencesController applyAppearance];
+    [windowsController setAlwaysOnTop:preferences.alwaysOnTop];
 
     // make sure notifications always show, even while we are frontmost
     UNUserNotificationCenter* unc =
@@ -356,6 +357,12 @@ int const PORT = 41416;
 - (void)shellDidChange
 {
     [self shutdown:true];
+}
+
+// a level change, not a window rebuild: rebuilding reloads every widget
+- (void)alwaysOnTopDidChange
+{
+    [windowsController setAlwaysOnTop:preferences.alwaysOnTop];
 }
 
 - (void)interactionDidChange

@@ -36,6 +36,12 @@
     return self;
 }
 
+- (void)setAlwaysOnTop:(BOOL)flag
+{
+    [foreground setAlwaysOnTop:flag];
+    [background setAlwaysOnTop:flag];
+}
+
 - (void)close
 {
     [foreground close];

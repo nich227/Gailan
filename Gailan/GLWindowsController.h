@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GLWindowsController : NSObject
 
+@property (nonatomic) BOOL alwaysOnTop;
+
 
 - (void)updateWindows:(NSDictionary*)screens
               baseUrl:(NSURL*)baseUrl

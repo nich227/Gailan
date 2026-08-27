@@ -21,6 +21,7 @@
 @property BOOL loginShell;
 @property BOOL enableInteraction;
 @property NSInteger shellTag;
+@property BOOL alwaysOnTop;
 @property NSInteger appearanceTag;
 
 - (NSString*)shell;
