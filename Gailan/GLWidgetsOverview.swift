@@ -36,7 +36,7 @@ struct WidgetSummary: Identifiable, Equatable {
         return .selected
     }
 
-    init(_ raw: [String: Any]) {
+    init(_ raw: [AnyHashable: Any]) {
         id = raw["id"] as? String ?? ""
         fileName = raw["fileName"] as? String ?? ""
         hidden = raw["hidden"] as? Bool ?? false
@@ -218,6 +218,7 @@ struct GLWidgetsOverview: View {
 }
 
 // Handed to the app delegate, which has no way to build a SwiftUI window itself.
+@MainActor
 @objc(GLWidgetsOverviewWindow)
 final class GLWidgetsOverviewWindow: NSObject {
     private static var shared: GLWidgetsOverviewWindow?
