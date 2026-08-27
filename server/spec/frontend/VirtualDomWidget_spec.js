@@ -229,3 +229,92 @@ test('forcing a refresh reruns the command', async (t) => {
   widget.destroy();
   t.end();
 });
+
+test('a widget receives its own settings', async (t) => {
+  const seen = [];
+  const widget = build(
+    {
+      render: ({settings}) => {
+        seen.push(settings);
+        return html('p', null, String((settings || {}).size));
+      },
+    },
+    {
+      // what the manifest declared, and what the user has chosen
+      settingsSchema: [
+        {key: 'size', type: 'choice', default: 'medium'},
+        {key: 'showCredits', type: 'toggle', default: true},
+      ],
+      config: {size: 'large'},
+    }
+  );
+
+  const el = widget.create();
+  await settle();
+
+  t.equal(el.querySelector('p').textContent, 'large', 'the chosen value wins');
+  t.deepEqual(
+    seen[seen.length - 1],
+    {size: 'large', showCredits: true},
+    'and a setting left alone falls back to the manifest default'
+  );
+
+  widget.destroy();
+  t.end();
+});
+
+test('a widget with no settings at all', async (t) => {
+  const seen = [];
+  const widget = build({
+    render: ({settings}) => {
+      seen.push(settings);
+      return html('p', null, 'no settings');
+    },
+  });
+
+  const el = widget.create();
+  await settle();
+
+  t.deepEqual(seen[seen.length - 1], {}, 'gets an empty object, not undefined');
+  t.equal(el.querySelector('p').textContent, 'no settings');
+
+  widget.destroy();
+  t.end();
+});
+
+test('changing a setting redraws the widget', async (t) => {
+  const drawn = [];
+  const implementation = {
+    render: ({settings}) => {
+      drawn.push((settings || {}).size);
+      return html('p', null, String((settings || {}).size));
+    },
+  };
+
+  const widget = build(implementation, {
+    settingsSchema: [{key: 'size', type: 'choice', default: 'medium'}],
+    config: {size: 'small'},
+  });
+
+  const el = widget.create();
+  await settle();
+  t.equal(drawn[drawn.length - 1], 'small', 'drawn with the first value');
+
+  widget.update({
+    id: 'react-widget',
+    filePath: '/widgets/react-widget.jsx',
+    implementation: implementation,
+    settingsSchema: [{key: 'size', type: 'choice', default: 'medium'}],
+    config: {size: 'large'},
+  });
+  await settle();
+
+  t.equal(
+    el.querySelector('p').textContent,
+    'large',
+    'and redrawn when the setting changes'
+  );
+
+  widget.destroy();
+  t.end();
+});

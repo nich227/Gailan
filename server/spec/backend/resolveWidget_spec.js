@@ -37,6 +37,30 @@ test('resolving widget actions from file events', (t) => {
   );
 });
 
+test('a widget kept in its own folder', (t) => {
+  const action = resolveWidget({
+    type: 'added',
+    filePath: '/widget/dir/clock/index.tsx',
+    rootPath: '/widget/dir/',
+  });
+  t.equal(action.id, 'clock', 'takes the folder name, not the index file');
+
+  const nested = resolveWidget({
+    type: 'added',
+    filePath: '/widget/dir/group/clock/index.jsx',
+    rootPath: '/widget/dir/',
+  });
+  t.equal(nested.id, 'group-clock', 'and keeps the folders above it');
+
+  const bare = resolveWidget({
+    type: 'added',
+    filePath: '/widget/dir/index.tsx',
+    rootPath: '/widget/dir/',
+  });
+  t.equal(bare.id, 'index', 'an index at the top has nothing else to be called');
+  t.end();
+});
+
 test('separating widgets from non-wigets', (t) => {
   var action = resolveWidget({
     filePath: '/widget/dir/file.js',

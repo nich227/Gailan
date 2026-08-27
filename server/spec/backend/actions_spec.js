@@ -75,6 +75,24 @@ test('a widget finishing loading in the page', (t) => {
   t.end();
 });
 
+test('a widget setting being changed', (t) => {
+  t.deepEqual(
+    actions.setWidgetConfig('a-widget', 'size', 'large'),
+    {
+      type: 'WIDGET_CONFIG_CHANGED',
+      payload: {id: 'a-widget', key: 'size', value: 'large'},
+    },
+    'names the widget, the setting and the new value'
+  );
+
+  t.deepEqual(
+    actions.setWidgetConfig('a-widget', 'showCredits', false).payload.value,
+    false,
+    'and false survives, rather than being treated as absent'
+  );
+  t.end();
+});
+
 test('settings arriving for a widget', (t) => {
   t.deepEqual(
     actions.applyWidgetSettings('a-widget', {hidden: true}),

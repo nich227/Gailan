@@ -182,6 +182,81 @@ test('a widget loading that is no longer there', (t) => {
   t.end();
 });
 
+test('a widget setting being changed', (t) => {
+  const first = reduce(stateWith(), {
+    type: 'WIDGET_CONFIG_CHANGED',
+    payload: {id: 'a-widget', key: 'size', value: 'large'},
+  });
+  t.deepEqual(
+    first.settings['a-widget'].config,
+    {size: 'large'},
+    'the value is kept under config, away from hidden and screens'
+  );
+
+  const second = reduce(first, {
+    type: 'WIDGET_CONFIG_CHANGED',
+    payload: {id: 'a-widget', key: 'showCredits', value: false},
+  });
+  t.deepEqual(
+    second.settings['a-widget'].config,
+    {size: 'large', showCredits: false},
+    'a second setting joins the first rather than replacing it'
+  );
+
+  const third = reduce(second, {
+    type: 'WIDGET_CONFIG_CHANGED',
+    payload: {id: 'a-widget', key: 'size', value: 'small'},
+  });
+  t.equal(third.settings['a-widget'].config.size, 'small', 'and can be changed');
+  t.equal(
+    third.settings['a-widget'].hidden,
+    stateWith().settings['a-widget'].hidden,
+    'without disturbing the other settings'
+  );
+  t.end();
+});
+
+test('a widget arriving with settings saved from last time', (t) => {
+  const state = reduce(
+    {widgets: {}, settings: {}, screens: []},
+    {
+      type: 'WIDGET_ADDED',
+      payload: {
+        id: 'a-widget',
+        filePath: '/widgets/a-widget/index.tsx',
+        savedConfig: {size: 'large'},
+      },
+    }
+  );
+
+  t.deepEqual(
+    state.settings['a-widget'].config,
+    {size: 'large'},
+    'what was saved beside the widget is seeded'
+  );
+
+  // a rebuild must not undo a change made since the widget loaded
+  const changed = reduce(state, {
+    type: 'WIDGET_CONFIG_CHANGED',
+    payload: {id: 'a-widget', key: 'size', value: 'small'},
+  });
+  const rebuilt = reduce(changed, {
+    type: 'WIDGET_ADDED',
+    payload: {
+      id: 'a-widget',
+      filePath: '/widgets/a-widget/index.tsx',
+      savedConfig: {size: 'large'},
+    },
+  });
+
+  t.equal(
+    rebuilt.settings['a-widget'].config.size,
+    'small',
+    'so the file on disk does not win over a newer choice'
+  );
+  t.end();
+});
+
 test('an action the reducer does not know', (t) => {
   const state = stateWith();
   t.equal(
