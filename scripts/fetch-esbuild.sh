@@ -54,8 +54,20 @@ fetch_arch() {
 
   tar xzf "$tarball" -C "$target" --strip-components=1
   chmod +x "${target}/bin/esbuild"
+  adhoc_sign "${target}/bin/esbuild"
   echo "esbuild-${arch}: installed ${ESBUILD_VERSION} -> ${target}"
+}
+
+# Xcode's strip phase refuses to touch a signed binary and errors on an unsigned
+# one, which is why the node binaries sail through: Apple ships them signed. The
+# real identity is applied later, in the signing phase.
+adhoc_sign() {
+  command -v codesign > /dev/null 2>&1 || return 0
+  codesign --force --sign - "$1" > /dev/null 2>&1 || true
 }
 
 fetch_arch x64 "$SHA512_X64"
 fetch_arch arm64 "$SHA512_ARM64"
+
+# npm's own copy, installed by build-server for the build machine's arch
+adhoc_sign "${ROOT}/server/release/node_modules/esbuild/bin/esbuild"
