@@ -14,7 +14,7 @@
 
 const parseArgs = require('minimist');
 const GailanServer = require('./src/app.ts');
-const corsProxy = require('cors-anywhere');
+const corsProxy = require('./src/corsProxy.js');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -78,13 +78,9 @@ try {
   const corsHost = '127.0.0.1';
   const corsPort = port + 1;
   corsProxy
-    .createServer({
-      originWhitelist: ['http://127.0.0.1:' + port],
-      requireHeader: ['origin'],
-      removeHeaders: ['cookie'],
-    })
+    .createServer({origin: 'http://127.0.0.1:' + port})
     .listen(corsPort, corsHost, () =>
-      console.log('CORS Anywhere on port', corsPort)
+      console.log('CORS proxy on port', corsPort)
     );
 } catch (e) {
   handleError(e as Error);
