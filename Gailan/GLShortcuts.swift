@@ -253,8 +253,7 @@ struct SetWidgetLayerIntent: AppIntent {
 struct SetWidgetSettingIntent: AppIntent {
     static let title: LocalizedStringResource = "Change Widget Setting"
     static let description = IntentDescription(
-        "Changes one of a widget's own settings, the same ones you see in its "
-            + "settings window."
+        "Changes one of a widget's own settings, the same ones its settings window shows."
     )
 
     @Parameter(title: "Widget")
