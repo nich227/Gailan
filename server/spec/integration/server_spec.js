@@ -36,16 +36,49 @@ function scratch() {
 
 let collected = '';
 
-function startServer(args, token, onReady) {
-  const child = spawn(process.execPath, [entry].concat(args), {
-    stdio: ['pipe', 'pipe', 'pipe'],
+// A test that never sees the server start used to leave its child alive and never
+// call t.end(), which hung the run rather than failing it. Every child is tracked
+// and every wait is bounded, so the suite either finishes or says what went wrong.
+const spawned = [];
+const READY_TIMEOUT = 20000;
+
+function track(child) {
+  spawned.push(child);
+  return child;
+}
+
+test.onFinish(() => {
+  spawned.forEach((child) => {
+    if (child.exitCode === null && child.signalCode === null) {
+      child.kill('SIGKILL');
+    }
   });
+});
+
+function startServer(args, token, onReady, t) {
+  const child = track(
+    spawn(process.execPath, [entry].concat(args), {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })
+  );
+
+  let ready = false;
+  const stuck = setTimeout(() => {
+    if (ready) return;
+    child.kill('SIGKILL');
+    if (t) {
+      t.fail('the server never said it started, output was: ' + output);
+      t.end();
+    }
+  }, READY_TIMEOUT);
 
   let output = '';
   const watch = (chunk) => {
     output += chunk;
     collected += chunk;
     if (output.indexOf('server started on port') > -1) {
+      ready = true;
+      clearTimeout(stuck);
       onReady(child, output);
       onReady = () => {};
     }
@@ -97,7 +130,7 @@ test('the server the app launches', (t) => {
         // the proxy announces itself just after the server, so by now both
         // lines have been written
         t.ok(
-          collected.indexOf('CORS Anywhere on port ' + (port + 1)) > -1,
+          collected.indexOf('CORS proxy on port ' + (port + 1)) > -1,
           'and it brings up the proxy beside it'
         );
         t.equal(res.statusCode, 200, 'the token from stdin is the one it wants');
@@ -109,7 +142,8 @@ test('the server the app launches', (t) => {
           t.end();
         });
       });
-    }
+    },
+    t
   );
 
   child.on('error', (err) => {
@@ -140,16 +174,19 @@ test('the server with the token turned off', (t) => {
         fs.rmSync(dirs.root, {recursive: true, force: true});
         t.end();
       });
-    }
+    },
+    t
   );
 });
 
 test('the server refusing a widget directory that is not there', (t) => {
   const port = testPort();
-  const child = spawn(
-    process.execPath,
-    [entry, '-p', String(port), '-d', '/no/such/widget/directory'],
-    {stdio: ['pipe', 'pipe', 'pipe']}
+  const child = track(
+    spawn(
+      process.execPath,
+      [entry, '-p', String(port), '-d', '/no/such/widget/directory'],
+      {stdio: ['pipe', 'pipe', 'pipe']}
+    )
   );
 
   let output = '';
@@ -196,16 +233,19 @@ test('the long form of every argument', (t) => {
         fs.rmSync(dirs.root, {recursive: true, force: true});
         t.end();
       });
-    }
+    },
+    t
   );
 });
 
 test('the server with no arguments at all', (t) => {
   // it falls back to ./widgets, ./settings and port 41416 beside the script,
   // which is how the app ships it
-  const child = spawn(process.execPath, [entry], {
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
+  const child = track(
+    spawn(process.execPath, [entry], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })
+  );
 
   let output = '';
   const watch = (chunk) => {
