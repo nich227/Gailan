@@ -13,7 +13,7 @@
 
 const test = require('tape');
 const html = require('react').createElement;
-const Widget = require('../../src/Widget.js');
+const Widget = require('../../src/Widget.ts');
 
 // SharedSocket picks the browser's WebSocket when there is a window, which is
 // the half the backend specs never see. client_spec replaces the module for the

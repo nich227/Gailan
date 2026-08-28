@@ -3,7 +3,7 @@ var sinon = require('sinon');
 // sinon stopped re-exporting fakeServer; it lives in nise, sinon's own package
 var fakeServer = require('nise').fakeServer;
 var tosource = require('tosource');
-var Widget = require('../../src/Widget.js');
+var Widget = require('../../src/Widget.ts');
 
 function makeFakeServer() {
   var server = fakeServer.create();
