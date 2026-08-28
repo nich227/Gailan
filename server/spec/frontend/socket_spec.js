@@ -103,7 +103,7 @@ test('closing the socket', (t) => {
 
 test('dispatching while the socket is open', (t) => {
   // dispatch holds messages until the socket opens, then drains them
-  delete require.cache[require.resolve('../../src/dispatch')];
+  delete require.cache[require.resolve('../../src/dispatch.ts')];
   const dispatch = require('../../src/dispatch.ts');
 
   sharedSocket.open('ws://127.0.0.1:41416');
