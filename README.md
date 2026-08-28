@@ -22,6 +22,37 @@ it's a fine vegetable and I'm not fighting it.
 Gailan is a fork of [felixhageloh/uebersicht](https://github.com/felixhageloh/uebersicht). For general
 info on the original project, check out the [Übersicht website](http://tracesof.net/uebersicht).
 
+## Widgets
+
+Three to start with, from [GailanHub](https://github.com/nich227/GailanHub). Each is a
+folder of files you can read, and each downloads as a zip from the
+[gallery](https://gailanapp.pages.dev/hub).
+
+<table>
+  <tr>
+    <td width="33%">
+      <a href="https://github.com/nich227/GailanHub/tree/main/widgets/clock">
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/clock/preview.jpg" alt="The clock widget on a desktop, showing the time on a dot matrix" />
+      </a>
+    </td>
+    <td width="33%">
+      <a href="https://github.com/nich227/GailanHub/tree/main/widgets/memory">
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/memory/preview.jpg" alt="The memory widget on a desktop, showing 42 percent in use on a twenty-division scale" />
+      </a>
+    </td>
+    <td width="33%">
+      <a href="https://github.com/nich227/GailanHub/tree/main/widgets/nowplaying">
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/nowplaying/preview.jpg" alt="The now playing widget on a desktop, showing a track with its cover and pixel transport controls" />
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>Clock</strong><br />The time on a dot matrix, or hands on a dial.</td>
+    <td><strong>Memory</strong><br />What is in use, on a scale you can read a value off.</td>
+    <td><strong>Now Playing</strong><br />The track, its cover, and controls that work.</td>
+  </tr>
+</table>
+
 ## Differences from Übersicht
 
 Gailan is not backwards compatible with Übersicht, and it is not an in-place upgrade. The
