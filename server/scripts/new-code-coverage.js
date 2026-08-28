@@ -43,7 +43,18 @@ function git(args) {
 function changedLines() {
   let diff;
   try {
-    diff = git(['diff', '--unified=0', '--no-color', `${base}...HEAD`, '--', '.']);
+    // --relative makes the paths in the diff relative to this directory, which is
+    // what the lcov side reports. Without it the diff says server/src/x.js, lcov
+    // says src/x.js, nothing matches, and the gate passes everything.
+    diff = git([
+      'diff',
+      '--relative',
+      '--unified=0',
+      '--no-color',
+      `${base}...HEAD`,
+      '--',
+      '.',
+    ]);
   } catch (err) {
     console.log(`cannot diff against ${base}, so nothing to check`);
     return {};
