@@ -13,11 +13,11 @@
 
 set -euo pipefail
 
-ESBUILD_VERSION="0.25.10"
+ESBUILD_VERSION="0.28.2"
 
 # from npm view @esbuild/darwin-<arch>@${ESBUILD_VERSION} dist.integrity
-SHA512_X64="tguWg1olF6DGqzws97pKZ8G2L7Ig1vjDmGTwcTuYHbuU6TTjJe5FXbgs5C1BBzHbJ2bo1m3WkQDbWO2PvamRcg=="
-SHA512_ARM64="JC74bdXcQEpW9KkV326WpZZjLguSZ3DfS8wrrvPMHgQOIEIG/sPXEN/V8IssoJhbefLRcRqw6RQH2NnpdprtMA=="
+SHA512_X64="uq6suIWYP37qzGddBKPw5QEQPi6HiLGsO7UmkpfyaYNQ3D+rN6w6WfwH+nuqcGXWvawGwxOEroO4YGnFh95azw=="
+SHA512_ARM64="n4KqkOQrraxHJcgjM1RvwbigfQKIKJVpM7xp+KsxiyUSrRdIXnt73VhrPAx0fV44hgfmIVKjxMN9J1t5jySVkw=="
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST_DIR="${ROOT}/server/release/node_modules/@esbuild"
