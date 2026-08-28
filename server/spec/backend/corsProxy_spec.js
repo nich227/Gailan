@@ -85,8 +85,19 @@ test('an empty path is not a target', (t) => {
 });
 
 test('a scheme we do not proxy is refused', (t) => {
-  t.equal(corsProxy.parseTarget('/file:///etc/passwd'), null);
-  t.equal(corsProxy.parseTarget('/ftp://example.com/x'), null);
+  // and not quietly turned into a request for a host named "file"
+  t.equal(corsProxy.parseTarget('/file:///etc/passwd'), null, 'file');
+  t.equal(corsProxy.parseTarget('/ftp://example.com/x'), null, 'ftp');
+  t.equal(corsProxy.parseTarget('/javascript:alert(1)'), null, 'javascript');
+  t.equal(corsProxy.parseTarget('/data:text/html,hi'), null, 'data');
+  t.end();
+});
+
+test('a bare host keeps its port, since that colon is not a scheme', (t) => {
+  const url = corsProxy.parseTarget('/example.com:8080/x');
+  t.equal(url.protocol, 'http:');
+  t.equal(url.hostname, 'example.com');
+  t.equal(url.port, '8080');
   t.end();
 });
 

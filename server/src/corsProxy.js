@@ -79,8 +79,21 @@ function parseTarget(requestUrl) {
   const raw = requestUrl.slice(1);
   if (!raw) return null;
 
-  // cors-anywhere accepted a bare host and assumed http, so widgets may too
-  const withScheme = /^https?:\/\//i.test(raw) ? raw : `http://${raw}`;
+  // cors-anywhere accepted a bare host and assumed http, so widgets may too.
+  // Anything naming another scheme is refused rather than assumed: prepending
+  // http:// to file:///etc/passwd asks for a host called "file", which is a
+  // strange thing to do on someone's behalf.
+  const scheme = /^([a-z][a-z0-9+.\-]*):/i.exec(raw);
+  if (scheme) {
+    const name = scheme[1].toLowerCase();
+    const rest = raw.slice(scheme[0].length);
+    // a bare host may carry a port, and that colon is not a scheme
+    const isPort = /^\d/.test(rest);
+    if (!isPort && name !== 'http' && name !== 'https') return null;
+  }
+
+  const hasWebScheme = /^https?:\/\//i.test(raw);
+  const withScheme = hasWebScheme ? raw : `http://${raw}`;
 
   let url;
   try {
