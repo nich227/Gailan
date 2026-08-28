@@ -108,7 +108,7 @@ test('something that is not a url at all is refused', (t) => {
 
 // MARK: - which addresses are refused
 
-test('link-local addresses are recognised', (t) => {
+test('link-local addresses are recognized', (t) => {
   t.ok(corsProxy.isLinkLocal('169.254.169.254'), 'the metadata address');
   t.ok(corsProxy.isLinkLocal('169.254.0.1'));
   t.ok(corsProxy.isLinkLocal('::ffff:169.254.169.254'));

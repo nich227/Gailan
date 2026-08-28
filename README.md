@@ -181,7 +181,7 @@ Nothing else about a widget changes: `command`, `refreshFrequency`, `render`,
 `updateState`, `className`, the classic object-literal widgets, `window.$`, and the
 `/run/` proxy all behave as they did.
 
-## Writing Widgets
+## Writing widgets
 
 In essence, widgets are TypeScript (or JavaScript) modules that expose a few key properties and methods. They need to be defined in a single file with a `.tsx` (or `.jsx`) extension for Gailan to pick them up. Types are stripped when the widget is bundled, not checked. CoffeeScript widgets are not supported: Übersicht's classic API still works, but the file has to be `.js`. Check [the old documentation](ClassicWidgets.md) for that API. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
 
@@ -416,7 +416,7 @@ export const init = (dispatch) => {
 }
 ```
 
-## Styling Widgets
+## Styling widgets
 
 Gailan comes bundled with [Emotion](https://emotion.sh) (version 11). It exposes its `css` and `styled` functions via the `gailan` module, which also carries
 `run`, `request` (superagent) and `React`.
@@ -563,7 +563,7 @@ Clear and a `Tint` color, where no opacity means untinted. There is no blur radi
 refraction setting, because AppKit has none to offer: `NSGlassEffectView` takes a corner
 radius, a tint and those two styles, and nothing else.
 
-## Running Shell Commands
+## Running shell commands
 
 If you need to run extra shell commands without using the [command](#command) property, you can import the `run` function from the `gailan` module.
 
@@ -619,7 +619,7 @@ In addition to the standard `Position` object, Gailan provides an extra `address
   - CountryCode
 
 
-## Built-in Proxy Server
+## Built-in proxy server
 
 A widget is served from `http://127.0.0.1:41416`, so fetching anything else is a
 cross-origin request that the other end has to agree to. Most of the web does not,
@@ -676,7 +676,7 @@ through as it stands. The key is whatever the widget named in its `widget.json`.
 Siri answers "refresh Gailan widgets" without any setting up, and the rest appear in
 Spotlight once the app has run.
 
-## Scripting Support
+## Scripting support
 
 Gailan supports AppleScript. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name):
 
@@ -767,7 +767,7 @@ The app icon, menu bar icon and wordmark are built from the *window-dock* and *e
 icons of [Bootstrap Icons](https://github.com/twbs/icons), © 2019–2024 The Bootstrap Authors,
 [MIT licensed](licenses/bootstrap-icons.txt).
 
-## Third-Party Assets
+## Third-party assets
 
 The starter widget sets the Gailan name in [DotGothic16](https://github.com/fontworks-fonts/DotGothic16),
 the same typeface the website uses, so the name reads the same in both places. The app
