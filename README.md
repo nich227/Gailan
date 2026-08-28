@@ -1,5 +1,18 @@
-# Gailan (概览 · Gàilǎn)
-*Keep an eye on what's happening on your machine and in the world.*
+<h1 align="center">
+  <picture>
+    <source
+      srcset="Gailan/gailan-brand-dark.png"
+      media="(prefers-color-scheme: dark)"
+    />
+    <img
+      src="Gailan/gailan-brand.png"
+      alt="Gailan (概览 · Gàilǎn)"
+      width="167"
+    />
+  </picture>
+</h1>
+
+<p align="center"><em>Keep an eye on what's happening on your machine and in the world.</em></p>
 
 **Gailan** (概览 - Gàilǎn) is the Mandarin Chinese translation of the German *Übersicht* ("Overview").
 

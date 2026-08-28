@@ -490,6 +490,11 @@ int const PORT = 41416;
     [GLWidgetUpdatesWindow show:[self.preferences.widgetDir path]];
 }
 
+- (IBAction)showAbout:(id)sender
+{
+    [GLAboutWindow show];
+}
+
 // the menu item's tag says which layer to inspect: 1 foreground, 2 background,
 // 0 both. widgets sit in one layer or the other, so inspecting the wrong one
 // shows an empty page.
