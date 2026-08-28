@@ -577,14 +577,33 @@ In addition to the standard `Position` object, Gailan provides an extra `address
 
 ## Built-in Proxy Server
 
-If you'd like to make Ajax requests to an external site without using a command, you can use the built-in proxy server. It is running on `http://127.0.0.1:41417` and can be used as follows:
+A widget is served from `http://127.0.0.1:41416`, so fetching anything else is a
+cross-origin request that the other end has to agree to. Most of the web does not,
+which is what the proxy is for. It listens on the port after the widget server's,
+`http://127.0.0.1:41417`, and the address you want follows the slash:
 
-    command: (callback) ->
-      proxy = "http://127.0.0.1:41417/"
-      server = "http://example.com:8080"
-      path = "/getsomejson"
-      $.get proxy + server + path, (json) ->
-        callback null, json
+```tsx
+export const command = async (dispatch) => {
+  const proxy = "http://127.0.0.1:41417/";
+  const answer = await fetch(proxy + "https://example.com:8080/getsomejson");
+  dispatch({ type: "GOT_JSON", payload: await answer.json() });
+};
+```
+
+`http` is assumed if you leave the scheme off. Anything else, `file:` or `data:`
+among them, is refused rather than read as a hostname.
+
+It answers only for the widget page's own origin, which is the boundary that
+matters: another site can reach your loopback interface through your browser, but
+the browser sets `Origin`, so it cannot claim to be a widget. Cookies are stripped
+in both directions, redirects are followed with each hop checked as if it had been
+asked for directly, and link-local addresses are refused, since that is where a
+machine's metadata service lives. Your own network stays reachable, so a widget can
+read a router page or a NAS.
+
+Übersicht used [cors-anywhere](https://github.com/Rob--W/cors-anywhere) here. It is
+unmaintained and carries an advisory in every published version, so Gailan does this
+itself.
 
 ## Scripting Support
 
@@ -676,3 +695,12 @@ The source is released under the GNU General Public License as published by the 
 The app icon, menu bar icon and wordmark are built from the *window-dock* and *eyeglasses*
 icons of [Bootstrap Icons](https://github.com/twbs/icons), © 2019–2024 The Bootstrap Authors,
 [MIT licensed](licenses/bootstrap-icons.txt).
+
+## Third-Party Assets
+
+The starter widget sets the Gailan name in [DotGothic16](https://github.com/fontworks-fonts/DotGothic16),
+the same typeface the website uses, so the name reads the same in both places. The app
+ships a 2KB subset holding only the letters of the name, rather than the 2MB full face
+with its Japanese coverage, and copies it beside the widget so the desktop never waits
+on the network to draw a word. It is used under the SIL Open Font License, which is in
+the app bundle as `gailan-wordmark-OFL.txt`.
