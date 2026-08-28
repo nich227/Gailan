@@ -68,7 +68,7 @@ struct GLAbout: View {
                 .padding(.vertical, 18)
 
             VStack(spacing: 10) {
-                Text("Widgets on your desktop, written as files in a folder.")
+                Text("Your desktop, the way you want it.")
                     .font(.callout)
                     .multilineTextAlignment(.center)
 

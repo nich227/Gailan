@@ -22,6 +22,7 @@ const sharedSocket = require('./src/SharedSocket');
 const render = require('./src/render');
 const actions = require('./src/actions');
 const detectWidgetHover = require('./src/detectWidgetHover');
+const {watchWidgets} = require('./src/layoutWidgets');
 const reportGlassRegions = require('./src/reportGlassRegions');
 
 let userCssLink: HTMLLinkElement | null = null;
@@ -67,6 +68,10 @@ window.onload = () => {
     HTMLLinkElement[]).find((el) => el.href.match('userMain.css')) ?? null;
 
   detectWidgetHover(contentEl);
+
+  // widgets say where they want to sit and nothing stops two of them wanting the same
+  // place, so anything overlapping is moved out of the way and watched for resizing
+  watchWidgets(contentEl, window);
   reportGlassRegions.watch();
 
   document.addEventListener(
