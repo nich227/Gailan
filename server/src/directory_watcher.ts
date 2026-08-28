@@ -15,7 +15,7 @@
 const paths = require('path');
 const fs = require('fs');
 const fsevents = require('fsevents');
-const isInsidePath = require('./isInsidePath.ts');
+const isInsidePath = require('./isInsidePath');
 
 type PathType = 'file' | 'directory';
 

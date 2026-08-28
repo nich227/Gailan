@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const validateTokenCookie = require('./validateTokenCookie.ts');
+const validateTokenCookie = require('./validateTokenCookie');
 
 function tokenFromQuery(reqUrl) {
   const url = new URL(reqUrl, 'http://localhost');

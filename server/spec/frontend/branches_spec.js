@@ -13,11 +13,11 @@
 
 const test = require('tape');
 const fakeServer = require('nise').fakeServer;
-const runCommand = require('../../src/runCommand.ts');
+const runCommand = require('../../src/runCommand');
 const runShellCommand = require('../../src/runShellCommand');
 const RenderLoop = require('../../src/renderLoop');
 const reportGlassRegions = require('../../src/reportGlassRegions');
-const Widget = require('../../src/Widget.ts');
+const Widget = require('../../src/Widget.js');
 
 // The odd corners: a command that is a function, a command promise with nobody
 // waiting on a callback, a widget that patches its own dom, and a claim with no

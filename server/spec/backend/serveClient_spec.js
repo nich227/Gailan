@@ -4,7 +4,7 @@ var os = require('os');
 var path = require('path');
 var http = require('http');
 var connect = require('connect');
-var serveClient = require('../../src/serveClient.ts');
+var serveClient = require('../../src/serveClient');
 
 test('serving the client page', (t) => {
   var dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-client-'));

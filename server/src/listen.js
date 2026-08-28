@@ -1,11 +1,9 @@
 'use strict';
 
 const ws = require('./SharedSocket');
-type Message = Record<string, unknown>;
+const listeners = [];
 
-const listeners: ((message: Message) => void)[] = [];
-
-ws.onMessage(function handleMessage(data: string) {
+ws.onMessage(function handleMessage(data) {
   let message;
   try { message = JSON.parse(data); } catch (e) { null; }
 
@@ -14,6 +12,6 @@ ws.onMessage(function handleMessage(data: string) {
   }
 });
 
-module.exports = function listen(callback: (message: Message) => void) {
+module.exports = function listen(callback) {
   listeners.push(callback);
 };

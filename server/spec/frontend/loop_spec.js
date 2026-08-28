@@ -12,7 +12,7 @@
 'use strict';
 
 const test = require('tape');
-const detectWidgetHover = require('../../src/detectWidgetHover.ts');
+const detectWidgetHover = require('../../src/detectWidgetHover');
 const RenderLoop = require('../../src/renderLoop');
 
 // Widget windows ignore the mouse until the pointer is over a widget, which is

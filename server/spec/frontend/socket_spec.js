@@ -13,7 +13,7 @@
 
 const test = require('tape');
 const html = require('react').createElement;
-const Widget = require('../../src/Widget.ts');
+const Widget = require('../../src/Widget.js');
 
 // SharedSocket picks the browser's WebSocket when there is a window, which is
 // the half the backend specs never see. client_spec replaces the module for the
@@ -103,8 +103,8 @@ test('closing the socket', (t) => {
 
 test('dispatching while the socket is open', (t) => {
   // dispatch holds messages until the socket opens, then drains them
-  delete require.cache[require.resolve('../../src/dispatch.ts')];
-  const dispatch = require('../../src/dispatch.ts');
+  delete require.cache[require.resolve('../../src/dispatch')];
+  const dispatch = require('../../src/dispatch');
 
   sharedSocket.open('ws://127.0.0.1:41416');
   const socket = sockets[sockets.length - 1];

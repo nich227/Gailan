@@ -1,9 +1,7 @@
 var ClassicWidget = require('./ClassicWidget.ts');
 var VirtualDomWidget = require('./VirtualDomWidget');
 
-type WidgetSource = {filePath: string};
-
-module.exports = function Widget(widget: WidgetSource) {
+module.exports = function Widget(widget) {
   var api;
 
   if (/\.(jsx|tsx)$/.test(widget.filePath)) {

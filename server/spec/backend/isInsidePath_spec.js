@@ -1,5 +1,5 @@
 var test = require('tape');
-var isInsidePath = require('../../src/isInsidePath.ts');
+var isInsidePath = require('../../src/isInsidePath');
 
 test('paths inside a directory', (t) => {
   t.ok(isInsidePath('/w/bar/widget.js', '/w/bar'), 'a file in the directory');

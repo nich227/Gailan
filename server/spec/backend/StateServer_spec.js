@@ -1,5 +1,5 @@
 var test = require('tape');
-var StateServer = require('../../src/StateServer.ts');
+var StateServer = require('../../src/StateServer');
 
 function ask(url) {
   var out = {body: null, nexted: false};

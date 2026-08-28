@@ -19,7 +19,7 @@ const $ = require('jquery');
 (window as any).jQuery = $;
 
 const Timer = require('./Timer');
-const runCommand = require('./runCommand.ts');
+const runCommand = require('./runCommand');
 const runShellCommand = require('./runShellCommand');
 
 type Implementation = {

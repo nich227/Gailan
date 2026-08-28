@@ -13,7 +13,7 @@
 
 const test = require('tape');
 const html = require('react').createElement;
-const Widget = require('../../src/Widget.ts');
+const Widget = require('../../src/Widget.js');
 
 // The jsx and tsx widgets, which render through React rather than by setting
 // innerHTML. Widget() picks this implementation from the file extension.
