@@ -5,7 +5,7 @@ var testPort = require('../helpers/testPort');
 var port = testPort();
 var server = new WebSocket.Server({ port: port });
 var sharedSocket = require('../../src/SharedSocket');
-var listen = require('../../src/listen');
+var listen = require('../../src/listen.ts');
 
 test('listen', (t) => {
   sharedSocket.open('ws://localhost:' + port);

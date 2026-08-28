@@ -6,7 +6,7 @@ var port = testPort();
 var server = new WebSocket.Server({ port: port });
 var url = 'ws://localhost:' + port;
 var sharedSocket = require('../../src/SharedSocket');
-var dispatch = require('../../src/dispatch');
+var dispatch = require('../../src/dispatch.ts');
 
 test('queuing up messages', (t) => {
   expectedMessages = ['a', 'b'];

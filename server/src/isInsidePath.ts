@@ -2,7 +2,7 @@
 
 // true when filePath is dirPath or sits inside it. A plain prefix check would
 // count /widgets/barcode as being inside /widgets/bar.
-module.exports = function isInsidePath(filePath, dirPath) {
+module.exports = function isInsidePath(filePath: string, dirPath: string) {
   if (filePath === dirPath) {
     return true;
   }

@@ -17,11 +17,11 @@ const $ = require('jquery');
 (window as any).$ = $;
 
 const reducer = require('./src/reducer');
-const listenToRemote = require('./src/listen');
+const listenToRemote = require('./src/listen.ts');
 const sharedSocket = require('./src/SharedSocket');
 const render = require('./src/render');
 const actions = require('./src/actions');
-const detectWidgetHover = require('./src/detectWidgetHover');
+const detectWidgetHover = require('./src/detectWidgetHover.ts');
 const reportGlassRegions = require('./src/reportGlassRegions');
 
 let userCssLink: HTMLLinkElement | null = null;

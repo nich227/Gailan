@@ -1,4 +1,4 @@
-var Widget = require('./Widget');
+var Widget = require('./Widget.ts');
 var rendered = {};
 
 function isVisibleOnScreen(widgetId, screenId, state) {

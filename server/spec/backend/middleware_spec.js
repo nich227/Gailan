@@ -12,8 +12,8 @@
 'use strict';
 
 const test = require('tape');
-const disallowIFraming = require('../../src/disallowIFraming');
-const ensureSameHost = require('../../src/ensureSameHost');
+const disallowIFraming = require('../../src/disallowIFraming.ts');
+const ensureSameHost = require('../../src/ensureSameHost.ts');
 const ensureSameOrigin = require('../../src/ensureSameOrigin');
 
 // The guards in front of everything else. They are four lines each and the

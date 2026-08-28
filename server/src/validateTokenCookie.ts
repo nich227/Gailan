@@ -5,7 +5,10 @@ const crypto = require('crypto');
 // Finds the token cookie and compares it to the expected token in constant
 // time. One pass over the cookie header, no map building, and a cookie
 // without an = cannot throw like it did in the upstream patch.
-module.exports = function validateTokenCookie(token, cookieStr) {
+module.exports = function validateTokenCookie(
+  token: string,
+  cookieStr: string
+) {
   if (!cookieStr || !token) {
     return false;
   }
@@ -15,7 +18,7 @@ module.exports = function validateTokenCookie(token, cookieStr) {
     if (eq === -1) continue;
     if (part.slice(0, eq).trim() !== 'token') continue;
 
-    let value;
+    let value: string;
     try {
       value = decodeURIComponent(part.slice(eq + 1).trim());
     } catch (e) {

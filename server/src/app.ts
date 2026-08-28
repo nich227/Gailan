@@ -22,15 +22,15 @@ const MessageBus = require('./MessageBus');
 const watchDir = require('./directory_watcher.ts');
 const WidgetBundler = require('./WidgetBundler.js');
 const Settings = require('./Settings');
-const StateServer = require('./StateServer');
-const ensureSameHost = require('./ensureSameHost');
+const StateServer = require('./StateServer.ts');
+const ensureSameHost = require('./ensureSameHost.ts');
 const ensureSameOrigin = require('./ensureSameOrigin');
 const ensureToken = require('./ensureToken');
-const validateTokenCookie = require('./validateTokenCookie');
-const disallowIFraming = require('./disallowIFraming');
+const validateTokenCookie = require('./validateTokenCookie.ts');
+const disallowIFraming = require('./disallowIFraming.ts');
 const CommandServer = require('./command_server.ts');
 const serveWidgets = require('./serveWidgets');
-const serveClient = require('./serveClient');
+const serveClient = require('./serveClient.ts');
 const serveCss = require('./serveCss');
 const sharedSocket = require('./SharedSocket');
 const actions = require('./actions');
@@ -38,8 +38,8 @@ const reducer = require('./reducer');
 const resolveWidget = require('./resolveWidget');
 const widgetConfigFile = require('./widgetConfigFile');
 
-const dispatchToRemote = require('./dispatch');
-const listenToRemote = require('./listen');
+const dispatchToRemote = require('./dispatch.ts');
+const listenToRemote = require('./listen.ts');
 
 type ServerOptions = {
   loginShell?: boolean;

@@ -1,7 +1,7 @@
 'use strict';
 
 const ws = require('./SharedSocket');
-const queuedMessages = [];
+const queuedMessages: string[] = [];
 
 function drainQueuedMessages() {
   queuedMessages.forEach((m) => ws.send(m));
@@ -10,7 +10,7 @@ function drainQueuedMessages() {
 
 ws.onOpen(drainQueuedMessages);
 
-module.exports = function dispatch(message) {
+module.exports = function dispatch(message: unknown) {
   const serializedMessage = JSON.stringify(message);
 
   if (ws.isOpen()) {

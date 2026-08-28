@@ -2,7 +2,13 @@
 
 const runShellCommand = require('./runShellCommand');
 
-module.exports = function runCommand(widget, callback, dispatch) {
+type Widget = {
+  command?: string | ((callback: Callback) => void);
+  refreshFrequency?: number;
+};
+type Callback = (err?: unknown, output?: string) => void;
+
+module.exports = function runCommand(widget: Widget, callback: Callback) {
   const {command, refreshFrequency} = widget;
 
   if (typeof command === 'function') {

@@ -1,5 +1,5 @@
 var test = require('tape');
-var validate = require('../../src/validateTokenCookie');
+var validate = require('../../src/validateTokenCookie.ts');
 
 test('validating the token cookie', (t) => {
   t.ok(validate('sekrit', 'token=sekrit'), 'accepts the right token');

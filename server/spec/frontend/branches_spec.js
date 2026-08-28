@@ -13,7 +13,7 @@
 
 const test = require('tape');
 const fakeServer = require('nise').fakeServer;
-const runCommand = require('../../src/runCommand');
+const runCommand = require('../../src/runCommand.ts');
 const runShellCommand = require('../../src/runShellCommand');
 const RenderLoop = require('../../src/renderLoop');
 const reportGlassRegions = require('../../src/reportGlassRegions');
