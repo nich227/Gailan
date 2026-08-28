@@ -98,6 +98,70 @@ final class GLShortcutsTests: XCTestCase {
         _ = try await intent.perform()
     }
 
+    func testLayerReachesTheWidget() async throws {
+        let id = try anyWidgetId()
+
+        let back = SetWidgetLayerIntent()
+        back.widget = WidgetEntity(id: id)
+        back.layer = .behindWindows
+        _ = try await back.perform()
+        XCTAssertTrue(widgets[0].inBackground, "sending it back reached the widget")
+
+        let front = SetWidgetLayerIntent()
+        front.widget = WidgetEntity(id: id)
+        front.layer = .inFront
+        _ = try await front.perform()
+        XCTAssertFalse(widgets[0].inBackground, "bringing it forward reached it too")
+    }
+
+    func testASettingReachesTheWidget() async throws {
+        let intent = SetWidgetSettingIntent()
+        intent.widget = WidgetEntity(id: try anyWidgetId())
+        intent.key = "face"
+        intent.value = "analog"
+        // nothing to read back: the value is dispatched to the store, and a widget
+        // that is not there is the failure worth checking
+        _ = try await intent.perform()
+    }
+
+    /// A shortcut hands over text, so "true" has to become a boolean and "12" a
+    /// number before it reaches a widget that declared a toggle or a number.
+    func testTextValuesBecomeWhatTheyLookLike() async throws {
+        for spoken in ["true", "TRUE", "yes", "on", "false", "off", "12", "1.5", "anything"] {
+            let intent = SetWidgetSettingIntent()
+            intent.widget = WidgetEntity(id: try anyWidgetId())
+            intent.key = "draggable"
+            intent.value = spoken
+            _ = try await intent.perform()
+        }
+    }
+
+    func testSettingAWidgetThatIsNotThereFails() async throws {
+        let intent = SetWidgetSettingIntent()
+        intent.widget = WidgetEntity(id: "no-such-widget")
+        intent.key = "face"
+        intent.value = "analog"
+
+        do {
+            _ = try await intent.perform()
+            XCTFail("it should have refused")
+        } catch {
+            // which is the point
+        }
+    }
+
+    func testOpeningTheFileOfAWidgetThatIsNotThereFails() async throws {
+        let intent = OpenWidgetFileIntent()
+        intent.widget = WidgetEntity(id: "no-such-widget")
+
+        do {
+            _ = try await intent.perform()
+            XCTFail("it should have refused")
+        } catch {
+            // which is the point
+        }
+    }
+
     func testVisibilityReachesTheWidget() async throws {
         let id = try anyWidgetId()
 
