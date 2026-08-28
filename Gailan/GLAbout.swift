@@ -72,12 +72,10 @@ struct GLAbout: View {
                     .font(.callout)
                     .multilineTextAlignment(.center)
 
-                Text(
-                    "A fork of Übersicht by Felix Hageloh, whose work this is built on."
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+                Text("A fork of Übersicht by Felix Hageloh.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 26)
 
