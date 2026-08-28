@@ -205,6 +205,8 @@ final class GLShortcutsTests: XCTestCase {
             switch error {
             case .noSuchWidget(let id):
                 XCTAssertEqual(id, "not-a-widget")
+            case .notRunning:
+                XCTFail("the app is what is running the test")
             }
         }
     }
