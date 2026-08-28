@@ -309,7 +309,7 @@ struct OpenWidgetFileIntent: AppIntent {
         guard let delegate = NSApp.delegate as? GLAppDelegate else {
             throw GailanIntentError.notRunning
         }
-        delegate.openWidgetFileWithId(widget.id)
+        delegate.openWidgetFile(withId: widget.id)
         return .result()
     }
 }
