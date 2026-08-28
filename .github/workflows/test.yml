@@ -5,6 +5,13 @@ on:
     branches: [master]
   pull_request:
 
+# Every job here wants a macOS runner, and those are handed out a few at a time.
+# Without this, a run of pushes queues eight deep and the newest commit waits behind
+# commits nobody is interested in any more.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: macos-latest
