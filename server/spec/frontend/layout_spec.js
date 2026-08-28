@@ -214,9 +214,13 @@ test('the same offset is not written twice', (t) => {
 
   layoutWidgets(container);
   const written = b.style.transform;
-  b.style.transform = 'MEDDLED';
+
+  // a valid value, since jsdom throws out css it cannot parse and would leave this
+  // empty whether the code touched it or not
+  const sentinel = 'translate(9px, 9px)';
+  b.style.transform = sentinel;
   layoutWidgets(container);
-  t.equal(b.style.transform, 'MEDDLED', 'left as it was, since nothing changed');
+  t.equal(b.style.transform, sentinel, 'left as it was, since nothing changed');
   t.equal(written, 'translate(0px, 72px)', 'and the first pass did the work');
   t.end();
 });
