@@ -102,7 +102,11 @@ struct WidgetSummary: Identifiable, Equatable {
     var previewURL: URL? {
         guard !filePath.isEmpty else { return nil }
         let folder = (filePath as NSString).deletingLastPathComponent
-        for name in ["preview.png", "preview@2x.png", "screenshot.png"] {
+        // a screenshot of a desktop is a photograph, so a jpeg is the usual answer
+        for name in [
+            "preview.jpg", "preview.jpeg", "preview.png", "preview@2x.png",
+            "screenshot.png",
+        ] {
             let candidate = (folder as NSString).appendingPathComponent(name)
             if FileManager.default.fileExists(atPath: candidate) {
                 return URL(fileURLWithPath: candidate)

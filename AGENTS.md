@@ -187,7 +187,7 @@ path, so the watcher ignores it.
 `VirtualDomWidget` layers the saved values over the manifest defaults and passes
 them as `props.settings`.
 
-`GLWidgetsOverview.swift` is the window: a card per widget with its `preview.png`,
+`GLWidgetsOverview.swift` is the window: a card per widget with its `preview.jpg`,
 and one `case` per setting type in `GLWidgetSettings.control`, which is the whole
 translator. Two traps worth remembering:
 

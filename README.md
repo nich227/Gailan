@@ -320,7 +320,7 @@ Widgets in their own folder are the tidy way to do this:
     index.tsx        the widget, and the id becomes "clock"
     widget.json      title and settings
     settings.json    written by Gailan
-    preview.png      shown on the card in the Widgets window
+    preview.jpg      shown on the card in the Widgets window
 ```
 
 ### updateState : event, previousState
