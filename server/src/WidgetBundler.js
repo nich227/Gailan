@@ -1,5 +1,6 @@
 'use strict';
 
+const esbuild = require('esbuild');
 const bundleWidget = require('./esbuildWidget');
 const readWidgetSettings = require('./readWidgetSettings');
 const widgetConfigFile = require('./widgetConfigFile');
@@ -23,6 +24,11 @@ module.exports = function WidgetBundler() {
       bundles[id].close();
       delete bundles[id];
     }
+    // esbuild does its work in a child process that it starts on the first build
+    // and keeps for the next one. Nothing else ends it, so without this the
+    // process stays alive until esbuild's own idle timeout, which is why a test
+    // run that finished every assertion could still sit for two minutes.
+    esbuild.stop();
   };
 
   api.get = function get(id) {
