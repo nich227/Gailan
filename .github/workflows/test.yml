@@ -17,9 +17,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
+      - id: node
+        # the version the app ships, so coverage is measured on the runtime that
+        # will run it. node's type stripping maps .ts lines a little differently
+        # between patch releases, and 24.18 attributes them to nothing, which
+        # quietly took ten points off the report.
+        run: echo "version=$(sed -n 's/^NODE_VERSION="\(.*\)"/\1/p' scripts/fetch-node.sh)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: ${{ steps.node.outputs.version }}
       - uses: actions/checkout@v7
         with:
           # the new-code gate diffs against the base, so it needs the history
@@ -40,9 +46,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
+      - id: node
+        # the version the app ships, so coverage is measured on the runtime that
+        # will run it. node's type stripping maps .ts lines a little differently
+        # between patch releases, and 24.18 attributes them to nothing, which
+        # quietly took ten points off the report.
+        run: echo "version=$(sed -n 's/^NODE_VERSION="\(.*\)"/\1/p' scripts/fetch-node.sh)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: ${{ steps.node.outputs.version }}
       - run: npm install --no-progress
         working-directory: server
       # regenerates the workspace; the Pods themselves are checked in
