@@ -495,6 +495,25 @@ int const PORT = 41416;
     [GLAboutWindow show];
 }
 
+#pragma mark - what the Shortcuts actions call
+
+- (void)openWidgetFileWithId:(NSString*)widgetId
+{
+    [widgetsController openWidgetFile:widgetId];
+}
+
+- (void)setAlwaysOnTop:(BOOL)alwaysOnTop
+{
+    self.preferences.alwaysOnTop = alwaysOnTop;
+    [windowsController setAlwaysOnTop:alwaysOnTop];
+}
+
+- (void)setAppearanceTag:(NSInteger)tag
+{
+    self.preferences.appearanceTag = tag;
+    [GLPreferencesController applyAppearance];
+}
+
 // the menu item's tag says which layer to inspect: 1 foreground, 2 background,
 // 0 both. widgets sit in one layer or the other, so inspecting the wrong one
 // shows an empty page.

@@ -24,6 +24,12 @@
 @property (nonatomic, readonly) GLPreferencesController *preferences;
 @property (readonly) NSArray* widgets;
 
+// what the Shortcuts actions reach for: the same things the menu and the preferences
+// pane do, so a shortcut and a click end up in the same place
+- (void)openWidgetFileWithId:(NSString*)widgetId;
+- (void)setAlwaysOnTop:(BOOL)alwaysOnTop;
+- (void)setAppearanceTag:(NSInteger)tag;
+
 - (void)widgetDirDidChange;
 - (void)interactionDidChange;
 - (void)screensChanged:(NSDictionary*)screens;

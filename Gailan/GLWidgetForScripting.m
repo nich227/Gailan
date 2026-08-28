@@ -56,6 +56,34 @@ static GLDispatcher* dispatcher;
     ];
 }
 
+// Which layer it sits in: behind your windows, or in front of them.
+- (void)setInBackground:(BOOL)inBackground
+{
+    if (_inBackground == inBackground) {
+        return;
+    }
+    _inBackground = inBackground;
+    [dispatcher
+        dispatch: _inBackground
+            ? @"WIDGET_SET_TO_BACKGROUND"
+            : @"WIDGET_SET_TO_FOREGROUND"
+        withPayload: _id
+    ];
+}
+
+// The same action the settings sheet sends, so a shortcut and a click on a control
+// end up in the same place, saved beside the widget.
+- (void)setConfigValue:(id)value forKey:(NSString*)key
+{
+    if (!key || !value) {
+        return;
+    }
+    [dispatcher
+        dispatch: @"WIDGET_CONFIG_CHANGED"
+        withPayload: @{@"id": _id, @"key": key, @"value": value}
+    ];
+}
+
 - (void)setShowOnMainScreen:(BOOL)showOnMainScreen
 {
     if (_showOnMainScreen == showOnMainScreen) {
