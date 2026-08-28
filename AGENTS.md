@@ -17,7 +17,8 @@ schedule and draws the output on the macOS desktop.
 
 The app spawns `server/release/localnode` (which picks the right bundled node binary)
 and points a WKWebView per screen at it. Widgets are esbuild bundles built on the fly;
-the client mounts them with React. browserify still builds the client and server bundles.
+the client mounts them with React. esbuild builds the client and server bundles too, in
+`scripts/build.js`; browserify is gone from the tree entirely.
 
 `src/esbuildWidget.js` holds the widget pipeline. esbuild has no opinion about the parts
 that are ours, so they are plugins: wrapping a classic widget's object
@@ -73,8 +74,8 @@ Neither half needs a browser. `spec/frontend` used to be bundled and handed to
 tape-run/electron, whose installer could not unpack itself here: the download works,
 but `extract-zip` never settles its promise, so the postinstall exits successfully
 having unpacked nothing. Those specs now run in jsdom via `spec/helpers/domEnv.js`,
-which also maps `superagent` to its xhr build, because that is what browserify picks
-for the widget bundle and what the specs' fake server can intercept.
+which points `window.XMLHttpRequest` at whatever the global currently is, because
+superagent reads it while nise is busy faking it.
 
 `npm run coverage` runs all three suites and reports the total, holding it to a
 floor of 98% statements, 90% branches, 97% functions. `npm run coverage:new` checks
@@ -112,18 +113,17 @@ If a spec starts an http server, tear it down with `closeAllConnections()` and w
 and a client holding one while the next server starts gets a hang-up mid-request, which
 takes the whole run down.
 
-Three deprecation warnings survive `npm install`: `glob@10` via stylus, and `glob@7` plus
-`inflight` via browserify and tape. All three are already at their latest versions, so
-there is nothing to bump.
+Three deprecation warnings survive `npm install`: `glob@10` via stylus, `glob@7` via
+tape, and `inflight` under that glob. Each is the newest its parent asks for, so there is
+nothing here to bump.
 
 Anything involving the cocoa app, the WKWebView, or real file-system events has to be
 verified on macOS. Say so rather than implying it was tested.
 
 ## Releasing
 
-1.0.0 was published and taken down because it was only ad-hoc signed. See
-`docs/RERELEASING-1.0.0.md` for what is left to do once an Apple Developer
-certificate exists.
+1.0.0 was published and taken down because it was only ad-hoc signed. Signing it
+properly waits on an Apple Developer certificate.
 
 
 Push a tag like `v1.0.2` and the release workflow does the rest: builds the app,
