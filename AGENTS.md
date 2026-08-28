@@ -120,6 +120,21 @@ nothing here to bump.
 Anything involving the cocoa app, the WKWebView, or real file-system events has to be
 verified on macOS. Say so rather than implying it was tested.
 
+## Shortcuts
+
+`GLShortcuts.swift` holds ten App Intents. The ones taking a widget resolve it through
+`WidgetQuery`, which reads the live list, and act through `GLWidgetForScripting`: the same
+object AppleScript drives, so both surfaces dispatch the same store actions rather than
+each having its own path. `WidgetLookup.all` is the seam the tests replace; seeding
+`GLWidgetsStore` does not work, because the app refetches state after launch and wipes it.
+
+The app-wide ones (front, appearance) go through methods on `GLAppDelegate` that set the
+preference and apply it, which is what the menu and the preferences pane already do.
+
+To check what Shortcuts will actually offer, read `actions` in
+`Metadata.appintents/extract.actionsdata` inside the built app. A missing action there
+means the intent did not compile into the metadata even though the build passed.
+
 ## Releasing
 
 1.0.0 was published and taken down because it was only ad-hoc signed. Signing it

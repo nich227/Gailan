@@ -649,6 +649,33 @@ read a router page or a NAS.
 unmaintained and carries an advisory in every published version, so Gailan does this
 itself.
 
+## Shortcuts and Siri
+
+Gailan publishes ten actions to the Shortcuts app. Each one that takes a widget offers a
+picker listing what is actually on your desktop, so you choose a widget by name rather
+than typing an id.
+
+| Action | What it does |
+|---|---|
+| Refresh Widget | Runs the widget's command again |
+| Refresh All Widgets | The same, for every widget |
+| Reload Widget | Rebuilds it from its file, for when you have changed it |
+| Show or Hide Widget | Hides one without deleting it |
+| Set Widget Layer | Behind your windows, or in front of them |
+| Choose Widget Screens | The main screen only, or every screen |
+| Change Widget Setting | Sets one of the widget's own settings by key |
+| Open Widget File | Opens it in whatever editor you use |
+| Keep Widgets in Front | Every widget above your other windows, or not |
+| Set Widget Appearance | Light, dark, or however the system is set |
+
+`Change Widget Setting` takes the value as text, because a shortcut has no way of knowing
+what a given key expects. `true`, `yes` and `on` arrive as a boolean, as do their
+opposites, anything that parses as a number arrives as one, and everything else is passed
+through as it stands. The key is whatever the widget named in its `widget.json`.
+
+Siri answers "refresh Gailan widgets" without any setting up, and the rest appear in
+Spotlight once the app has run.
+
 ## Scripting Support
 
 Gailan supports AppleScript. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name):
