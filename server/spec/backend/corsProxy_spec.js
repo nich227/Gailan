@@ -489,6 +489,37 @@ test('asking for nothing in particular is a bad request', (t) => {
   );
 });
 
+// Every other test here names 127.0.0.1, and node skips the lookup for an address
+// it can already read, so none of them went through resolution. A hostname does,
+// which is how the wrong callback shape got as far as the running app.
+test('a target that has to be resolved is proxied', (t) => {
+  const upstream = http.createServer((req, res) => res.end(`resolved ${req.url}`));
+
+  // no host given, so it answers on whichever family localhost resolves to
+  upstream.listen(0, () => {
+    const port = upstream.address().port;
+    const proxy = corsProxy.createServer({origin: ORIGIN});
+
+    proxy.listen(0, '127.0.0.1', () => {
+      request(
+        {
+          port: proxy.address().port,
+          path: `/http://localhost:${port}/named`,
+          headers: {origin: ORIGIN},
+        },
+        (err, res) => {
+          t.error(err);
+          t.equal(res.status, 200);
+          t.equal(res.body, 'resolved /named');
+          proxy.close();
+          upstream.close();
+          t.end();
+        }
+      );
+    });
+  });
+});
+
 test('a host that does not resolve is reported', (t) => {
   withServers(
     (_req, res) => res.end(),

@@ -135,7 +135,14 @@ function resolvePinned(hostname, callback) {
   dns.lookup(hostname, {all: false, verbatim: true}, (err, address, family) => {
     if (err) return callback(err);
 
-    callback(null, address, (_host, _options, cb) => cb(null, address, family));
+    // node asks for the list form on some paths and a single answer on others,
+    // and hands back "Invalid IP address: undefined" if it gets the wrong one
+    const pinned = (_host, options, cb) =>
+      options && options.all
+        ? cb(null, [{address, family}])
+        : cb(null, address, family);
+
+    callback(null, address, pinned);
   });
 }
 
