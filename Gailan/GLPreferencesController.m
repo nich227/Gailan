@@ -178,12 +178,21 @@
     NSURL* darkLogo = [[NSBundle mainBundle]
         URLForResource: @"gailan-mark-dark" withExtension: @"png"
     ];
+    // and the typeface that wordmark is set in, so it reads the same on the
+    // desktop as it does on the website without asking the network for a font
+    NSURL* wordmarkFont = [[NSBundle mainBundle]
+        URLForResource: @"gailan-wordmark" withExtension: @"ttf"
+    ];
     
     [fileManager copyItemAtURL:logo
                          toURL:[defaultWidgetDir URLByAppendingPathComponent:@"mark.png"]
                          error:&error];
     [fileManager copyItemAtURL:darkLogo
                          toURL:[defaultWidgetDir URLByAppendingPathComponent:@"mark-dark.png"]
+                         error:nil];
+    [fileManager copyItemAtURL:wordmarkFont
+                         toURL:[defaultWidgetDir
+                                   URLByAppendingPathComponent:@"wordmark.ttf"]
                          error:nil];
     
     if (error) {

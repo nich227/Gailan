@@ -306,10 +306,23 @@ const Mark = styled("img")`
   height: 62px;
 `;
 
+// The same typeface the website sets its wordmark in, copied into this folder by
+// the app rather than fetched, so the desktop does not wait on the network to draw
+// a name. Only the letters of the name are in the file.
+const WordmarkFont = () => (
+  <style>{`
+    @font-face {
+      font-family: "Gailan Wordmark";
+      src: url("/wordmark.ttf") format("truetype");
+      font-display: block;
+    }
+  `}</style>
+);
+
 const Wordmark = styled("div")`
+  font-family: "Gailan Wordmark", "SF Mono", ui-monospace, Menlo, monospace;
   font-size: 25px;
   line-height: 1;
-  font-weight: 500;
   letter-spacing: 0.34em;
   /* the tracking pushes the block right, so the last letter's space is removed */
   text-indent: 0.34em;
@@ -401,6 +414,7 @@ export const render = ({ output, error, settings = {} }: State) => {
       </Header>
 
       <Brand>
+        <WordmarkFont />
         <picture>
           <source srcSet="/mark-dark.png" media="(prefers-color-scheme: dark)" />
           <Mark src="/mark.png" alt="" />
