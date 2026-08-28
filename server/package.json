@@ -11,7 +11,7 @@
     "fetch-esbuild": "../scripts/fetch-esbuild.sh",
     "release": "npm run-script fetch-node && npm run-script build-bundles && npm run-script install-runtime-deps && npm run-script fetch-esbuild",
     "build-bundles": "node scripts/build.js",
-    "install-runtime-deps": "cd release && npm prune --production && npm install --production --no-progress",
+    "install-runtime-deps": "cd release && npm prune --omit=dev --ignore-scripts && npm install --omit=dev --ignore-scripts --no-progress",
     "test-dom": "node spec/run.js -r ./spec/helpers/domEnv.js 'spec/frontend/*.js'",
     "typecheck": "tsc --noEmit",
     "coverage": "./scripts/coverage.sh",
