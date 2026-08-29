@@ -468,7 +468,9 @@ export const render = ({ output, error, settings = {} }: State) => {
     <Window
       id={WIDGET_ID}
       data-background={surface}
-      data-gailan-desktop-glass={13}
+      /* Left for Gailan to read off the window, so the corner is not written here as
+         one number and in the stylesheet as another. */
+      data-gailan-desktop-glass=""
       data-active={active ? "true" : "false"}
       style={
         {
