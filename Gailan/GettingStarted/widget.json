@@ -41,10 +41,10 @@
       "key": "opacity",
       "type": "number",
       "label": "Fill opacity",
-      "help": "How much of the frosted wallpaper shows through",
-      "default": 42,
+      "help": "How much of the frosted wallpaper shows through. The other widgets sit at 82.",
+      "default": 82,
       "min": 10,
-      "max": 90,
+      "max": 100,
       "step": 1
     },
     {
