@@ -15,6 +15,10 @@ xcuserdata
 profile
 *.moved-aside
 DerivedData
+# what the build and test commands in AGENTS.md use for derived data, which is not
+# called DerivedData and so slipped past the line above
+/dd/
+/ddt/
 .idea/
 
 server/node_modules

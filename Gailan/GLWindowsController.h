@@ -27,12 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)reloadAll;
 @property (nonatomic, copy) NSString* glassMaterial;
-@property (nonatomic) BOOL glassClear;
+@property (nonatomic, copy) NSString* glassStyle;
+@property (nonatomic) double glassOpacity;
 @property (nonatomic, strong) NSColor* glassTint;
 
 - (void)setGlassMaterial:(NSString*)name
-                   clear:(BOOL)clear
-                    tint:(NSColor*)tint;
+                   style:(NSString*)style
+                    tint:(NSColor*)tint
+                 opacity:(double)opacity;
 - (void)closeAll;
 - (void)workspaceChanged;
 - (void)wallpaperChanged;

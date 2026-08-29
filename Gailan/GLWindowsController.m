@@ -46,8 +46,9 @@
             [windowGroup setAlwaysOnTop:self.alwaysOnTop];
             [windowGroup
                 setGlassMaterial: self.glassMaterial
-                           clear: self.glassClear
+                           style: self.glassStyle
                             tint: self.glassTint
+                         opacity: self.glassOpacity
             ];
             [windows setObject:windowGroup forKey:screenId];
             [windowGroup loadUrl: [self screenUrl:screenId baseUrl:baseUrl]];
@@ -112,14 +113,16 @@
 }
 
 - (void)setGlassMaterial:(NSString*)name
-                   clear:(BOOL)clear
+                   style:(NSString*)style
                     tint:(NSColor*)tint
+                 opacity:(double)opacity
 {
     _glassMaterial = [name copy];
-    _glassClear = clear;
+    _glassStyle = [style copy];
+    _glassOpacity = opacity;
     _glassTint = tint;
     for (GLWindowGroup* group in [windows allValues]) {
-        [group setGlassMaterial:name clear:clear tint:tint];
+        [group setGlassMaterial:name style:style tint:tint opacity:opacity];
     }
 }
 

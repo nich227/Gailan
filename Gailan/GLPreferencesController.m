@@ -36,7 +36,9 @@
 
             // which system material macOS draws behind a widget that asks
             // for it. on by default; "off" opts out.
-            @"desktopGlass": @"frosted"
+            @"desktopGlass": @"frosted",
+            @"desktopGlassStyle": @"follow",
+            @"desktopGlassOpacity": @1.0
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
@@ -303,18 +305,42 @@ static NSArray* desktopGlassMaterials(void)
 // get a vibrancy material, which takes neither.
 static NSArray* desktopGlassStyles(void)
 {
-    return @[@"regular", @"clear"];
+    return @[@"follow", @"regular", @"clear", @"tinted"];
 }
 
-- (BOOL)desktopGlassClear
+/* Left alone the glass follows what macOS is set to, so it matches the icons and widgets
+   around it. The three after that hold whatever they say whatever the system does. */
+- (NSString*)desktopGlassStyle
 {
-    return [[[NSUserDefaults standardUserDefaults]
-        stringForKey:@"desktopGlassStyle"] isEqualToString:@"clear"];
+    NSString* name = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"desktopGlassStyle"
+    ];
+    return [desktopGlassStyles() containsObject:name] ? name : @"follow";
 }
 
 - (NSInteger)desktopGlassStyleTag
 {
-    return [self desktopGlassClear] ? 1 : 0;
+    return (NSInteger)[desktopGlassStyles() indexOfObject:[self desktopGlassStyle]];
+}
+
+/* How present the glass is, as a fraction. NSGlassEffectView has no transparency of its
+   own, so this is the view's, which reads as the frost being thinner or thicker. */
+- (double)desktopGlassOpacity
+{
+    NSNumber* stored = [[NSUserDefaults standardUserDefaults]
+        objectForKey:@"desktopGlassOpacity"
+    ];
+    double value = stored ? stored.doubleValue : 1.0;
+    return MIN(MAX(value, 0.1), 1.0);
+}
+
+- (void)setDesktopGlassOpacity:(double)opacity
+{
+    [[NSUserDefaults standardUserDefaults]
+        setObject: @(MIN(MAX(opacity, 0.1), 1.0))
+           forKey: @"desktopGlassOpacity"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
 }
 
 - (void)setDesktopGlassStyleTag:(NSInteger)tag

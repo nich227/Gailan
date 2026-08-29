@@ -16,7 +16,8 @@
     // one effect view per region id, so a widget that moves reuses its view
     NSMutableDictionary<NSString*, NSView*>* views;
     NSString* materialName;
-    BOOL clearStyle;
+    NSString* styleName;
+    double glassOpacity;
     NSColor* tintColor;
 }
 
@@ -31,16 +32,20 @@
 }
 
 - (void)setMaterialName:(NSString*)name
-                  clear:(BOOL)clear
+                  style:(NSString*)style
                    tint:(NSColor*)tint
+                opacity:(double)opacity
 {
     BOOL sameTint = (tint == tintColor) || [tint isEqual:tintColor];
-    if ([name isEqualToString:materialName] && clear == clearStyle && sameTint) {
+    BOOL sameStyle = (style == styleName) || [style isEqualToString:styleName];
+    if ([name isEqualToString:materialName] && sameStyle && sameTint
+        && opacity == glassOpacity) {
         return;
     }
 
     materialName = [name copy];
-    clearStyle = clear;
+    styleName = [style copy];
+    glassOpacity = opacity;
     tintColor = tint;
     // the material is baked into each view, so they have to be rebuilt. this
     // also clears them for "off", where a widget's claim goes unanswered.
@@ -89,15 +94,50 @@
     return mask;
 }
 
+/* What "follow" comes to. macOS 26 keeps its Icon & widget style in
+   AppleIconAppearanceTheme, as RegularLight, ClearDark, TintedDark and so on, so the
+   name is read for what it says rather than matched exactly: the light and dark halves
+   of each are the same glass. Anything unrecognised is regular, which is what the
+   system means by default. */
+- (NSString*)resolvedStyle
+{
+    if (![styleName isEqualToString:@"follow"]) {
+        return styleName.length > 0 ? styleName : @"regular";
+    }
+
+    NSString* system = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"AppleIconAppearanceTheme"
+    ];
+    if ([system rangeOfString:@"Clear"].location != NSNotFound) return @"clear";
+    if ([system rangeOfString:@"Tinted"].location != NSNotFound) return @"tinted";
+    return @"regular";
+}
+
+/* Tinted means carrying a colour, and the colour is whichever one was chosen. Nobody
+   having chosen one, it is the accent macOS is set to, which is what the system does to
+   a tinted icon. */
+- (NSColor*)effectiveTintForStyle:(NSString*)style
+{
+    if (![style isEqualToString:@"tinted"]) return tintColor;
+    if (tintColor && tintColor.alphaComponent > 0.01) return tintColor;
+    return [NSColor controlAccentColor];
+}
+
 - (NSView*)viewWithRadius:(CGFloat)radius
 {
+    NSString* style = [self resolvedStyle];
+    /* a glass nobody can see is a setting somebody will not understand, so it stops
+       short of gone */
+    double alpha = glassOpacity <= 0 ? 1.0 : MIN(MAX(glassOpacity, 0.1), 1.0);
+
     // macOS 26 has the real thing; older systems get the closest material
     if (@available(macOS 26.0, *)) {
         NSGlassEffectView* glass = [[NSGlassEffectView alloc] init];
         glass.cornerRadius = radius;
-        glass.style = clearStyle ? NSGlassEffectViewStyleClear
-                                 : NSGlassEffectViewStyleRegular;
-        glass.tintColor = tintColor;
+        glass.style = [style isEqualToString:@"clear"] ? NSGlassEffectViewStyleClear
+                                                      : NSGlassEffectViewStyleRegular;
+        glass.tintColor = [self effectiveTintForStyle:style];
+        glass.alphaValue = alpha;
         return glass;
     }
 
@@ -106,6 +146,7 @@
     effect.material = [self material];
     effect.state = NSVisualEffectStateActive;
     effect.maskImage = [self maskWithRadius:radius];
+    effect.alphaValue = alpha;
     return effect;
 }
 

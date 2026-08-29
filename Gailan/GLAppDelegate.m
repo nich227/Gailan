@@ -434,8 +434,9 @@ int const PORT = 41416;
 {
     [windowsController
         setGlassMaterial: [self.preferences desktopGlassMaterial]
-                   clear: [self.preferences desktopGlassClear]
+                   style: [self.preferences desktopGlassStyle]
                     tint: [self.preferences desktopGlassTintColor]
+                 opacity: [self.preferences desktopGlassOpacity]
     ];
 }
 

@@ -574,10 +574,21 @@ widget uses about 40% opacity, which reads the frost through it while keeping te
 legible.
 
 Preferences carries what macOS actually exposes. `Frost the desktop` picks the material
-and is on by default; `Off` opts out. On macOS 26 there is also a `Style` of Regular or
-Clear and a `Tint` color, where no opacity means untinted. There is no blur radius or
-refraction setting, because AppKit has none to offer: `NSGlassEffectView` takes a corner
-radius, a tint and those two styles, and nothing else.
+and is on by default; `Off` opts out. On macOS 26 there is also a `Style`, a `Tint` color
+where no opacity means untinted, and a `Transparency`.
+
+`Style` is `Follow system` by default, which reads the Icon & widget style macOS is set to
+and matches it, so glass on the desktop agrees with the icons and widgets around it. The
+other three hold what they say whatever the system does: `Regular` and `Clear` are the two
+`NSGlassEffectView` offers, and `Tinted` is the regular glass carrying a color, which is
+the accent macOS is set to unless a tint has been chosen.
+
+`Transparency` is the glass view's own, not the glass effect's. `NSGlassEffectView` has no
+transparency to set, so this thins what is drawn rather than changing how it refracts. It
+stops at 10% rather than reaching nothing, since a setting that makes glass vanish reads as
+a fault. There is still no blur radius or refraction setting, because AppKit has none to
+offer: `NSGlassEffectView` takes a corner radius, a tint and those two styles, and nothing
+else.
 
 ## Running shell commands
 

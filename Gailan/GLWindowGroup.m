@@ -38,11 +38,12 @@
 }
 
 - (void)setGlassMaterial:(NSString*)name
-                   clear:(BOOL)clear
+                   style:(NSString*)style
                     tint:(NSColor*)tint
+                 opacity:(double)opacity
 {
-    [foreground setGlassMaterial:name clear:clear tint:tint];
-    [background setGlassMaterial:name clear:clear tint:tint];
+    [foreground setGlassMaterial:name style:style tint:tint opacity:opacity];
+    [background setGlassMaterial:name style:style tint:tint opacity:opacity];
 }
 
 - (void)setAlwaysOnTop:(BOOL)flag

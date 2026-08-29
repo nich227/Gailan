@@ -33,7 +33,8 @@ typedef NS_ENUM(NSInteger, GLWindowType) {
 - (void)wallpaperChanged;
 - (void)setGlassRegions:(NSArray*)regions;
 - (void)setGlassMaterial:(NSString*)name
-                   clear:(BOOL)clear
-                    tint:(NSColor*)tint;
+                   style:(NSString*)style
+                    tint:(NSColor*)tint
+                 opacity:(double)opacity;
 
 @end

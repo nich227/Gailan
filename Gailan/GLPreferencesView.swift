@@ -32,6 +32,11 @@ final class GLPreferences: ObservableObject {
     @Published var desktopGlassStyleTag: Int {
         didSet { controller.desktopGlassStyleTag = desktopGlassStyleTag }
     }
+    /* How present the glass is. Held as a percentage for the slider and handed over as a
+       fraction, which is what a view's transparency is. */
+    @Published var desktopGlassOpacity: Double {
+        didSet { controller.desktopGlassOpacity = desktopGlassOpacity / 100 }
+    }
     // SwiftUI's picker speaks Color; the plist stores #rrggbbaa
     @Published var desktopGlassTint: Color {
         didSet { controller.desktopGlassTint = desktopGlassTint.hexRGBA }
@@ -53,6 +58,7 @@ final class GLPreferences: ObservableObject {
         loginShell = controller.loginShell
         desktopGlassOn = controller.desktopGlassTag != 0
         desktopGlassStyleTag = controller.desktopGlassStyleTag
+        desktopGlassOpacity = controller.desktopGlassOpacity * 100
         desktopGlassTint = Color(hexRGBA: controller.desktopGlassTint)
         widgetPath = controller.widgetDir?.path ?? ""
         checkWidgetUpdates = UserDefaults.standard.bool(forKey: "checkWidgetUpdates")
@@ -174,12 +180,25 @@ struct GLPreferencesView: View {
         Section {
             Toggle("Frost the desktop behind widgets", isOn: $prefs.desktopGlassOn)
             Picker("Style", selection: $prefs.desktopGlassStyleTag) {
-                Text("Regular").tag(0)
-                Text("Clear").tag(1)
+                Text("Follow system").tag(0)
+                Text("Regular").tag(1)
+                Text("Clear").tag(2)
+                Text("Tinted").tag(3)
             }
+            .pickerStyle(.menu)
             ColorPicker(
                 "Tint", selection: $prefs.desktopGlassTint, supportsOpacity: true
             )
+            LabeledContent("Transparency") {
+                HStack(spacing: 10) {
+                    Slider(value: $prefs.desktopGlassOpacity, in: 10...100, step: 1)
+                    Text("\(Int(prefs.desktopGlassOpacity))%")
+                        .font(.caption)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .frame(width: 38, alignment: .trailing)
+                }
+            }
         } header: {
             heading(
                 "System glass",

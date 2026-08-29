@@ -28,7 +28,10 @@
 @property (nonatomic, copy) NSString* desktopGlassTint;
 
 - (NSString*)desktopGlassMaterial;
-- (BOOL)desktopGlassClear;
+- (NSString*)desktopGlassStyle;
+/* Declared as a property so Swift sees something it can bind a slider to; the accessors
+   are written by hand in the implementation. */
+@property (nonatomic) double desktopGlassOpacity;
 - (NSColor*)desktopGlassTintColor;
 @property NSInteger appearanceTag;
 

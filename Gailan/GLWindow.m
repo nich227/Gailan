@@ -78,10 +78,11 @@
 }
 
 - (void)setGlassMaterial:(NSString*)name
-                   clear:(BOOL)clear
+                   style:(NSString*)style
                     tint:(NSColor*)tint
+                 opacity:(double)opacity
 {
-    [glassLayer setMaterialName:name clear:clear tint:tint];
+    [glassLayer setMaterialName:name style:style tint:tint opacity:opacity];
 }
 
 - (void)loadUrl:(NSURL*)url

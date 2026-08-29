@@ -13,6 +13,13 @@
 #import <XCTest/XCTest.h>
 #import "GLGlassLayer.h"
 
+/* Private to the layer, named here so the tests can ask it what it worked out rather
+   than inferring it from what got drawn. */
+@interface GLGlassLayer (Testing)
+- (NSString*)resolvedStyle;
+- (NSColor*)effectiveTintForStyle:(NSString*)style;
+@end
+
 @interface GLGlassLayerTests : XCTestCase
 @end
 
@@ -47,7 +54,7 @@
 
 - (void)testRegionBecomesAViewInAppKitCoordinates
 {
-    [layer setMaterialName:@"frosted" clear:NO tint:nil];
+    [layer setMaterialName:@"frosted" style:@"regular" tint:nil opacity:1.0];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
 
     XCTAssertEqual(layer.subviews.count, 1);
@@ -61,7 +68,7 @@
 
 - (void)testMovingAWidgetReusesItsView
 {
-    [layer setMaterialName:@"frosted" clear:NO tint:nil];
+    [layer setMaterialName:@"frosted" style:@"regular" tint:nil opacity:1.0];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
     NSView* first = layer.subviews[0];
 
@@ -74,7 +81,7 @@
 
 - (void)testWithdrawnRegionsAreRemoved
 {
-    [layer setMaterialName:@"frosted" clear:NO tint:nil];
+    [layer setMaterialName:@"frosted" style:@"regular" tint:nil opacity:1.0];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
     XCTAssertEqual(layer.subviews.count, 1);
 
@@ -84,17 +91,17 @@
 
 - (void)testTurningItOffClearsWhatWasThere
 {
-    [layer setMaterialName:@"frosted" clear:NO tint:nil];
+    [layer setMaterialName:@"frosted" style:@"regular" tint:nil opacity:1.0];
     [layer setRegions:[self regionWithId:@"a" y:50 height:200]];
     XCTAssertEqual(layer.subviews.count, 1);
 
-    [layer setMaterialName:@"off" clear:NO tint:nil];
+    [layer setMaterialName:@"off" style:@"regular" tint:nil opacity:1.0];
     XCTAssertEqual(layer.subviews.count, 0);
 }
 
 - (void)testJunkRegionsAreIgnored
 {
-    [layer setMaterialName:@"frosted" clear:NO tint:nil];
+    [layer setMaterialName:@"frosted" style:@"regular" tint:nil opacity:1.0];
     [layer setRegions:@[
         @{@"id": @42, @"x": @0, @"y": @0, @"w": @10, @"h": @10},
         @{@"id": @"flat", @"x": @0, @"y": @0, @"w": @0, @"h": @0},
@@ -102,6 +109,96 @@
     ]];
 
     XCTAssertEqual(layer.subviews.count, 1, @"only the usable one");
+}
+
+
+/* Following the system means reading what macOS is set to rather than asking twice.
+   The names it uses carry the appearance as well as the style, so a name is read for
+   what it says. */
+- (void)testFollowingTheSystemReadsTheIconStyle
+{
+    GLGlassLayer* layer = [[GLGlassLayer alloc]
+        initWithFrame: NSMakeRect(0, 0, 400, 400)
+    ];
+
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
+
+    [defaults setObject:@"ClearDark" forKey:@"AppleIconAppearanceTheme"];
+    [layer setMaterialName:@"frosted" style:@"follow" tint:nil opacity:1.0];
+    XCTAssertEqualObjects([layer resolvedStyle], @"clear",
+                          @"a clear system reads as clear glass");
+
+    [defaults setObject:@"TintedLight" forKey:@"AppleIconAppearanceTheme"];
+    XCTAssertEqualObjects([layer resolvedStyle], @"tinted",
+                          @"a tinted system reads as tinted glass");
+
+    [defaults setObject:@"RegularDark" forKey:@"AppleIconAppearanceTheme"];
+    XCTAssertEqualObjects([layer resolvedStyle], @"regular",
+                          @"and the default reads as regular");
+
+    [defaults setObject:@"SomethingNew" forKey:@"AppleIconAppearanceTheme"];
+    XCTAssertEqualObjects([layer resolvedStyle], @"regular",
+                          @"a name nobody has seen before is regular rather than nothing");
+
+    if (before) {
+        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+    } else {
+        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+    }
+}
+
+/* A style chosen outright is held whatever the system says. */
+- (void)testAChosenStyleIgnoresTheSystem
+{
+    GLGlassLayer* layer = [[GLGlassLayer alloc]
+        initWithFrame: NSMakeRect(0, 0, 400, 400)
+    ];
+
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
+    [defaults setObject:@"ClearDark" forKey:@"AppleIconAppearanceTheme"];
+
+    [layer setMaterialName:@"frosted" style:@"tinted" tint:nil opacity:1.0];
+    XCTAssertEqualObjects([layer resolvedStyle], @"tinted",
+                          @"tinted stays tinted next to a clear system");
+
+    if (before) {
+        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+    } else {
+        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+    }
+}
+
+/* Tinted with nothing chosen borrows the accent macOS is set to, which is what the
+   system does to a tinted icon. A colour that was chosen is used as it is. */
+- (void)testTintedBorrowsTheSystemAccentUntilToldOtherwise
+{
+    GLGlassLayer* layer = [[GLGlassLayer alloc]
+        initWithFrame: NSMakeRect(0, 0, 400, 400)
+    ];
+
+    [layer setMaterialName:@"frosted" style:@"tinted" tint:nil opacity:1.0];
+    XCTAssertEqualObjects(
+        [layer effectiveTintForStyle:@"tinted"],
+        [NSColor controlAccentColor],
+        @"no colour chosen, so the system accent"
+    );
+
+    NSColor* chosen = [NSColor colorWithSRGBRed:0.2 green:0.6 blue:0.4 alpha:0.8];
+    [layer setMaterialName:@"frosted" style:@"tinted" tint:chosen opacity:1.0];
+    XCTAssertEqualObjects(
+        [layer effectiveTintForStyle:@"tinted"], chosen,
+        @"a colour was chosen, so that one"
+    );
+
+    NSColor* invisible = [NSColor colorWithSRGBRed:0.2 green:0.6 blue:0.4 alpha:0.0];
+    [layer setMaterialName:@"frosted" style:@"tinted" tint:invisible opacity:1.0];
+    XCTAssertEqualObjects(
+        [layer effectiveTintForStyle:@"tinted"],
+        [NSColor controlAccentColor],
+        @"a colour with nothing in it is not a choice"
+    );
 }
 
 @end

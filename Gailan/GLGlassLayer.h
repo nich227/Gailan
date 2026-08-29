@@ -23,8 +23,12 @@
 - (void)setRegions:(NSArray<NSDictionary*>*)regions;
 
 // style and tint only reach macOS 26's glass; the older material takes neither
+/* style is one of follow, regular, clear or tinted. follow reads what macOS is set
+   to, so the glass agrees with the icons and widgets around it without being told.
+   opacity is how present the glass is, from 0 to 1. */
 - (void)setMaterialName:(NSString*)name
-                  clear:(BOOL)clear
-                   tint:(NSColor*)tint;
+                  style:(NSString*)style
+                   tint:(NSColor*)tint
+                opacity:(double)opacity;
 
 @end
