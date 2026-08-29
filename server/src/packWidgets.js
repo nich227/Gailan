@@ -50,6 +50,7 @@ function pack(boxes, bounds, margin) {
   inReadingOrder(boxes).forEach((box) => {
     let left = box.left;
     let top = box.top;
+    let settled = false;
 
     // Down past whatever is in the way, and across to a fresh column when there is no
     // more room below. Bounded by the number of widgets, since each pass either clears
@@ -59,7 +60,10 @@ function pack(boxes, bounds, margin) {
         overlaps({left, top, width: box.width, height: box.height}, other, gap)
       );
 
-      if (!collision) break;
+      if (!collision) {
+        settled = true;
+        break;
+      }
 
       const below = collision.top + collision.height + gap;
 
@@ -70,14 +74,38 @@ function pack(boxes, bounds, margin) {
       } else {
         top = below;
       }
+
+      // Off the side means there is nowhere left to put it. Pulling it back on screen
+      // here would drop it on top of whatever is already there, which is the overlap
+      // this is supposed to remove, so it stays where its author asked instead.
+      if (room.width && left + box.width > room.width) break;
     }
 
-    // On the screen, whatever else is true: a widget nobody can see is worse than one
-    // sitting where it was not asked to.
-    if (room.width) left = Math.min(left, Math.max(0, room.width - box.width));
-    if (room.height) top = Math.min(top, Math.max(0, room.height - box.height));
-    left = Math.max(0, left);
-    top = Math.max(0, top);
+    if (!settled) {
+      left = box.left;
+      top = box.top;
+    }
+
+    // On the screen, but only when that does not undo the work above
+    const clampedLeft = room.width
+      ? Math.max(0, Math.min(left, room.width - box.width))
+      : Math.max(0, left);
+    const clampedTop = room.height
+      ? Math.max(0, Math.min(top, room.height - box.height))
+      : Math.max(0, top);
+
+    const clashesAfterClamping = placed.some((other) =>
+      overlaps(
+        {left: clampedLeft, top: clampedTop, width: box.width, height: box.height},
+        other,
+        gap
+      )
+    );
+
+    if (!clashesAfterClamping) {
+      left = clampedLeft;
+      top = clampedTop;
+    }
 
     if (left !== box.left || top !== box.top) {
       moves[box.id] = {left, top};

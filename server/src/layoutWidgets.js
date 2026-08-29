@@ -34,9 +34,53 @@ function offsetOn(el) {
 // the transform and measuring again means the arrangement is worked out from the same
 // numbers every pass, without a reflow and without restarting an animation inside a
 // widget that has not moved.
-function boxOf(el, origin) {
+// A widget whose own markup is positioned absolutely leaves its wrapper stretched
+// across the whole screen, and the starter widget does exactly that. Taking the wrapper
+// at face value says the screen is full and pushes everything else into the margins, so
+// when a wrapper covers the screen the widget is measured by what it actually draws.
+function visibleRect(el, origin, bounds) {
   const rect = el.getBoundingClientRect();
+  const fillsScreen =
+    bounds.width &&
+    bounds.height &&
+    rect.width >= bounds.width - 1 &&
+    rect.height >= bounds.height - 1;
+
+  if (!fillsScreen) return rect;
+
+  let union = null;
+  Array.prototype.forEach.call(el.children, (child) => {
+    const box = child.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+
+    union = union
+      ? {
+          left: Math.min(union.left, box.left),
+          top: Math.min(union.top, box.top),
+          right: Math.max(union.right, box.left + box.width),
+          bottom: Math.max(union.bottom, box.top + box.height),
+        }
+      : {
+          left: box.left,
+          top: box.top,
+          right: box.left + box.width,
+          bottom: box.top + box.height,
+        };
+  });
+
+  if (!union) return rect;
+
+  return {
+    left: union.left,
+    top: union.top,
+    width: union.right - union.left,
+    height: union.bottom - union.top,
+  };
+}
+
+function boxOf(el, origin, bounds) {
   const base = origin || {left: 0, top: 0};
+  const rect = visibleRect(el, base, bounds || {width: 0, height: 0});
   const {dx, dy} = offsetOn(el);
 
   return {
@@ -87,18 +131,17 @@ function layoutWidgets(container, viewport) {
   }
 
   const origin = container.getBoundingClientRect();
-  const boxes = widgets.map((el) => boxOf(el, origin));
+  const bounds = viewport || {
+    width: container.clientWidth || origin.width,
+    height: container.clientHeight || origin.height,
+  };
+  const boxes = widgets.map((el) => boxOf(el, origin, bounds));
 
   // Every widget reporting the same corner means the measurement failed, not that
   // somebody placed them all in one spot. Stacking them would then be an invention,
   // and leaving them alone is the smaller mistake.
   const distinct = new Set(boxes.map((box) => box.left + ':' + box.top));
   if (distinct.size < 2) return {};
-
-  const bounds = viewport || {
-    width: container.clientWidth || origin.width,
-    height: container.clientHeight || origin.height,
-  };
 
   const moves = pack(boxes, bounds);
   widgets.forEach((el, i) => apply(el, boxes[i], moves[boxes[i].id]));

@@ -310,6 +310,60 @@ test('boxOf falls back to the widget id attribute', (t) => {
   t.end();
 });
 
+// A wrapper stretched across the screen because the widget inside it is positioned
+// absolutely. Taking that at face value said the screen was full and pushed everything
+// else into the margins, which is what put three widgets on top of each other.
+test('a widget filling the screen is measured by what it draws', (t) => {
+  const full = fakeWidget(document, 'full', 0, 0, SCREEN.width, SCREEN.height);
+  const panel = fakeWidget(document, 'panel', 40, 60, 380, 500);
+  full.appendChild(panel);
+
+  const other = fakeWidget(document, 'other', 900, 100, 240, 200);
+  const container = screenWith([full, other]);
+
+  t.deepEqual(layoutWidgets(container), {}, 'they do not overlap after all');
+  t.equal(other.style.transform, '', 'and nothing is shoved aside');
+  t.end();
+});
+
+test('a widget filling the screen with nothing drawn keeps its own size', (t) => {
+  const full = fakeWidget(document, 'full', 0, 0, SCREEN.width, SCREEN.height);
+  const other = fakeWidget(document, 'other', 40, 40, 240, 200);
+  const container = screenWith([full, other]);
+
+  // nothing inside it to measure, so the wrapper is all there is to go on, and a
+  // wrapper that big leaves nowhere to move to: better where its author asked than
+  // dropped on top of something after being pulled back on screen
+  layoutWidgets(container);
+  t.equal(other.style.transform, '', 'so it is left alone');
+  t.end();
+});
+
+// Clamping used to happen after the collisions were resolved, so pulling a widget back
+// onto the screen dropped it on top of one already placed.
+test('pulling a widget back on screen does not put it on another', (t) => {
+  const tall = box('tall', 20, 0, 700, 880);
+  const wide = box('wide', 40, 100, 700, 300);
+  const moves = pack([tall, wide], SCREEN);
+
+  const placed = [tall, moves.wide ? Object.assign({}, wide, moves.wide) : wide];
+  t.notOk(
+    overlaps(placed[0], placed[1], 12),
+    'they are clear of each other however it was solved'
+  );
+  t.ok(placed[1].left + placed[1].width <= SCREEN.width, 'and still on the screen');
+  t.end();
+});
+
+test('a widget with nowhere to go is left where its author asked', (t) => {
+  const filling = box('filling', 0, 0, 1400, 880);
+  const other = box('other', 100, 100, 300, 200);
+  const moves = pack([filling, other], SCREEN);
+
+  t.notOk(moves.other, 'no room anywhere, so it stays put');
+  t.end();
+});
+
 // MARK: - watching
 
 test('watching lays out now and again when a widget resizes', (t) => {
