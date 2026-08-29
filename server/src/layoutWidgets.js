@@ -11,33 +11,63 @@ const {pack} = require('./packWidgets');
 
 const OFFSET = 'data-gailan-offset';
 
-function boxOf(el) {
-  // offsetLeft and offsetTop are the position the widget asked for, before any
-  // transform this has applied, which is what the packing has to work from
+function idOf(el) {
+  return el.id || el.getAttribute('data-widget-id') || '';
+}
+
+// Where the widget is actually painted, relative to the screen it is painted on.
+//
+// offsetLeft and offsetTop were the obvious choice and were wrong: they are measured
+// against the nearest positioned ancestor and read zero when there is not one, so every
+// widget looked as though it sat in the corner, the packing decided they all overlapped,
+// and it stacked them there. A rect is what the eye sees.
+function offsetOn(el) {
+  const written = el.getAttribute(OFFSET);
+  if (!written) return {dx: 0, dy: 0};
+
+  const parts = written.split(',');
+  return {dx: Number(parts[0]) || 0, dy: Number(parts[1]) || 0};
+}
+
+// Where the widget asked to be, relative to the screen it is on: where it is painted,
+// less whatever this moved it by last time. Taking the offset off rather than clearing
+// the transform and measuring again means the arrangement is worked out from the same
+// numbers every pass, without a reflow and without restarting an animation inside a
+// widget that has not moved.
+function boxOf(el, origin) {
+  const rect = el.getBoundingClientRect();
+  const base = origin || {left: 0, top: 0};
+  const {dx, dy} = offsetOn(el);
+
   return {
-    id: el.id || el.getAttribute('data-widget-id') || '',
-    left: el.offsetLeft,
-    top: el.offsetTop,
-    width: el.offsetWidth,
-    height: el.offsetHeight,
+    id: idOf(el),
+    left: rect.left - base.left - dx,
+    top: rect.top - base.top - dy,
+    width: rect.width,
+    height: rect.height,
   };
 }
 
 function isMeasurable(el) {
-  return el.offsetWidth > 0 && el.offsetHeight > 0;
+  const rect = el.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0;
 }
 
-function apply(el, move) {
+function clear(el) {
+  if (el.getAttribute(OFFSET)) {
+    el.style.transform = '';
+    el.removeAttribute(OFFSET);
+  }
+}
+
+function apply(el, box, move) {
   if (!move) {
-    if (el.getAttribute(OFFSET)) {
-      el.style.transform = '';
-      el.removeAttribute(OFFSET);
-    }
+    clear(el);
     return;
   }
 
-  const dx = Math.round(move.left - el.offsetLeft);
-  const dy = Math.round(move.top - el.offsetTop);
+  const dx = Math.round(move.left - box.left);
+  const dy = Math.round(move.top - box.top);
   const next = dx + ',' + dy;
 
   // writing the same transform again would restart any animation inside it
@@ -52,17 +82,26 @@ function layoutWidgets(container, viewport) {
 
   const widgets = Array.prototype.filter.call(container.children, isMeasurable);
   if (widgets.length < 2) {
-    Array.prototype.forEach.call(container.children, (el) => apply(el, null));
+    Array.prototype.forEach.call(container.children, clear);
     return {};
   }
 
+  const origin = container.getBoundingClientRect();
+  const boxes = widgets.map((el) => boxOf(el, origin));
+
+  // Every widget reporting the same corner means the measurement failed, not that
+  // somebody placed them all in one spot. Stacking them would then be an invention,
+  // and leaving them alone is the smaller mistake.
+  const distinct = new Set(boxes.map((box) => box.left + ':' + box.top));
+  if (distinct.size < 2) return {};
+
   const bounds = viewport || {
-    width: container.clientWidth,
-    height: container.clientHeight,
+    width: container.clientWidth || origin.width,
+    height: container.clientHeight || origin.height,
   };
 
-  const moves = pack(widgets.map(boxOf), bounds);
-  widgets.forEach((el) => apply(el, moves[boxOf(el).id]));
+  const moves = pack(boxes, bounds);
+  widgets.forEach((el, i) => apply(el, boxes[i], moves[boxes[i].id]));
 
   return moves;
 }

@@ -156,16 +156,25 @@ test('overlaps counts the margin, and touching edges as clear', (t) => {
 
 // MARK: - the page
 
+// jsdom lays nothing out, so every rect is supplied. The size can be changed later,
+// which is how a widget growing is described to the layout.
 function fakeWidget(doc, id, left, top, width, height) {
   const el = doc.createElement('div');
   el.id = id;
-  // jsdom lays nothing out, so the measurements are supplied
-  Object.defineProperties(el, {
-    offsetLeft: {get: () => left, configurable: true},
-    offsetTop: {get: () => top, configurable: true},
-    offsetWidth: {get: () => width, configurable: true},
-    offsetHeight: {get: () => height, configurable: true},
-  });
+  el.__box = {left, top, width, height};
+  el.getBoundingClientRect = () => {
+    // a transform moves what is painted, which is what a rect reports
+    const written = el.getAttribute('data-gailan-offset') || '0,0';
+    const [dx, dy] = written.split(',').map(Number);
+    return {
+      left: el.__box.left + dx,
+      top: el.__box.top + dy,
+      width: el.__box.width,
+      height: el.__box.height,
+      right: el.__box.left + dx + el.__box.width,
+      bottom: el.__box.top + dy + el.__box.height,
+    };
+  };
   return el;
 }
 
@@ -174,6 +183,14 @@ function screenWith(widgets) {
   Object.defineProperties(container, {
     clientWidth: {get: () => SCREEN.width},
     clientHeight: {get: () => SCREEN.height},
+  });
+  container.getBoundingClientRect = () => ({
+    left: 0,
+    top: 0,
+    width: SCREEN.width,
+    height: SCREEN.height,
+    right: SCREEN.width,
+    bottom: SCREEN.height,
   });
   widgets.forEach((el) => container.appendChild(el));
   return container;
@@ -200,7 +217,7 @@ test('a widget no longer in the way has its transform taken off', (t) => {
   t.ok(b.style.transform, 'moved to begin with');
 
   // the first one shrinks out of the way
-  Object.defineProperty(a, 'offsetHeight', {get: () => 10, configurable: true});
+  a.__box.height = 10;
   layoutWidgets(container);
   t.equal(b.style.transform, '', 'and put back');
   t.notOk(b.getAttribute('data-gailan-offset'), 'with nothing remembered');
@@ -227,7 +244,7 @@ test('the same offset is not written twice', (t) => {
 
 test('a widget of no size yet is ignored', (t) => {
   const a = fakeWidget(document, 'a', 20, 20, 200, 100);
-  const empty = fakeWidget(document, 'empty', 20, 20, 0, 0);
+  const empty = fakeWidget(document, 'empty', 300, 300, 0, 0);
   const container = screenWith([a, empty]);
 
   t.deepEqual(layoutWidgets(container), {}, 'nothing to arrange');
@@ -251,9 +268,37 @@ test('no container is not an error', (t) => {
   t.end();
 });
 
-test('boxOf reads the position the widget asked for', (t) => {
+test('boxOf reads where the widget is painted', (t) => {
   const el = fakeWidget(document, 'a', 5, 6, 7, 8);
   t.deepEqual(boxOf(el), {id: 'a', left: 5, top: 6, width: 7, height: 8});
+  t.end();
+});
+
+test('boxOf reads relative to the screen it is on', (t) => {
+  const el = fakeWidget(document, 'a', 105, 206, 7, 8);
+  t.deepEqual(boxOf(el, {left: 100, top: 200}), {
+    id: 'a',
+    left: 5,
+    top: 6,
+    width: 7,
+    height: 8,
+  });
+  t.end();
+});
+
+// This is the shape of the bug that put every widget in the corner: the measurement
+// came back as zero for all of them, they looked like one pile, and the packing
+// helpfully stacked the pile.
+test('widgets that all measure the same spot are left alone', (t) => {
+  const a = fakeWidget(document, 'a', 0, 0, 200, 100);
+  const b = fakeWidget(document, 'b', 0, 0, 200, 100);
+  const c = fakeWidget(document, 'c', 0, 0, 200, 100);
+  const container = screenWith([a, b, c]);
+
+  t.deepEqual(layoutWidgets(container), {}, 'nothing is moved');
+  t.equal(a.style.transform, '', 'a untouched');
+  t.equal(b.style.transform, '', 'b untouched');
+  t.equal(c.style.transform, '', 'c untouched');
   t.end();
 });
 
