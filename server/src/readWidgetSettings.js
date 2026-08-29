@@ -19,14 +19,16 @@
 const fs = require('fs');
 const path = require('path');
 
-const TYPES = ['choice', 'toggle', 'number', 'text', 'color'];
+// choice and list are the same data with a different control: segments or a menu
+const TYPES = ['choice', 'list', 'toggle', 'number', 'text', 'color'];
+const NEEDS_OPTIONS = ['choice', 'list'];
 
 function isUsable(setting) {
   if (!setting || typeof setting !== 'object') return false;
   if (typeof setting.key !== 'string' || !setting.key) return false;
   if (TYPES.indexOf(setting.type) === -1) return false;
-  // a choice with nothing to choose from would render an empty control
-  if (setting.type === 'choice') {
+  // something to choose from with nothing in it would render an empty control
+  if (NEEDS_OPTIONS.indexOf(setting.type) > -1) {
     return Array.isArray(setting.options) && setting.options.length > 0;
   }
   return true;
@@ -42,7 +44,7 @@ function normalize(setting) {
   if (setting.help) clean.help = String(setting.help);
   if (setting.default !== undefined) clean.default = setting.default;
 
-  if (setting.type === 'choice') {
+  if (NEEDS_OPTIONS.indexOf(setting.type) > -1) {
     clean.options = setting.options.map((option) =>
       typeof option === 'object' && option
         ? {value: option.value, label: option.label || String(option.value)}

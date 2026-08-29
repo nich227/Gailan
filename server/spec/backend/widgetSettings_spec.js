@@ -288,3 +288,47 @@ test('writing nothing at all', (t) => {
   fs.rmSync(dir, {recursive: true, force: true});
   t.end();
 });
+
+// A list is a choice with a different control on it, so it has to survive the same
+// journey: kept, options carried, and thrown out when there is nothing to choose from.
+test('a list setting is read like a choice', (t) => {
+  const {dir, widget} = scratch({
+    settings: [
+      {
+        key: 'source',
+        type: 'list',
+        label: 'Metric to monitor',
+        default: 'ram',
+        options: [
+          {value: 'ram', label: 'RAM Usage'},
+          {value: 'cpu', label: 'CPU Usage'},
+        ],
+      },
+    ],
+  });
+
+  const settings = readWidgetSettings(widget);
+
+  t.equal(settings.length, 1, 'it is kept');
+  t.equal(settings[0].type, 'list', 'as a list');
+  t.equal(settings[0].label, 'Metric to monitor', 'with its label');
+  t.deepEqual(
+    settings[0].options.map((option) => option.value),
+    ['ram', 'cpu'],
+    'and everything there is to choose from'
+  );
+
+  fs.rmSync(dir, {recursive: true, force: true});
+  t.end();
+});
+
+test('a list with nothing to choose from is dropped', (t) => {
+  const {dir, widget} = scratch({
+    settings: [{key: 'source', type: 'list', label: 'Metric to monitor'}],
+  });
+
+  t.deepEqual(readWidgetSettings(widget), [], 'an empty menu is no use to anybody');
+
+  fs.rmSync(dir, {recursive: true, force: true});
+  t.end();
+});

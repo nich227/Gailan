@@ -22,7 +22,10 @@ import SwiftUI
 
 struct WidgetSetting: Identifiable, Equatable {
     enum Kind: String {
-        case choice, toggle, number, text, color
+        /* choice and list hold the same thing and differ only in the control: a row of
+           segments reads well for two or three short options and badly for more, where
+           a menu is what somebody expects. The widget says which it wants. */
+        case choice, list, toggle, number, text, color
     }
 
     struct Option: Equatable {
@@ -453,6 +456,15 @@ struct GLWidgetSettings: View {
                 }
             }
             .pickerStyle(.segmented)
+            .help(setting.help ?? "")
+
+        case .list:
+            Picker(setting.label, selection: binding(setting)) {
+                ForEach(setting.options, id: \.value) { option in
+                    Text(option.label).tag(option.value)
+                }
+            }
+            .pickerStyle(.menu)
             .help(setting.help ?? "")
 
         case .toggle:
