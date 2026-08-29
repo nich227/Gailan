@@ -17,13 +17,13 @@ const uebersicht = require('../../src/legacyAlias.ts');
 
 // What a widget gets when it imports "gailan". Übersicht exported exactly run,
 // request, css, styled and React, and Gailan keeps that surface so widgets carry
-// over unchanged; DesktopGlass is the one addition. Adding is fine, taking away
-// breaks widgets.
+// over unchanged. DesktopGlass and constrainDrag are added. Adding is fine, taking
+// away breaks widgets.
 test('the module a widget imports', (t) => {
   t.deepEqual(
     Object.keys(gailan).sort(),
-    ['DesktopGlass', 'React', 'css', 'request', 'run', 'styled'],
-    "the surface widgets are written against, which is Übersicht's plus one"
+    ['DesktopGlass', 'React', 'constrainDrag', 'css', 'request', 'run', 'styled'],
+    "the surface widgets are written against, which is Übersicht's plus what Gailan adds"
   );
   t.equal(typeof gailan.run, 'function', 'run executes shell commands');
   t.equal(typeof gailan.css, 'function', 'css comes from emotion');
