@@ -91,6 +91,29 @@ test('a widget inside a wrapper is measured as the wrapper', (t) => {
   t.end();
 });
 
+// The drag is worked out against the screen, but what comes back is written into the
+// widget's own coordinates. When the arranging has moved the wrapper, those differ, and
+// returning the screen position would shift the widget again on every single drag.
+test('the answer is in the coordinates the widget writes into', (t) => {
+  const shell = fakeBox(document, 'shell', 0, 0, 340, 450);
+  const panel = fakeBox(document, 'panel', 24, 24, 340, 449);
+  shell.appendChild(panel);
+  // the arranging pushed the whole wrapper down
+  shell.setAttribute('data-gailan-offset', '0,276');
+  const other = fakeBox(document, 'other', 376, 192, 242, 164);
+  const container = screenWith([shell, other]);
+
+  Object.defineProperty(panel, 'offsetParent', {value: shell});
+
+  // asked to go hard right, which the neighbor blocks, and not moved vertically
+  const result = constrainDrag(panel, {left: 1200, top: 300});
+
+  t.equal(result.top, 24, 'the same place it already was, not 276 lower');
+  t.equal(result.left, 24, 'and held where it was horizontally');
+  t.equal(container.children.length, 2, 'nothing disturbed');
+  t.end();
+});
+
 test('a widget with nothing beside it drags freely', (t) => {
   const dragged = fakeBox(document, 'alone', 0, 0, 200, 100);
   screenWith([dragged]);

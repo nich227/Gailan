@@ -77,8 +77,22 @@ function constrainDrag(el, desired, options) {
 
   const blockers = settings.blockers || blockersAround(el, screen, origin, bounds);
   const margin = typeof settings.margin === 'number' ? settings.margin : MARGIN;
+  const result = slide(box, desired, blockers, bounds, margin);
 
-  return slide(box, desired, blockers, bounds, margin);
+  // Collisions are worked out against the screen, because that is where the widgets
+  // are. What comes back has to be in the coordinates the caller writes, which are
+  // measured from whatever box its left and top resolve against. For a widget drawn
+  // inside a wrapper the arranging has already moved, those are two different places,
+  // and handing back the screen position would move it again by that much on every
+  // drag.
+  const frame = settings.frame || el.offsetParent;
+  const shift = frame ? frame.getBoundingClientRect() : origin;
+
+  return {
+    left: result.left + origin.left - shift.left,
+    top: result.top + origin.top - shift.top,
+    blocked: result.blocked,
+  };
 }
 
 module.exports = {constrainDrag, blockersAround, MARGIN};

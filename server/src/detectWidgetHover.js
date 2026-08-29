@@ -1,13 +1,22 @@
+// The app listens on the other side of this. Everywhere else, including a browser
+// running the page for a test, there is nobody there and asking throws.
+const tell = (message) => {
+  const bridge =
+    window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.gailan;
+
+  if (bridge) bridge.postMessage(message);
+};
+
 module.exports = (containerEl) => {
   let insideWidget = false;
 
   const checkHover = (e) => {
     if (insideWidget && containerEl === e.target) {
       insideWidget = false;
-      window.webkit.messageHandlers.gailan.postMessage('widgetLeave');
+      tell('widgetLeave');
     } else if (!insideWidget && containerEl !== e.target) {
       insideWidget = true;
-      window.webkit.messageHandlers.gailan.postMessage('widgetEnter');
+      tell('widgetEnter');
     }
   };
 
