@@ -20,6 +20,7 @@ const request = require('superagent');
 const {css} = require('@emotion/css');
 const styled = require('@emotion/styled').default;
 const React = require('react');
+const {constrainDrag} = require('./constrainDrag');
 
 type DesktopGlassProps = {
   radius?: number;
@@ -46,4 +47,4 @@ const DesktopGlass = ({
     children
   );
 
-module.exports = {run, request, css, styled, React, DesktopGlass};
+module.exports = {run, request, css, styled, React, DesktopGlass, constrainDrag};

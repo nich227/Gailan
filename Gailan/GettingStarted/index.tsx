@@ -4,7 +4,7 @@
 // Gailan is a fork of Übersicht by Felix Hageloh. The widget API, the server
 // underneath, and the whole idea are his work: https://tracesof.net/uebersicht
 
-import { React, styled } from "gailan";
+import { constrainDrag, React, styled } from "gailan";
 
 // this is the shell command that gets executed every time this widget
 // refreshes. id -F prints your full name; render keeps the first word.
@@ -112,12 +112,14 @@ const startDrag = (e: any) => {
   const dx = e.clientX - rect.left;
   const dy = e.clientY - rect.top;
 
+  /* The widgets to keep clear of do not move while this one is being dragged, so
+     they are measured once here rather than on every pointer move. */
   const onMove = (ev: MouseEvent) => {
-    const left = Math.max(
-      0,
-      Math.min(window.innerWidth - rect.width, ev.clientX - dx)
-    );
-    const top = Math.max(0, Math.min(window.innerHeight - 40, ev.clientY - dy));
+    const { left, top } = constrainDrag(el, {
+      left: ev.clientX - dx,
+      top: ev.clientY - dy,
+    });
+
     el.style.left = `${left}px`;
     el.style.top = `${top}px`;
     pos = { left, top };
@@ -377,7 +379,7 @@ export const render = ({ output, error, settings = {} }: State) => {
   const firstName = error ? "there" : output.trim().split(/\s+/)[0] || "there";
   const position = pos
     ? { left: `${pos.left}px`, top: `${pos.top}px` }
-    : { left: "24px", top: "10%" };
+    : { left: "24px", top: "24px" };
 
   return (
     // The page cannot reach what is behind its window, so the frosted
