@@ -373,12 +373,26 @@ struct GLWidgetsOverview: View {
         .opacity(widget.hidden ? 0.55 : 1)
     }
 
+    /* The card is as tall as the picture in it is, and the picture is shown whole.
+       Before this it was pinned to one height and told to fill, which cropped the top
+       and bottom off every screenshot and left the widget itself small in what was
+       left. A widget with no screenshot keeps a plate of about the same shape, so a
+       row of cards does not step up and down. */
+    private func previewAspect(_ widget: WidgetSummary) -> CGFloat {
+        guard let url = widget.previewURL,
+              let image = NSImage(contentsOf: url),
+              image.size.height > 0
+        else { return 16.0 / 10.0 }
+
+        return image.size.width / image.size.height
+    }
+
     private func preview(_ widget: WidgetSummary) -> some View {
         ZStack {
             if let url = widget.previewURL, let image = NSImage(contentsOf: url) {
                 Image(nsImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
             } else {
                 // no screenshot shipped, so say so rather than showing a gap
                 VStack(spacing: 6) {
@@ -391,8 +405,8 @@ struct GLWidgetsOverview: View {
                 }
             }
         }
-        .frame(height: 116)
         .frame(maxWidth: .infinity)
+        .aspectRatio(previewAspect(widget), contentMode: .fit)
         .background(.black.opacity(0.28))
         .clipped()
     }

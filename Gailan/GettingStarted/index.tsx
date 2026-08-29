@@ -18,7 +18,7 @@ export const refreshFrequency: number | false = false;
 // which is the documented way to keep state in a widget.
 /* Declared in widget.json so the app can build controls for them, and delivered
    to render as props.settings. The widths are what Small, Medium and Large mean. */
-const BACKGROUNDS = ["auto", "black", "white", "pink"];
+const BACKGROUNDS = ["follow", "light", "dark", "pink"];
 
 type Settings = {
   size?: "small" | "medium" | "large";
@@ -210,8 +210,9 @@ const Window = styled("div")`
 
 
   /* Told to hold a style, the window holds it whatever the system is set to. The same
-     three names every widget offers, so a desktop can be one thing throughout. */
-  &[data-background="black"] {
+     names every widget offers, so a desktop can be one thing throughout. Pink is the
+     light window with a modern pink in it. */
+  &[data-background="dark"] {
     --bg: rgba(11, 11, 12, 0.92);
     --panel: rgba(11, 11, 12, var(--fill, 0.46));
     --header-bg: rgba(244, 244, 242, 0.05);
@@ -221,7 +222,7 @@ const Window = styled("div")`
     --light-off: rgba(244, 244, 242, 0.22);
   }
 
-  &[data-background="white"] {
+  &[data-background="light"] {
     --bg: rgba(241, 241, 239, 0.94);
     --panel: rgba(241, 241, 239, var(--fill, 0.58));
     --header-bg: rgba(11, 11, 12, 0.04);
@@ -232,13 +233,13 @@ const Window = styled("div")`
   }
 
   &[data-background="pink"] {
-    --bg: rgba(242, 182, 199, 0.94);
-    --panel: rgba(246, 204, 216, var(--fill, 0.58));
-    --header-bg: rgba(43, 15, 22, 0.05);
-    --border: rgba(43, 15, 22, 0.18);
-    --text: #2b0f16;
-    --dim: rgba(43, 15, 22, 0.55);
-    --light-off: rgba(43, 15, 22, 0.2);
+    --bg: rgba(255, 214, 230, 0.94);
+    --panel: rgba(255, 226, 238, var(--fill, 0.62));
+    --header-bg: rgba(31, 16, 19, 0.04);
+    --border: rgba(31, 16, 19, 0.16);
+    --text: #1f1013;
+    --dim: rgba(31, 16, 19, 0.5);
+    --light-off: rgba(31, 16, 19, 0.18);
   }
 
   pointer-events: auto;

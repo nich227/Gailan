@@ -52,19 +52,19 @@
       "type": "list",
       "label": "Background",
       "help": "Follow the system, or hold one of these whatever the system does",
-      "default": "auto",
+      "default": "follow",
       "options": [
         {
-          "value": "auto",
-          "label": "Follow appearance"
+          "value": "follow",
+          "label": "Follow system"
         },
         {
-          "value": "black",
-          "label": "Black"
+          "value": "light",
+          "label": "Light"
         },
         {
-          "value": "white",
-          "label": "White"
+          "value": "dark",
+          "label": "Dark"
         },
         {
           "value": "pink",
