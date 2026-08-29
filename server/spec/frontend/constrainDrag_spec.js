@@ -32,6 +32,14 @@ function screenWith(children) {
   Object.defineProperty(container, 'clientWidth', {value: SCREEN.width});
   Object.defineProperty(container, 'clientHeight', {value: SCREEN.height});
   children.forEach((child) => container.appendChild(child));
+
+  // The suite is one document, and two screens carrying the same id send a later
+  // lookup to whichever came first. Each test gets the document to itself.
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-test-screen]'),
+    (previous) => previous.remove()
+  );
+  container.setAttribute('data-test-screen', 'true');
   document.body.appendChild(container);
   return container;
 }

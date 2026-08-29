@@ -121,6 +121,9 @@ module.exports = function VirtualDomWidget(widgetObject) {
   }
 
   function render(state) {
+    // Nothing to draw into before the widget is on the page, or after it has gone
+    if (!root) return;
+
     try {
       // settings is reserved: a widget reads props.settings.<key>
       root.render(
@@ -141,6 +144,13 @@ module.exports = function VirtualDomWidget(widgetObject) {
   }
 
   function renderErrorDetails(details) {
+    // The details are fetched from the server, so they land a moment after the error.
+    // A widget reloaded or taken off the page in that moment has no root left, and
+    // drawing into it threw where nothing could catch it, which stopped every widget
+    // on the page rather than the one with the mistake in it. Widgets reload whenever
+    // their file is saved, so this was reachable by editing a widget that threw.
+    if (!root) return;
+
     root.render(html(ErrorDetails, details));
   }
 

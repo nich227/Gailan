@@ -318,3 +318,70 @@ test('changing a setting redraws the widget', async (t) => {
   widget.destroy();
   t.end();
 });
+
+// The error details come back from the server a moment after the error itself. A widget
+// reloaded or taken off the page in that moment used to throw where nothing could catch
+// it, which stopped every other widget on the page. Saving a widget that throws is
+// enough to reach it.
+test('a widget taken off the page while its error is in flight is quiet', async (t) => {
+  const widget = build({
+    command: () => 'anything',
+    render: () => {
+      throw new Error('deliberately broken');
+    },
+  });
+
+  // The details are handed over only when this says so, which puts the widget's
+  // removal squarely inside the window rather than hoping to land in it.
+  const realFetch = global.fetch;
+  let handOverDetails = null;
+  global.fetch = () =>
+    new Promise((resolve) => {
+      handOverDetails = () =>
+        resolve({
+          json: () =>
+            Promise.resolve({
+              path: 'react-widget.jsx',
+              line: 1,
+              column: 1,
+              lines: [{lineNum: 1, line: 'throw new Error("deliberately broken");'}],
+            }),
+        });
+    });
+
+  const uncaught = [];
+  const onError = (thrown) => {
+    uncaught.push(String((thrown && thrown.message) || thrown));
+  };
+  process.on('unhandledRejection', onError);
+  process.on('uncaughtException', onError);
+
+  widget.create();
+  await settle();
+  t.ok(handOverDetails, 'the widget asked the server about its error');
+
+  // off the page, with the answer still on its way
+  widget.destroy();
+  handOverDetails();
+  await settle();
+  await settle();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  process.removeListener('unhandledRejection', onError);
+  process.removeListener('uncaughtException', onError);
+  global.fetch = realFetch;
+
+  t.deepEqual(uncaught, [], 'nothing was thrown out of the widget');
+  t.end();
+});
+
+test('a widget that was never put on the page does not draw', async (t) => {
+  const widget = build({
+    command: () => 'hello',
+    render: ({output}) => html('h1', null, output),
+  });
+
+  // no create, so there is nowhere to draw
+  t.doesNotThrow(() => widget.destroy(), 'and taking it away is still fine');
+  t.end();
+});
