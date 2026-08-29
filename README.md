@@ -36,8 +36,8 @@ folder of files you can read, and each downloads as a zip from the
       </a>
     </td>
     <td width="33%">
-      <a href="https://github.com/nich227/GailanHub/tree/main/widgets/memory">
-        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/memory/preview.jpg" alt="The memory widget on a desktop, showing 42 percent in use on a twenty-division scale" />
+      <a href="https://github.com/nich227/GailanHub/tree/main/widgets/system">
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/system/preview.jpg" alt="The system monitor widget on a desktop, showing 42 percent of memory in use on a twenty-division scale" />
       </a>
     </td>
     <td width="33%">
@@ -48,7 +48,7 @@ folder of files you can read, and each downloads as a zip from the
   </tr>
   <tr>
     <td><strong>Clock</strong><br />The time on a dot matrix, or hands on a dial.</td>
-    <td><strong>Memory</strong><br />What is in use, on a scale you can read a value off.</td>
+    <td><strong>System Monitor</strong><br />Memory, processor, disk or network, on a scale you can read a value off.</td>
     <td><strong>Now Playing</strong><br />The track, its cover, and controls that work.</td>
   </tr>
 </table>

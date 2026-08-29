@@ -184,7 +184,10 @@ const Window = styled("div")`
   --bg: rgba(11, 11, 12, 0.92);
   /* thin enough to read the frosted wallpaper through, dark enough to read
      text on top of it */
-  --panel: rgba(11, 11, 12, 0.46);
+  /* The fill is a setting, so only its transparency is set from outside. Setting the
+     whole colour there, which is what this used to do, meant the dark surface was
+     written over the light one and the window stayed dark in a light appearance. */
+  --panel: rgba(11, 11, 12, var(--fill, 0.46));
   --header-bg: rgba(244, 244, 242, 0.05);
   --border: rgba(244, 244, 242, 0.14);
   --text: #f4f4f2;
@@ -194,7 +197,7 @@ const Window = styled("div")`
 
   @media (prefers-color-scheme: light) {
     --bg: rgba(241, 241, 239, 0.94);
-    --panel: rgba(241, 241, 239, 0.58);
+    --panel: rgba(241, 241, 239, var(--fill, 0.58));
     --header-bg: rgba(11, 11, 12, 0.04);
     --border: rgba(11, 11, 12, 0.16);
     --text: #0b0b0c;
@@ -434,8 +437,8 @@ export const render = ({ output, error, settings = {} }: State) => {
       style={
         {
           width,
-          // the fill opacity is a setting, so it overrides the stylesheet
-          ["--panel" as string]: `rgba(11, 11, 12, ${fill})`,
+          // how solid the surface is, whichever colour the appearance calls for
+          ["--fill" as string]: String(fill),
           ...position,
         } as Record<string, unknown>
       }
