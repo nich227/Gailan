@@ -289,7 +289,7 @@ test('boxOf reads relative to the screen it is on', (t) => {
 // This is the shape of the bug that put every widget in the corner: the measurement
 // came back as zero for all of them, they looked like one pile, and the packing
 // helpfully stacked the pile.
-test('widgets that all measure the same spot are left alone', (t) => {
+test('widgets that all measure the origin are left alone', (t) => {
   const a = fakeWidget(document, 'a', 0, 0, 200, 100);
   const b = fakeWidget(document, 'b', 0, 0, 200, 100);
   const c = fakeWidget(document, 'c', 0, 0, 200, 100);
@@ -299,6 +299,21 @@ test('widgets that all measure the same spot are left alone', (t) => {
   t.equal(a.style.transform, '', 'a untouched');
   t.equal(b.style.transform, '', 'b untouched');
   t.equal(c.style.transform, '', 'c untouched');
+  t.end();
+});
+
+// Three widgets whose authors all chose the same corner is a real arrangement, not a
+// measurement that failed, and separating them is the entire point.
+test('widgets stacked in one corner are separated', (t) => {
+  const a = fakeWidget(document, 'a', 24, 24, 240, 160);
+  const b = fakeWidget(document, 'b', 24, 24, 240, 200);
+  const c = fakeWidget(document, 'c', 24, 24, 240, 120);
+  const container = screenWith([a, b, c]);
+
+  layoutWidgets(container);
+
+  const tops = [a, b, c].map((el) => el.getBoundingClientRect().top);
+  t.deepEqual(tops, [24, 196, 408], 'stacked down the left, each clear of the last');
   t.end();
 });
 

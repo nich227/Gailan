@@ -377,7 +377,7 @@ export const render = ({ output, error, settings = {} }: State) => {
   const firstName = error ? "there" : output.trim().split(/\s+/)[0] || "there";
   const position = pos
     ? { left: `${pos.left}px`, top: `${pos.top}px` }
-    : { left: "calc(50% - 170px)", top: "10%" };
+    : { left: "24px", top: "10%" };
 
   return (
     // The page cannot reach what is behind its window, so the frosted

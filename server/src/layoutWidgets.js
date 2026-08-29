@@ -137,11 +137,12 @@ function layoutWidgets(container, viewport) {
   };
   const boxes = widgets.map((el) => boxOf(el, origin, bounds));
 
-  // Every widget reporting the same corner means the measurement failed, not that
-  // somebody placed them all in one spot. Stacking them would then be an invention,
-  // and leaving them alone is the smaller mistake.
-  const distinct = new Set(boxes.map((box) => box.left + ':' + box.top));
-  if (distinct.size < 2) return {};
+  // Every widget reporting the origin is what a failed measurement looks like, and
+  // arranging widgets on numbers that mean nothing is how they all ended up in the
+  // corner. Widgets that really are stacked somewhere else get separated, since that
+  // is the whole job.
+  const allAtOrigin = boxes.every((box) => box.left === 0 && box.top === 0);
+  if (allAtOrigin) return {};
 
   const moves = pack(boxes, bounds);
   widgets.forEach((el, i) => apply(el, boxes[i], moves[boxes[i].id]));
