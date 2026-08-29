@@ -128,11 +128,22 @@ static NSInteger const WIDGET_MENU_ITEM_TAG = 42;
 }
 
 
+/* What to call a widget in front of somebody. A widget can say so in its manifest, and
+   the Widgets window has always shown that; the menu was showing the folder name, so the
+   same widget went by two names depending on where you looked. */
+- (NSString*)displayNameFor:(NSString*)widgetId
+{
+    NSDictionary* widget = [widgets get:widgetId] ?: @{};
+    NSString* title = widget[@"title"];
+
+    return title.length > 0 ? title : widgetId;
+}
+
 - (void)renderWidget:(NSString*)widgetId inMenu:(NSMenu*)menu
 {
     NSMenuItem* newItem = [[NSMenuItem alloc] init];
     
-    [newItem setTitle:widgetId];
+    [newItem setTitle:[self displayNameFor:widgetId]];
     [newItem setRepresentedObject:widgetId];
     [newItem setTag:WIDGET_MENU_ITEM_TAG];
     
