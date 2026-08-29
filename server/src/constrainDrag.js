@@ -16,7 +16,7 @@
 'use strict';
 
 const {slide, MARGIN} = require('./dragBounds');
-const {visibleRect} = require('./layoutWidgets');
+const {visibleRect, offsetOn} = require('./layoutWidgets');
 
 // The wrapper the app gave this widget, which is what sits beside the other widgets
 function widgetShellOf(el) {
@@ -88,9 +88,15 @@ function constrainDrag(el, desired, options) {
   const frame = settings.frame || el.offsetParent;
   const shift = frame ? frame.getBoundingClientRect() : origin;
 
+  // And if the arranging has moved this very element, that shift is in the painted
+  // position too but not in what is written back, so it comes off as well. A widget
+  // that drags its own wrapper hits this; one drawn inside a wrapper does not, since
+  // the wrapper it measures against has the shift in it already.
+  const own = offsetOn(el);
+
   return {
-    left: result.left + origin.left - shift.left,
-    top: result.top + origin.top - shift.top,
+    left: result.left + origin.left - shift.left - own.dx,
+    top: result.top + origin.top - shift.top - own.dy,
     blocked: result.blocked,
   };
 }

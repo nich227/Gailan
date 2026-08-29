@@ -201,4 +201,4 @@ function watchWidgets(container, window) {
   };
 }
 
-module.exports = {layoutWidgets, watchWidgets, boxOf, visibleRect};
+module.exports = {layoutWidgets, watchWidgets, boxOf, visibleRect, offsetOn};

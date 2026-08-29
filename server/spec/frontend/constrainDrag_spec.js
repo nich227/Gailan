@@ -114,6 +114,23 @@ test('the answer is in the coordinates the widget writes into', (t) => {
   t.end();
 });
 
+// A widget that drags its own wrapper, which is the shape the hub widgets use. The
+// shift the arranging put on it is in the painted position but not in style.left, so
+// leaving it in would move the widget by that much again on every drag.
+test('a widget dragging its own wrapper is not shifted by its own offset', (t) => {
+  const dragged = fakeBox(document, 'dragme', 24, 24, 242, 156);
+  dragged.setAttribute('data-gailan-offset', '0,276');
+  const container = screenWith([dragged, fakeBox(document, 'other', 900, 900, 100, 100)]);
+
+  Object.defineProperty(dragged, 'offsetParent', {value: container});
+
+  const result = constrainDrag(dragged, {left: 500, top: 300});
+
+  t.equal(result.top, 300 - 276, 'the offset comes off what is written back');
+  t.equal(result.left, 500, 'and across is untouched, since there is no offset there');
+  t.end();
+});
+
 test('a widget with nothing beside it drags freely', (t) => {
   const dragged = fakeBox(document, 'alone', 0, 0, 200, 100);
   screenWith([dragged]);

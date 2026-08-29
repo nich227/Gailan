@@ -70,6 +70,43 @@ try {
   /* first run */
 }
 
+/* Where the middle of the screen turns out to be. The window is as tall as its
+   contents, so the only way to sit exactly in the middle is to measure it, and the
+   first paint has to happen before there is anything to measure. Kept apart from pos
+   so it is not mistaken for a position somebody chose, and so a screen that changes
+   size re-centres a window nobody has moved. */
+let centered: { left: number; top: number } | null = null;
+
+const placeInMiddle = () => {
+  if (pos) return;
+
+  const el = document.getElementById(WIDGET_ID);
+  const screen = el && el.parentElement;
+  if (!el || !screen) return;
+
+  const rect = el.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const width = screen.clientWidth || rect.width;
+  const height = screen.clientHeight || rect.height;
+  const left = Math.max(0, Math.round((width - rect.width) / 2));
+  const top = Math.max(0, Math.round((height - rect.height) / 2));
+
+  if (centered && centered.left === left && centered.top === top) return;
+
+  centered = { left, top };
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
+};
+
+if (!(window as any).__gailanWelcomeCentering) {
+  (window as any).__gailanWelcomeCentering = true;
+  window.addEventListener("resize", () => {
+    centered = null;
+    requestAnimationFrame(placeInMiddle);
+  });
+}
+
 /* macOS grays a window's traffic lights until you click it. Tracked here rather
    than in render, the way pos is, because the widget re-renders on every command
    and this has to survive that. */
@@ -377,9 +414,14 @@ export const render = ({ output, error, settings = {} }: State) => {
   const width = WIDTHS[settings.size ?? "medium"] ?? WIDTHS.medium;
   const fill = (settings.opacity ?? 42) / 100;
   const firstName = error ? "there" : output.trim().split(/\s+/)[0] || "there";
-  const position = pos
-    ? { left: `${pos.left}px`, top: `${pos.top}px` }
-    : { left: "24px", top: "24px" };
+  const placed = pos || centered;
+  /* Half the width is known, so across is exact from the start. Down waits for the
+     measurement, and starts near enough that there is nothing to see. */
+  const position = placed
+    ? { left: `${placed.left}px`, top: `${placed.top}px` }
+    : { left: `calc(50% - ${Math.round(width / 2)}px)`, top: "calc(50% - 220px)" };
+
+  if (!pos) requestAnimationFrame(placeInMiddle);
 
   return (
     // The page cannot reach what is behind its window, so the frosted
