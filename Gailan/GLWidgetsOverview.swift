@@ -48,6 +48,19 @@ struct WidgetSetting: Identifiable, Equatable {
 
     var id: String { key }
 
+    /* What a control should show for what was stored. A widget can rename an option or
+       drop one, and a stored value it no longer offers would leave a picker with
+       nothing selected at all. What the widget says it should be is a better answer
+       than blank. */
+    func resolved(_ stored: String?) -> String {
+        let value = stored ?? defaultValue ?? ""
+
+        guard !options.isEmpty else { return value }
+        guard !options.contains(where: { $0.value == value }) else { return value }
+
+        return defaultValue ?? options[0].value
+    }
+
     init?(_ raw: [AnyHashable: Any]) {
         guard let key = raw["key"] as? String,
               let type = raw["type"] as? String,
@@ -541,7 +554,7 @@ struct GLWidgetSettings: View {
     }
 
     private func current(_ setting: WidgetSetting) -> String {
-        widget?.config[setting.key] ?? setting.defaultValue ?? ""
+        setting.resolved(widget?.config[setting.key])
     }
 
     private func binding(_ setting: WidgetSetting) -> Binding<String> {

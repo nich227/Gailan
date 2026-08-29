@@ -211,3 +211,45 @@ final class GLShortcutsTests: XCTestCase {
         }
     }
 }
+
+// MARK: - a setting reading what was stored for it
+
+extension GLShortcutsTests {
+    /* Renaming an option is the ordinary way this happens: a widget offered auto and
+       offers follow now, and somebody has auto saved. A picker with no selection is
+       worse than the widget's own answer. */
+    func testStoredValueNoLongerOfferedFallsBack() throws {
+        let setting = WidgetSetting([
+            "key": "background",
+            "type": "list",
+            "label": "Background",
+            "default": "follow",
+            "options": [
+                ["value": "follow", "label": "Follow system"],
+                ["value": "light", "label": "Light"],
+                ["value": "dark", "label": "Dark"],
+            ],
+        ])
+
+        let unwrapped = try XCTUnwrap(setting)
+
+        XCTAssertEqual(unwrapped.resolved("dark"), "dark", "one it offers is kept")
+        XCTAssertEqual(unwrapped.resolved("auto"), "follow", "one it dropped falls back")
+        XCTAssertEqual(unwrapped.resolved(nil), "follow", "nothing stored is the default")
+    }
+
+    func testASettingWithNoOptionsKeepsWhateverWasStored() throws {
+        let setting = try XCTUnwrap(WidgetSetting([
+            "key": "accent",
+            "type": "color",
+            "label": "Accent",
+            "default": "#d71921ff",
+        ]))
+
+        XCTAssertEqual(
+            setting.resolved("#00ff88ff"), "#00ff88ff",
+            "a colour is not one of a list, so it is taken as it is"
+        )
+        XCTAssertEqual(setting.resolved(nil), "#d71921ff", "and falls back to the default")
+    }
+}
