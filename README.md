@@ -32,17 +32,17 @@ folder of files you can read, and each downloads as a zip from the
   <tr>
     <td width="33%">
       <a href="https://github.com/nich227/GailanHub/tree/main/widgets/clock">
-        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/clock/preview.jpg" alt="The clock widget on a desktop, showing the time on a dot matrix" />
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/clock/preview.jpg" alt="The clock widget on a desktop in its light style, showing the time on a dot matrix with red seconds" />
       </a>
     </td>
     <td width="33%">
       <a href="https://github.com/nich227/GailanHub/tree/main/widgets/system">
-        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/system/preview.jpg" alt="The system monitor widget on a desktop, showing 42 percent of memory in use on a twenty-division scale" />
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/system/preview.jpg" alt="The system monitor widget on a desktop in its light style, showing 42 percent of memory in use on a twenty-division scale" />
       </a>
     </td>
     <td width="33%">
       <a href="https://github.com/nich227/GailanHub/tree/main/widgets/nowplaying">
-        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/nowplaying/preview.jpg" alt="The now playing widget on a desktop, showing a track with its cover and pixel transport controls" />
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/nowplaying/preview.jpg" alt="The now playing widget on a desktop in its light style, showing a track with its cover, a progress bar and pixel transport controls" />
       </a>
     </td>
   </tr>
@@ -307,6 +307,17 @@ values to `render` as `props.settings`.
         {"value": "large", "label": "Large"}
       ]
     },
+    {
+      "key": "accent",
+      "type": "list",
+      "label": "Accent",
+      "default": "red",
+      "options": [
+        {"value": "red", "label": "Red"},
+        {"value": "amber", "label": "Amber"},
+        {"value": "green", "label": "Green"}
+      ]
+    },
     {"key": "showSeconds", "type": "toggle", "label": "Show seconds", "default": true},
     {"key": "opacity", "type": "number", "label": "Opacity", "default": 42, "min": 10, "max": 90}
   ]
@@ -321,15 +332,20 @@ export const render = ({output, settings = {}}) => (
 )
 ```
 
-Five types, each becoming one control:
+Each type becomes one control:
 
 | type | control | extras |
 |---|---|---|
 | `choice` | segmented picker | `options`, as strings or `{value, label}` |
+| `list` | menu | `options`, the same as `choice` |
 | `toggle` | switch | |
 | `number` | slider with its value | `min`, `max`, `step` |
 | `text` | text field | |
 | `color` | color well with opacity | stored as `#rrggbbaa` |
+
+`choice` and `list` hold the same thing and differ only in the control. Segments read
+well for two or three short options and badly for more, where a menu is what somebody
+expects.
 
 Every setting needs a `key` and a `type`. `label`, `help` and `default` are
 optional, though a `default` is worth setting: it is what the control shows before

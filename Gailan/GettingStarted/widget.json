@@ -46,6 +46,31 @@
       "min": 10,
       "max": 90,
       "step": 1
+    },
+    {
+      "key": "background",
+      "type": "list",
+      "label": "Background",
+      "help": "Follow the system, or hold one of these whatever the system does",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Follow appearance"
+        },
+        {
+          "value": "black",
+          "label": "Black"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        },
+        {
+          "value": "pink",
+          "label": "Pink"
+        }
+      ]
     }
   ]
 }

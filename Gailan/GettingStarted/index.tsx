@@ -18,10 +18,13 @@ export const refreshFrequency: number | false = false;
 // which is the documented way to keep state in a widget.
 /* Declared in widget.json so the app can build controls for them, and delivered
    to render as props.settings. The widths are what Small, Medium and Large mean. */
+const BACKGROUNDS = ["auto", "black", "white", "pink"];
+
 type Settings = {
   size?: "small" | "medium" | "large";
   showCredits?: boolean;
   opacity?: number;
+  background?: string;
 };
 
 const WIDTHS: Record<string, number> = { small: 280, medium: 340, large: 420 };
@@ -203,6 +206,39 @@ const Window = styled("div")`
     --text: #0b0b0c;
     --dim: rgba(11, 11, 12, 0.5);
     --light-off: rgba(11, 11, 12, 0.18);
+  }
+
+
+  /* Told to hold a style, the window holds it whatever the system is set to. The same
+     three names every widget offers, so a desktop can be one thing throughout. */
+  &[data-background="black"] {
+    --bg: rgba(11, 11, 12, 0.92);
+    --panel: rgba(11, 11, 12, var(--fill, 0.46));
+    --header-bg: rgba(244, 244, 242, 0.05);
+    --border: rgba(244, 244, 242, 0.14);
+    --text: #f4f4f2;
+    --dim: rgba(244, 244, 242, 0.45);
+    --light-off: rgba(244, 244, 242, 0.22);
+  }
+
+  &[data-background="white"] {
+    --bg: rgba(241, 241, 239, 0.94);
+    --panel: rgba(241, 241, 239, var(--fill, 0.58));
+    --header-bg: rgba(11, 11, 12, 0.04);
+    --border: rgba(11, 11, 12, 0.16);
+    --text: #0b0b0c;
+    --dim: rgba(11, 11, 12, 0.5);
+    --light-off: rgba(11, 11, 12, 0.18);
+  }
+
+  &[data-background="pink"] {
+    --bg: rgba(242, 182, 199, 0.94);
+    --panel: rgba(246, 204, 216, var(--fill, 0.58));
+    --header-bg: rgba(43, 15, 22, 0.05);
+    --border: rgba(43, 15, 22, 0.18);
+    --text: #2b0f16;
+    --dim: rgba(43, 15, 22, 0.55);
+    --light-off: rgba(43, 15, 22, 0.2);
   }
 
   pointer-events: auto;
@@ -415,6 +451,9 @@ const Footer = styled("div")`
 
 export const render = ({ output, error, settings = {} }: State) => {
   const width = WIDTHS[settings.size ?? "medium"] ?? WIDTHS.medium;
+  const surface = BACKGROUNDS.indexOf(settings.background ?? "") > 0
+    ? settings.background
+    : undefined;
   const fill = (settings.opacity ?? 42) / 100;
   const firstName = error ? "there" : output.trim().split(/\s+/)[0] || "there";
   const placed = pos || centered;
@@ -432,6 +471,7 @@ export const render = ({ output, error, settings = {} }: State) => {
     // rectangle, System glass in Preferences picks the material.
     <Window
       id={WIDGET_ID}
+      data-background={surface}
       data-gailan-desktop-glass={13}
       data-active={active ? "true" : "false"}
       style={
