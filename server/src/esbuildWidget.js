@@ -242,6 +242,9 @@ module.exports = function esbuildWidget(id, filePath) {
     // widgets say <div/> and mean html('div'), the factory the client exposes
     jsx: 'transform',
     jsxFactory: 'html',
+    // <> in a widget would otherwise compile to React.Fragment, which a widget has no
+    // reason to have imported. The client puts this one on the window beside html.
+    jsxFragment: 'htmlFragment',
     loader: {'.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx'},
     sourcemap: isJsx ? 'inline' : false,
     logLevel: 'silent',

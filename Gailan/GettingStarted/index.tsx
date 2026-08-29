@@ -4,7 +4,7 @@
 // Gailan is a fork of Übersicht by Felix Hageloh. The widget API, the server
 // underneath, and the whole idea are his work: https://tracesof.net/uebersicht
 
-import { styled } from "gailan";
+import { React, styled } from "gailan";
 
 // this is the shell command that gets executed every time this widget
 // refreshes. id -F prints your full name; render keeps the first word.

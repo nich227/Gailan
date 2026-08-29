@@ -3,9 +3,14 @@ const RenderLoop = require('./renderLoop');
 const Timer = require('./Timer');
 const runShellCommand = require('./runShellCommand');
 const {createRoot} = require('react-dom/client');
-const html = require('react').createElement;
+const React = require('react');
+const html = React.createElement;
 const ErrorDetails = require('./ErrorDetails');
 window.html = html;
+// A widget writing <> needs somewhere for the fragment to come from. esbuild would
+// otherwise reach for React.Fragment, which a widget has no reason to have imported, and
+// the widget throws on render with nothing to show for it.
+window.htmlFragment = React.Fragment;
 
 const defaults = {
   id: 'widget',
