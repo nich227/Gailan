@@ -578,7 +578,9 @@ and is on by default; `Off` opts out. On macOS 26 there is also a `Style`, a `Ti
 where no opacity means untinted, and a `Transparency`.
 
 `Style` is `Follow system` by default, which reads the Icon & widget style macOS is set to
-and matches it, so glass on the desktop agrees with the icons and widgets around it. The
+and matches it, so glass on the desktop agrees with the icons and widgets around it.
+Changing that setting takes effect as you change it: System Settings writes it from its own
+process and AppKit announces nothing, so Gailan watches the value itself. The
 other three hold what they say whatever the system does: `Regular` and `Clear` are the two
 `NSGlassEffectView` offers, and `Tinted` is the regular glass carrying a color, which is
 the accent macOS is set to unless a tint has been chosen.

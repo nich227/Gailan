@@ -18,6 +18,7 @@
 @interface GLGlassLayer (Testing)
 - (NSString*)resolvedStyle;
 - (NSColor*)effectiveTintForStyle:(NSString*)style;
+- (void)systemAppearanceChanged;
 @end
 
 @interface GLGlassLayerTests : XCTestCase
@@ -199,6 +200,94 @@
         [NSColor controlAccentColor],
         @"a colour with nothing in it is not a choice"
     );
+}
+
+
+/* Changing the Icon & widget style in System Settings has to show up without anything
+   else happening. There is no notification for it, so the layer watches the defaults;
+   what this checks is the outcome, that the glass is rebuilt and is there afterwards. */
+- (void)testFollowingTheSystemRepaintsWhenTheSystemChanges
+{
+    GLGlassLayer* layer = [[GLGlassLayer alloc]
+        initWithFrame: NSMakeRect(0, 0, 400, 400)
+    ];
+    [layer setMaterialName:@"frosted" style:@"follow" tint:nil opacity:1.0];
+
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
+    [defaults setObject:@"RegularDark" forKey:@"AppleIconAppearanceTheme"];
+
+    [layer setRegions:@[@{
+        @"id": @"widget", @"x": @10, @"y": @10, @"w": @100, @"h": @80, @"radius": @18
+    }]];
+    XCTAssertEqual(layer.subviews.count, 1UL, @"one claim, one glass view");
+    NSView* first = layer.subviews.firstObject;
+    XCTAssertEqualObjects([layer resolvedStyle], @"regular", @"following a regular system");
+
+    // the system becomes clear, which is a different glass
+    [defaults setObject:@"ClearDark" forKey:@"AppleIconAppearanceTheme"];
+
+    XCTAssertEqualObjects([layer resolvedStyle], @"clear", @"the layer reads the change");
+    XCTAssertEqual(layer.subviews.count, 1UL,
+                   @"and the glass is still there rather than gone until something moves");
+    XCTAssertNotEqual(layer.subviews.firstObject, first,
+                      @"built again, because the style it was built from changed");
+
+    if (before) {
+        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+    } else {
+        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+    }
+}
+
+/* Light to dark changes the name without changing the glass, so nothing should be
+   rebuilt for it. */
+- (void)testAChangeThatComesToTheSameGlassIsLeftAlone
+{
+    GLGlassLayer* layer = [[GLGlassLayer alloc]
+        initWithFrame: NSMakeRect(0, 0, 400, 400)
+    ];
+    [layer setMaterialName:@"frosted" style:@"follow" tint:nil opacity:1.0];
+
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
+    [defaults setObject:@"RegularLight" forKey:@"AppleIconAppearanceTheme"];
+
+    [layer setRegions:@[@{
+        @"id": @"widget", @"x": @10, @"y": @10, @"w": @100, @"h": @80, @"radius": @18
+    }]];
+    NSView* first = layer.subviews.firstObject;
+
+    [defaults setObject:@"RegularDark" forKey:@"AppleIconAppearanceTheme"];
+
+    XCTAssertEqual(layer.subviews.firstObject, first,
+                   @"same glass either way, so the view it had is the view it keeps");
+
+    if (before) {
+        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+    } else {
+        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+    }
+}
+
+/* Turning glass on, or changing its style, used to clear the views and wait for the page
+   to report regions again, which only happens when a widget moves. */
+- (void)testChangingTheSettingsPutsTheGlassBackAtOnce
+{
+    GLGlassLayer* layer = [[GLGlassLayer alloc]
+        initWithFrame: NSMakeRect(0, 0, 400, 400)
+    ];
+    [layer setMaterialName:@"off" style:@"regular" tint:nil opacity:1.0];
+    [layer setRegions:@[@{
+        @"id": @"widget", @"x": @10, @"y": @10, @"w": @100, @"h": @80, @"radius": @18
+    }]];
+    XCTAssertEqual(layer.subviews.count, 0UL, @"off, so nothing is drawn");
+
+    // glass is turned on, and the page has said nothing new
+    [layer setMaterialName:@"frosted" style:@"regular" tint:nil opacity:1.0];
+
+    XCTAssertEqual(layer.subviews.count, 1UL,
+                   @"the claim it already knew about is answered straight away");
 }
 
 @end
