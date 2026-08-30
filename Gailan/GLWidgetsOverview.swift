@@ -430,8 +430,22 @@ struct GLWidgetsOverview: View {
                 Image(nsImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+            } else if let desktop = DesktopPicture.image {
+                /* A widget with no screenshot gets the desktop it would sit on, with
+                   nothing on it. Every other card shows a widget against this same
+                   wallpaper, so the gap where the widget should be is the point. */
+                Image(nsImage: desktop)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                Text("No preview")
+                    .font(.caption)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.black.opacity(0.45), in: Capsule())
             } else {
-                // no screenshot shipped, so say so rather than showing a gap
+                // no screenshot and no readable wallpaper, so say so rather than
+                // showing a gap
                 VStack(spacing: 6) {
                     Image(systemName: "square.dashed")
                         .font(.title2)
@@ -447,6 +461,20 @@ struct GLWidgetsOverview: View {
         .background(.black.opacity(0.28))
         .clipped()
     }
+}
+
+/* The wallpaper macOS is showing, read once. Every card in the window is drawn at the
+   same moment, and a wallpaper is a large picture, so reading it per card would cost
+   that much again each time. AppKit will not hand over a rendering of the desktop, so
+   this is the picture itself rather than a capture of the screen. */
+private enum DesktopPicture {
+    static let image: NSImage? = {
+        guard let screen = NSScreen.main,
+              let url = NSWorkspace.shared.desktopImageURL(for: screen)
+        else { return nil }
+
+        return NSImage(contentsOf: url)
+    }()
 }
 
 // MARK: - the settings a widget declares, turned into controls

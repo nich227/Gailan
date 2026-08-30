@@ -31,6 +31,8 @@ const BACKGROUNDS = [
   "indigo",
   "violet",
   "pink",
+  "gray",
+  "brown",
 ];
 
 type Settings = {
@@ -285,6 +287,16 @@ const Window = styled("div")`
     --text: #1f1013;
   }
 
+  &[data-background="gray"] {
+    --panel: rgba(245, 245, 245, var(--fill, 0.9));
+    --text: #0f0f10;
+  }
+
+  &[data-background="brown"] {
+    --panel: rgba(240, 230, 217, var(--fill, 0.9));
+    --text: #231710;
+  }
+
   /* Everything else a wash needs follows from its ink, so a hue is written once. */
   &[data-background="red"],
   &[data-background="orange"],
@@ -294,7 +306,9 @@ const Window = styled("div")`
   &[data-background="blue"],
   &[data-background="indigo"],
   &[data-background="violet"],
-  &[data-background="pink"] {
+  &[data-background="pink"],
+  &[data-background="gray"],
+  &[data-background="brown"] {
     --header-bg: color-mix(in srgb, var(--text) 5%, transparent);
     --border: color-mix(in srgb, var(--text) 16%, transparent);
     --dim: color-mix(in srgb, var(--text) 50%, transparent);

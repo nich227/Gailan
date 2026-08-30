@@ -101,6 +101,14 @@
         {
           "value": "pink",
           "label": "Pink"
+        },
+        {
+          "value": "gray",
+          "label": "Gray"
+        },
+        {
+          "value": "brown",
+          "label": "Brown"
         }
       ]
     }
