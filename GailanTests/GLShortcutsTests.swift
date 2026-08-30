@@ -252,4 +252,71 @@ extension GLShortcutsTests {
         )
         XCTAssertEqual(setting.resolved(nil), "#d71921ff", "and falls back to the default")
     }
+
+    /* The clock's case: 12 or 24 hours means nothing on a dial, so it is offered and
+       greyed while the face is analog. */
+    func testASettingIsUsableOnlyWhileItsConditionHolds() throws {
+        let setting = try XCTUnwrap(
+            WidgetSetting([
+                "key": "hours",
+                "type": "choice",
+                "label": "Hours",
+                "default": "12",
+                "options": [["value": "12", "label": "12"], ["value": "24", "label": "24"]],
+                "enabledWhen": ["face": "digital"],
+            ]))
+
+        XCTAssertTrue(
+            setting.isEnabled { _ in "digital" }, "the face it asked for makes it usable")
+        XCTAssertFalse(setting.isEnabled { _ in "analog" }, "any other face greys it")
+    }
+
+    func testAConditionOnSeveralSettingsNeedsThemAll() throws {
+        let setting = try XCTUnwrap(
+            WidgetSetting([
+                "key": "seconds",
+                "type": "toggle",
+                "label": "Show seconds",
+                "enabledWhen": ["face": ["digital", "dots"], "compact": false],
+            ]))
+
+        let values = ["face": "dots", "compact": "false"]
+
+        XCTAssertTrue(
+            setting.isEnabled { values[$0] },
+            "one of the faces it accepts, and the other condition met"
+        )
+        XCTAssertFalse(
+            setting.isEnabled { $0 == "face" ? "analog" : "false" },
+            "a face it does not accept is enough to grey it"
+        )
+        XCTAssertFalse(
+            setting.isEnabled { $0 == "face" ? "dots" : "true" },
+            "so is the second condition going the other way"
+        )
+    }
+
+    /* A manifest naming a key the widget never declares is a mistake in the manifest.
+       Greying the control on it would leave somebody with a setting they cannot reach
+       and no way to see why. */
+    func testAConditionOnAnUnknownSettingIsIgnored() throws {
+        let setting = try XCTUnwrap(
+            WidgetSetting([
+                "key": "hours",
+                "type": "choice",
+                "label": "Hours",
+                "options": [["value": "12", "label": "12"]],
+                "enabledWhen": ["fase": "digital"],
+            ]))
+
+        XCTAssertTrue(setting.isEnabled { _ in nil }, "a key that is not there is skipped")
+    }
+
+    func testASettingWithoutAConditionIsAlwaysUsable() throws {
+        let setting = try XCTUnwrap(
+            WidgetSetting(["key": "opacity", "type": "number", "label": "Fill"]))
+
+        XCTAssertTrue(setting.isEnabled { _ in nil })
+        XCTAssertTrue(setting.enabledWhen.isEmpty, "and it carries no conditions")
+    }
 }

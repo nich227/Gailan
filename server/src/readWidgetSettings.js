@@ -52,6 +52,22 @@ function normalize(setting) {
     );
   }
 
+  /* A setting can name others it depends on, and is offered but not usable while they
+     hold something else. Values are compared as strings, the same as everywhere the app
+     keeps a chosen value, so a boolean or a number in the manifest still matches. */
+  const when = setting.enabledWhen;
+  if (when && typeof when === 'object' && !Array.isArray(when)) {
+    const conditions = {};
+    Object.keys(when).forEach((key) => {
+      const wanted = Array.isArray(when[key]) ? when[key] : [when[key]];
+      const values = wanted
+        .filter((value) => value !== undefined && value !== null)
+        .map(String);
+      if (values.length) conditions[key] = values;
+    });
+    if (Object.keys(conditions).length) clean.enabledWhen = conditions;
+  }
+
   if (setting.type === 'number') {
     clean.min = typeof setting.min === 'number' ? setting.min : 0;
     clean.max = typeof setting.max === 'number' ? setting.max : 100;

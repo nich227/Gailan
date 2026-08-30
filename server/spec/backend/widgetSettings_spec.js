@@ -332,3 +332,66 @@ test('a list with nothing to choose from is dropped', (t) => {
   fs.rmSync(dir, {recursive: true, force: true});
   t.end();
 });
+
+test('a condition on another setting is carried through as strings', (t) => {
+  const {widget} = scratch({
+    settings: [
+      {key: 'face', type: 'choice', options: ['digital', 'analog']},
+      {
+        key: 'hours',
+        type: 'choice',
+        options: ['12', '24'],
+        enabledWhen: {face: 'digital'},
+      },
+      {
+        key: 'seconds',
+        type: 'toggle',
+        // several values for one key, and a boolean, both of which have to survive
+        enabledWhen: {face: ['digital', 'dots'], compact: false},
+      },
+      {key: 'opacity', type: 'number'},
+    ],
+  });
+
+  const schema = readWidgetSettings(widget);
+
+  t.deepEqual(
+    schema[1].enabledWhen,
+    {face: ['digital']},
+    'a single value becomes a list of one'
+  );
+  t.deepEqual(
+    schema[2].enabledWhen,
+    {face: ['digital', 'dots'], compact: ['false']},
+    'a list stays a list, and a boolean is compared as a string'
+  );
+  t.equal(
+    schema[3].enabledWhen,
+    undefined,
+    'a setting without a condition carries none'
+  );
+  t.end();
+});
+
+test('a condition that says nothing usable is dropped', (t) => {
+  const {widget} = scratch({
+    settings: [
+      {key: 'a', type: 'text', enabledWhen: 'digital'},
+      {key: 'b', type: 'text', enabledWhen: ['face']},
+      {key: 'c', type: 'text', enabledWhen: {}},
+      {key: 'd', type: 'text', enabledWhen: {face: []}},
+      {key: 'e', type: 'text', enabledWhen: {face: null}},
+    ],
+  });
+
+  const schema = readWidgetSettings(widget);
+
+  schema.forEach((setting) => {
+    t.equal(
+      setting.enabledWhen,
+      undefined,
+      `${setting.key}: nothing to compare means no condition`
+    );
+  });
+  t.end();
+});

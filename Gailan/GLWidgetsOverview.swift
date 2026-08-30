@@ -45,8 +45,24 @@ struct WidgetSetting: Identifiable, Equatable {
        this a picker has no selection and a switch reads off, which makes a
        widget look misconfigured before it has been touched. */
     let defaultValue: String?
+    /* Other settings this one depends on, each with the values that make it usable.
+       The clock's 12 or 24 hours has nothing to say about a dial, so it is offered
+       and greyed while the face is analog. */
+    let enabledWhen: [String: [String]]
 
     var id: String { key }
+
+    /* Whether the control should accept a change, given what the other settings hold.
+       A condition naming a key the widget does not declare is ignored rather than
+       taken as unmet, so a mistake in a manifest leaves a control usable instead of
+       stuck. */
+    func isEnabled(_ valueFor: (String) -> String?) -> Bool {
+        for (key, accepted) in enabledWhen {
+            guard let value = valueFor(key) else { continue }
+            if !accepted.contains(value) { return false }
+        }
+        return true
+    }
 
     /* What a control should show for what was stored. A widget can rename an option or
        drop one, and a stored value it no longer offers would leave a picker with
@@ -82,6 +98,14 @@ struct WidgetSetting: Identifiable, Equatable {
         } else {
             defaultValue = nil
         }
+
+        var conditions: [String: [String]] = [:]
+        for (key, wanted) in (raw["enabledWhen"] as? [AnyHashable: Any]) ?? [:] {
+            guard let name = key as? String else { continue }
+            let values = (wanted as? [Any]) ?? [wanted]
+            conditions[name] = values.map { String(describing: $0) }
+        }
+        enabledWhen = conditions
 
         options = ((raw["options"] as? [[AnyHashable: Any]]) ?? []).compactMap {
             guard let value = $0["value"] else { return nil }
@@ -455,6 +479,7 @@ struct GLWidgetSettings: View {
             Form {
                 ForEach(widget?.settings ?? []) { setting in
                     control(setting)
+                        .disabled(!isEnabled(setting))
                 }
             }
             .formStyle(.grouped)
@@ -555,6 +580,17 @@ struct GLWidgetSettings: View {
 
     private func current(_ setting: WidgetSetting) -> String {
         setting.resolved(widget?.config[setting.key])
+    }
+
+    /* Conditions name another setting by key, and what matters is what that control
+       is showing, which is the stored value or the widget's default. */
+    private func isEnabled(_ setting: WidgetSetting) -> Bool {
+        setting.isEnabled { key in
+            guard let other = widget?.settings.first(where: { $0.key == key })
+            else { return nil }
+
+            return current(other)
+        }
     }
 
     private func binding(_ setting: WidgetSetting) -> Binding<String> {
