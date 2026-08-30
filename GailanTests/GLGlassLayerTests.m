@@ -20,6 +20,7 @@
 - (NSString*)resolvedStyle;
 - (NSColor*)effectiveTintForStyle:(NSString*)style;
 - (void)systemAppearanceChanged;
+- (void)rebuild;
 @end
 
 @interface GLGlassLayerTests : XCTestCase
@@ -289,6 +290,93 @@
 
     XCTAssertEqual(layer.subviews.count, 1UL,
                    @"the claim it already knew about is answered straight away");
+}
+
+
+/* Turning glass on, or changing its style, discarded the standing views and stopped
+   there. Regions live in the page and are only sent when they change, so the desktop
+   stayed bare until a widget happened to move. */
+- (void)testRebuildingPutsTheGlassBack
+{
+    [layer setMaterialName:@"frosted"
+                     style:@"regular"
+                      tint:nil
+                   opacity:1.0];
+    [layer setRegions:[self regionWithId:@"one" y:100 height:80]];
+    XCTAssertEqual(layer.subviews.count, 1UL, @"a region asks for a view");
+
+    [layer rebuild];
+
+    XCTAssertEqual(
+        layer.subviews.count, 1UL,
+        @"and the view is there again without the page reporting anything"
+    );
+}
+
+- (void)testRebuildingWithNothingReportedDrawsNothing
+{
+    [layer setMaterialName:@"frosted"
+                     style:@"regular"
+                      tint:nil
+                   opacity:1.0];
+
+    [layer rebuild];
+
+    XCTAssertEqual(layer.subviews.count, 0UL, @"no regions, no views");
+}
+
+/* The colour macOS draws for each choice, each one read from a fresh process while
+   System Settings was set to it. NSColor's controlAccentColor is settled once per
+   process and goes stale the moment the choice changes, so the app reads the
+   preference itself and this table is what it answers with. A CSS AccentColor in a
+   WKWebView is no help either: it reports the default blue whatever macOS is set to.
+*/
+- (void)testTheAccentTableMatchesWhatMacOSDraws
+{
+    NSDictionary<NSNumber*, NSString*>* expected = @{
+        @(-1): @"8c8c8c",
+        @(0): @"ff5257",
+        @(1): @"f7821b",
+        @(2): @"ffc600",
+        @(3): @"62ba46",
+        @(4): @"007aff",
+        @(5): @"a550a7",
+        @(6): @"f74f9e",
+    };
+
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    id restore = [defaults objectForKey:@"AppleAccentColor"];
+
+    for (NSNumber* choice in expected) {
+        [defaults setObject:choice forKey:@"AppleAccentColor"];
+
+        NSColor* answered = [[GLPreferencesController systemAccentColor]
+            colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
+        NSString* hex = [NSString
+            stringWithFormat:@"%02x%02x%02x",
+                             (int)round(answered.redComponent * 255),
+                             (int)round(answered.greenComponent * 255),
+                             (int)round(answered.blueComponent * 255)];
+
+        XCTAssertEqualObjects(
+            hex, expected[choice], @"choice %@ draws as #%@", choice, expected[choice]
+        );
+    }
+
+    /* nothing chosen is multicolour, which macOS draws blue */
+    [defaults removeObjectForKey:@"AppleAccentColor"];
+    NSColor* multicolour = [[GLPreferencesController systemAccentColor]
+        colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
+    XCTAssertEqual(
+        (int)round(multicolour.blueComponent * 255), 255,
+        @"multicolour draws as the blue"
+    );
+
+    if (restore) {
+        [defaults setObject:restore forKey:@"AppleAccentColor"];
+    } else {
+        [defaults removeObjectForKey:@"AppleAccentColor"];
+    }
 }
 
 @end
