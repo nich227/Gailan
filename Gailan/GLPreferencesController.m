@@ -38,7 +38,16 @@
             // for it. on by default; "off" opts out.
             @"desktopGlass": @"frosted",
             @"desktopGlassStyle": @"follow",
-            @"desktopGlassOpacity": @1.0
+            @"desktopGlassOpacity": @1.0,
+
+            /* Where a tint comes from. "follow" takes it from the wallpaper when macOS
+               is tinting window backgrounds and leaves the glass untinted when it is
+               not; "off" never tints; "custom" uses desktopGlassTint.
+
+               A tint already chosen means somebody picked a color before there was a
+               mode to hold, so that choice stands rather than being replaced by the
+               system's. */
+            @"desktopGlassTintMode": [self storedTintIsAColor] ? @"custom" : @"follow"
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
@@ -354,6 +363,162 @@ static NSArray* desktopGlassStyles(void)
 
 // stored as #rrggbbaa so it survives a plist round trip legibly. fully
 // transparent means untinted.
+/* Whether a tint was saved before the mode existed. Read straight from the store rather
+   than through the accessor, since this runs while the defaults are being registered. */
+- (BOOL)storedTintIsAColor
+{
+    NSString* hex = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"desktopGlassTint"
+    ];
+    if (hex.length < 9) return NO;
+
+    unsigned int value = 0;
+    NSScanner* scanner = [NSScanner scannerWithString:
+        [hex stringByReplacingOccurrencesOfString:@"#" withString:@""]];
+    if (![scanner scanHexInt:&value]) return NO;
+
+    return (value & 0xFF) > 0;
+}
+
+- (NSString*)desktopGlassTintMode
+{
+    NSString* mode = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"desktopGlassTintMode"
+    ];
+    return mode ?: @"follow";
+}
+
+- (void)setDesktopGlassTintMode:(NSString*)mode
+{
+    [[NSUserDefaults standardUserDefaults]
+        setObject: mode ?: @"follow"
+           forKey: @"desktopGlassTintMode"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
+}
+
+/* Whether macOS is tinting window backgrounds with the wallpaper. The setting is
+   AppleReduceDesktopTinting in the global domain and it counts the other way: 1 means
+   reduce the tinting, so absent or 0 means tinting is on. */
++ (BOOL)systemTintsWindowBackgrounds
+{
+    return ![[NSUserDefaults standardUserDefaults]
+        boolForKey:@"AppleReduceDesktopTinting"];
+}
+
+/* The wallpaper's own color, which is what macOS tints with. AppKit will not hand over a
+   tint: windowBackgroundColor is flat whatever the wallpaper is, so the picture has to be
+   read and reduced to one color.
+
+   Two things make that reduction better than a plain average.
+
+   The average is taken in linear light. sRGB values are gamma encoded, so adding them up
+   as they stand is adding numbers that are not proportional to light, and the answer comes
+   out darker and muddier than the picture looks. Each sample is decoded to linear, averaged
+   there, and encoded back.
+
+   Samples are weighted by how colorful they are. A wallpaper is mostly large, flat, quiet
+   areas, and an unweighted average of those is always a gray. Weighting by chroma lets the
+   parts of the picture that carry the color decide what the color is, which is what
+   somebody means by "the color of my wallpaper". A small base weight keeps a genuinely gray
+   wallpaper from dividing by nothing.
+
+   Read at 32 by 32 rather than one pixel, because one pixel is the unweighted average with
+   no chance to weight anything, and asked for with high interpolation so the reduction is
+   the picture's own colors rather than whatever four pixels the sampler happened to land
+   on.
+
+   Kept against the file it came from and the time that file was last written, so a
+   wallpaper swapped for another, or edited in place, is read again. */
++ (NSColor*)wallpaperTint
+{
+    NSScreen* screen = [NSScreen mainScreen];
+    if (!screen) return nil;
+
+    NSURL* url = [[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen];
+    if (!url) return nil;
+
+    NSDate* written = nil;
+    [url getResourceValue:&written forKey:NSURLContentModificationDateKey error:NULL];
+    NSString* token = [NSString stringWithFormat:@"%@|%f", url.path,
+                                                 written.timeIntervalSince1970];
+
+    static NSString* sampledFrom = nil;
+    static NSColor* sampled = nil;
+    if ([sampledFrom isEqualToString:token]) return sampled;
+
+    NSImage* picture = [[NSImage alloc] initWithContentsOfURL:url];
+    if (!picture) return nil;
+
+    const size_t side = 32;
+    const size_t stride = side * 4;
+    unsigned char* pixels = calloc(side * stride, 1);
+    if (!pixels) return nil;
+
+    CGColorSpaceRef space = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+    CGContextRef bitmap = CGBitmapContextCreate(
+        pixels, side, side, 8, stride, space, kCGImageAlphaPremultipliedLast);
+    CGColorSpaceRelease(space);
+    if (!bitmap) {
+        free(pixels);
+        return nil;
+    }
+
+    CGContextSetInterpolationQuality(bitmap, kCGInterpolationHigh);
+    NSGraphicsContext* context =
+        [NSGraphicsContext graphicsContextWithCGContext:bitmap flipped:NO];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:context];
+    [picture drawInRect:NSMakeRect(0, 0, side, side)
+               fromRect:NSZeroRect
+              operation:NSCompositingOperationCopy
+               fraction:1.0];
+    [NSGraphicsContext restoreGraphicsState];
+    CGContextRelease(bitmap);
+
+    double totals[3] = {0, 0, 0};
+    double weights = 0;
+
+    for (size_t y = 0; y < side; y++) {
+        for (size_t x = 0; x < side; x++) {
+            unsigned char* sample = pixels + y * stride + x * 4;
+            double channels[3];
+            for (int c = 0; c < 3; c++) {
+                double v = sample[c] / 255.0;
+                // sRGB to linear light, the standard transfer function
+                channels[c] = v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4);
+            }
+
+            double high = fmax(fmax(channels[0], channels[1]), channels[2]);
+            double low = fmin(fmin(channels[0], channels[1]), channels[2]);
+            // colorful samples decide the color; a flat gray one barely counts
+            double weight = 0.05 + (high - low);
+
+            for (int c = 0; c < 3; c++) totals[c] += channels[c] * weight;
+            weights += weight;
+        }
+    }
+
+    free(pixels);
+    if (weights <= 0) return nil;
+
+    CGFloat rgb[3];
+    for (int c = 0; c < 3; c++) {
+        double linear = totals[c] / weights;
+        // and back to sRGB
+        rgb[c] = linear <= 0.0031308 ? linear * 12.92
+                                     : 1.055 * pow(linear, 1.0 / 2.4) - 0.055;
+        rgb[c] = fmin(fmax(rgb[c], 0.0), 1.0);
+    }
+
+    /* The alpha is held well below full, since a tint at full strength stops the glass
+       reading as glass. */
+    sampled = [NSColor colorWithSRGBRed:rgb[0] green:rgb[1] blue:rgb[2] alpha:0.35];
+    sampledFrom = [token copy];
+
+    return sampled;
+}
+
 - (NSString*)desktopGlassTint
 {
     NSString* hex = [[NSUserDefaults standardUserDefaults]
@@ -419,6 +584,15 @@ static NSArray* desktopGlassStyles(void)
 
 - (NSColor*)desktopGlassTintColor
 {
+    NSString* mode = [self desktopGlassTintMode];
+
+    if ([mode isEqualToString:@"off"]) return nil;
+
+    if ([mode isEqualToString:@"follow"]) {
+        if (![GLPreferencesController systemTintsWindowBackgrounds]) return nil;
+        return [GLPreferencesController wallpaperTint];
+    }
+
     NSString* hex = [self desktopGlassTint];
     unsigned int value = 0;
     NSScanner* scanner = [NSScanner scannerWithString:

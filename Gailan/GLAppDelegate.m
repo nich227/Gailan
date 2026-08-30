@@ -38,6 +38,9 @@ int const PORT = 41416;
     GLWindowsController* windowsController;
     BOOL shuttingDown;
     BOOL keepServerAlive;
+    // a wallpaper change has no notification, so it is looked for on a timer
+    NSTimer* wallpaperWatch;
+    NSColor* lastWallpaperTint;
     int portOffset;
     GLWidgetsStore* widgetsStore;
     GLWidgetsController* widgetsController;
@@ -74,6 +77,7 @@ int const PORT = 41416;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    [self watchSystemTinting];
     [self resolveUbersichtConflict];
 
     needsRefresh = YES;
@@ -428,6 +432,81 @@ int const PORT = 41416;
 - (void)desktopGlassDidChange
 {
     [self applyDesktopGlass];
+}
+
+/* A tint that follows the system has to notice the system changing its mind, and the
+   tint is worked out here rather than in the layer, so this is where the watching goes.
+
+   KVO on NSUserDefaults rather than a notification: System Settings writes the value
+   from its own process, and of the three ways of hearing about that, only this one
+   fires. NSUserDefaultsDidChangeNotification and a catch-all distributed observer both
+   stay silent for a cross-process write. */
+- (void)watchSystemTinting
+{
+    [[NSUserDefaults standardUserDefaults]
+        addObserver: self
+         forKeyPath: @"AppleReduceDesktopTinting"
+            options: 0
+            context: NULL
+    ];
+
+    /* A wallpaper change has no notification to hear. AppKit publishes
+       desktopImageURLForScreen: and nothing that says it changed: the only notifications
+       NSWorkspace declares near it are for the active space and for file labels. So the
+       url and the file's modification date are looked at on a slow timer, and on a space
+       change, since each space can carry its own wallpaper and switching is when somebody
+       is most likely to see a different one.
+
+       Half a minute is chosen against what it costs: reading a url and a modification
+       date, and doing nothing when neither moved. The picture is only read again when one
+       of them has. */
+    [[[NSWorkspace sharedWorkspace] notificationCenter]
+        addObserver: self
+           selector: @selector(wallpaperMayHaveChanged)
+               name: NSWorkspaceActiveSpaceDidChangeNotification
+             object: nil
+    ];
+
+    wallpaperWatch = [NSTimer
+        scheduledTimerWithTimeInterval: 30.0
+                                target: self
+                              selector: @selector(wallpaperMayHaveChanged)
+                              userInfo: nil
+                               repeats: YES
+    ];
+}
+
+- (void)wallpaperMayHaveChanged
+{
+    if (![[self.preferences desktopGlassTintMode] isEqualToString:@"follow"]) return;
+    if (![GLPreferencesController systemTintsWindowBackgrounds]) return;
+
+    /* The sampler keeps its answer against the file and the time it was written, so this
+       costs a url and a stat when nothing changed, and pushes only when the color it
+       gives back is a different one. */
+    NSColor* now = [GLPreferencesController wallpaperTint];
+    if (now == lastWallpaperTint || [now isEqual:lastWallpaperTint]) return;
+
+    lastWallpaperTint = now;
+    [self applyDesktopGlass];
+}
+
+- (void)observeValueForKeyPath:(NSString*)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary*)change
+                       context:(void*)context
+{
+    if ([keyPath isEqualToString:@"AppleReduceDesktopTinting"]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self applyDesktopGlass];
+        });
+        return;
+    }
+
+    [super observeValueForKeyPath:keyPath
+                         ofObject:object
+                           change:change
+                          context:context];
 }
 
 - (void)applyDesktopGlass

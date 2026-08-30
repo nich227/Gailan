@@ -379,4 +379,52 @@
     }
 }
 
+
+/* AppleReduceDesktopTinting counts the other way round: 1 means reduce the tinting, so
+   absent or 0 means macOS is tinting window backgrounds with the wallpaper. Reading it
+   the wrong way would tint exactly when the user asked for less. */
+- (void)testTheSystemTintingFlagIsReadTheRightWayRound
+{
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    id restore = [defaults objectForKey:@"AppleReduceDesktopTinting"];
+
+    [defaults setBool:YES forKey:@"AppleReduceDesktopTinting"];
+    XCTAssertFalse(
+        [GLPreferencesController systemTintsWindowBackgrounds],
+        @"reduce tinting on means the system is not tinting"
+    );
+
+    [defaults setBool:NO forKey:@"AppleReduceDesktopTinting"];
+    XCTAssertTrue([GLPreferencesController systemTintsWindowBackgrounds]);
+
+    [defaults removeObjectForKey:@"AppleReduceDesktopTinting"];
+    XCTAssertTrue(
+        [GLPreferencesController systemTintsWindowBackgrounds],
+        @"and nothing stored means it is tinting, which is the macOS default"
+    );
+
+    if (restore) [defaults setObject:restore forKey:@"AppleReduceDesktopTinting"];
+}
+
+/* AppKit will not hand over the tint it uses, so the wallpaper is averaged into a single
+   pixel. The alpha is held well down, since a tint at full strength stops glass reading
+   as glass. */
+- (void)testTheWallpaperIsSampledForATint
+{
+    NSColor* tint = [GLPreferencesController wallpaperTint];
+
+    if (!NSScreen.mainScreen
+        || ![[NSWorkspace sharedWorkspace] desktopImageURLForScreen:NSScreen.mainScreen]) {
+        XCTAssertNil(tint, @"no wallpaper to read means no tint");
+        return;
+    }
+
+    XCTAssertNotNil(tint, @"a readable wallpaper gives a colour");
+    XCTAssertEqualWithAccuracy(tint.alphaComponent, 0.35, 0.001);
+    XCTAssertEqualObjects(
+        [GLPreferencesController wallpaperTint], tint,
+        @"and asking again gives the same one rather than reading the picture afresh"
+    );
+}
+
 @end

@@ -40,6 +40,15 @@ final class GLPreferences: ObservableObject {
     @Published var desktopGlassTint: Color {
         didSet { controller.desktopGlassTint = desktopGlassTint.hexRGBA }
     }
+    /* Where a tint comes from, as a tag because that is what a Picker binds to.
+       Following the system means the wallpaper's color when macOS is tinting window
+       backgrounds, and no tint when it is not. */
+    @Published var desktopGlassTintTag: Int {
+        didSet {
+            controller.desktopGlassTintMode =
+                ["follow", "off", "custom"][max(0, min(2, desktopGlassTintTag))]
+        }
+    }
     @Published var widgetPath: String
     @Published var checkWidgetUpdates: Bool {
         didSet {
@@ -59,6 +68,8 @@ final class GLPreferences: ObservableObject {
         desktopGlassStyleTag = controller.desktopGlassStyleTag
         desktopGlassOpacity = controller.desktopGlassOpacity * 100
         desktopGlassTint = Color(hexRGBA: controller.desktopGlassTint)
+        desktopGlassTintTag =
+            ["follow", "off", "custom"].firstIndex(of: controller.desktopGlassTintMode) ?? 0
         widgetPath = controller.widgetDir?.path ?? ""
         checkWidgetUpdates = UserDefaults.standard.bool(forKey: "checkWidgetUpdates")
     }
@@ -185,9 +196,20 @@ struct GLPreferencesView: View {
                 Text("Tinted").tag(3)
             }
             .pickerStyle(.menu)
-            ColorPicker(
-                "Tint", selection: $prefs.desktopGlassTint, supportsOpacity: true
-            )
+            Picker("Tint", selection: $prefs.desktopGlassTintTag) {
+                Text("Follow system").tag(0)
+                Text("Off").tag(1)
+                Text("Color").tag(2)
+            }
+            .pickerStyle(.menu)
+            /* The well is only worth showing when a color is what is wanted. Following
+               the system takes the wallpaper's own color, the way macOS tints a window
+               background, and follows the same setting. */
+            if prefs.desktopGlassTintTag == 2 {
+                ColorPicker(
+                    "Color", selection: $prefs.desktopGlassTint, supportsOpacity: true
+                )
+            }
             LabeledContent("Transparency") {
                 HStack(spacing: 10) {
                     Slider(value: $prefs.desktopGlassOpacity, in: 10...100, step: 1)

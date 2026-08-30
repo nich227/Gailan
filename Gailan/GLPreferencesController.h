@@ -26,6 +26,9 @@
 @property NSInteger desktopGlassTag;
 @property NSInteger desktopGlassStyleTag;
 @property (nonatomic, copy) NSString* desktopGlassTint;
+@property (nonatomic, copy) NSString* desktopGlassTintMode;
++ (BOOL)systemTintsWindowBackgrounds;
++ (NSColor*)wallpaperTint;
 
 - (NSString*)desktopGlassMaterial;
 /* The accent colour macOS is set to, read from the preference so it stays current. */

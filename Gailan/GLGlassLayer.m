@@ -144,9 +144,6 @@ static NSArray* watchedSystemKeys(void)
     return mask;
 }
 
-/* What "follow" comes to. AppleIconAppearanceTheme holds names like RegularLight and
-   ClearDark, so the style is taken from what the name contains: the light and dark halves
-   of each are the same glass. Anything unrecognised is regular. */
 /* The material is baked into each view, so a change means building new ones. The regions
    last reported are kept so the glass can be put back without waiting for the page to
    report them again. */
@@ -164,6 +161,9 @@ static NSArray* watchedSystemKeys(void)
     }
 }
 
+/* What "follow" comes to. AppleIconAppearanceTheme holds names like RegularLight and
+   ClearDark, so the style is taken from what the name contains: the light and dark halves
+   of each are the same glass. Anything unrecognised is regular. */
 - (NSString*)resolvedStyle
 {
     if (![styleName isEqualToString:@"follow"]) {
