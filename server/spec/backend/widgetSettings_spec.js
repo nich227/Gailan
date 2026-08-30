@@ -395,3 +395,86 @@ test('a condition that says nothing usable is dropped', (t) => {
   });
   t.end();
 });
+
+test('what a widget falls back to is written beside it once', (t) => {
+  const {dir, widget} = scratch({
+    settings: [
+      {key: 'face', type: 'choice', default: 'digital', options: ['digital', 'analog']},
+      {key: 'opacity', type: 'number', default: 82},
+      {key: 'note', type: 'text'},
+    ],
+  });
+  const file = path.join(dir, 'settings.default.json');
+  const defaults = readWidgetSettings.defaultsFor(readWidgetSettings(widget));
+
+  t.deepEqual(
+    defaults,
+    {face: 'digital', opacity: 82},
+    'a setting with no default contributes nothing'
+  );
+  t.equal(widgetConfigFile.writeDefaults(widget, defaults), true, 'the file is written');
+  t.deepEqual(JSON.parse(fs.readFileSync(file, 'utf8')), defaults, 'holding the defaults');
+
+  fs.writeFileSync(file, JSON.stringify({face: 'analog'}));
+  t.equal(
+    widgetConfigFile.writeDefaults(widget, defaults),
+    false,
+    'and is left alone after that, so an edit survives'
+  );
+  t.deepEqual(
+    JSON.parse(fs.readFileSync(file, 'utf8')),
+    {face: 'analog'},
+    'the edit is still there'
+  );
+  t.end();
+});
+
+test('a widget with nothing to fall back to gets no file', (t) => {
+  const {dir, widget} = scratch({settings: [{key: 'note', type: 'text'}]});
+
+  t.equal(widgetConfigFile.writeDefaults(widget, {}), false, 'nothing to write');
+  t.equal(
+    fs.existsSync(path.join(dir, 'settings.default.json')),
+    false,
+    'so no file appears'
+  );
+  t.end();
+});
+
+test('the defaults file stands in for the manifest defaults', (t) => {
+  const {dir, widget} = scratch({
+    settings: [
+      {key: 'face', type: 'choice', default: 'digital', options: ['digital', 'analog']},
+      {key: 'opacity', type: 'number', default: 82},
+    ],
+  });
+
+  fs.writeFileSync(
+    path.join(dir, 'settings.default.json'),
+    JSON.stringify({face: 'analog', unknown: 'ignored'})
+  );
+  const schema = readWidgetSettings(widget);
+
+  t.equal(schema[0].default, 'analog', 'the file wins for a key it names');
+  t.equal(schema[1].default, 82, 'and the manifest stands for one it does not');
+  t.equal(
+    schema.some((setting) => setting.key === 'unknown'),
+    false,
+    'a key the widget never declared adds no setting'
+  );
+  t.end();
+});
+
+test('a defaults file that is not usable is ignored', (t) => {
+  const {dir, widget} = scratch({
+    settings: [{key: 'face', type: 'choice', default: 'digital', options: ['digital']}],
+  });
+  const file = path.join(dir, 'settings.default.json');
+
+  ['not json at all', '[1, 2]', '"text"'].forEach((content) => {
+    fs.writeFileSync(file, content);
+    t.deepEqual(widgetConfigFile.readDefaults(widget), {}, `${content}: read as nothing`);
+    t.equal(readWidgetSettings(widget)[0].default, 'digital', 'and the manifest stands');
+  });
+  t.end();
+});

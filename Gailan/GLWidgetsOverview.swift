@@ -487,6 +487,8 @@ struct GLWidgetSettings: View {
             Divider()
 
             HStack {
+                Button("Reset to Defaults", action: resetToDefaults)
+                    .disabled(widget?.settings.isEmpty ?? true)
                 Spacer()
                 Button("Done", action: dismiss)
                     .keyboardShortcut(.defaultAction)
@@ -580,6 +582,18 @@ struct GLWidgetSettings: View {
 
     private func current(_ setting: WidgetSetting) -> String {
         setting.resolved(widget?.config[setting.key])
+    }
+
+    /* Back to what the widget says it should be. Each value is set rather than
+       cleared, because setting one is the single path the app, the page and the file
+       beside the widget all already agree on, and a value equal to the default
+       renders the same as none at all. A setting the widget gives no default for is
+       left as it stands, since there is nothing to go back to. */
+    private func resetToDefaults() {
+        for setting in widget?.settings ?? [] {
+            guard let value = setting.defaultValue else { continue }
+            model.setValue(value, forKey: setting.key, widget: widgetId)
+        }
     }
 
     /* Conditions name another setting by key, and what matters is what that control

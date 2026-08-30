@@ -37,6 +37,7 @@ const actions = require('./actions');
 const reducer = require('./reducer');
 const resolveWidget = require('./resolveWidget');
 const widgetConfigFile = require('./widgetConfigFile');
+const readWidgetSettings = require('./readWidgetSettings');
 
 const dispatchToRemote = require('./dispatch');
 const listenToRemote = require('./listen');
@@ -115,8 +116,18 @@ module.exports = function GailanServer(
     // widget rather than living only in this app's support folder
     Object.keys(state.widgets).forEach((id) => {
       const widget = state.widgets[id];
+      if (!widget || !widget.filePath) return;
+
+      /* What it falls back to, written the first time so it is there to read and
+         edit. This comes before the chosen values because a widget nobody has
+         configured has none, and that is when knowing the defaults helps most. */
+      widgetConfigFile.writeDefaults(
+        widget.filePath,
+        readWidgetSettings.defaultsFor(widget.settingsSchema)
+      );
+
       const config = (state.settings[id] || {}).config;
-      if (!widget || !widget.filePath || !config) return;
+      if (!config) return;
       widgetConfigFile.write(widget.filePath, config);
     });
   });

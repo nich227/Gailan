@@ -18,6 +18,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const widgetConfigFile = require('./widgetConfigFile');
 
 // choice and list are the same data with a different control: segments or a menu
 const TYPES = ['choice', 'list', 'toggle', 'number', 'text', 'color'];
@@ -92,7 +93,17 @@ module.exports = function readWidgetSettings(filePath) {
 
   if (!Array.isArray(raw.settings)) return [];
 
-  return raw.settings.filter(isUsable).map(normalize);
+  const schema = raw.settings.filter(isUsable).map(normalize);
+
+  /* settings.default.json sits beside the widget and stands in for the manifest's
+     own defaults, so what a widget falls back to can be changed without editing
+     the widget. Only keys the widget actually declares are taken from it. */
+  const chosen = widgetConfigFile.readDefaults(filePath);
+  schema.forEach((setting) => {
+    if (chosen[setting.key] !== undefined) setting.default = chosen[setting.key];
+  });
+
+  return schema;
 };
 
 // The name a person should see, which the manifest can set. Without one the

@@ -22,9 +22,14 @@ const fs = require('fs');
 const path = require('path');
 
 const FILE = 'settings.json';
+const DEFAULTS_FILE = 'settings.default.json';
 
 function fileFor(widgetPath) {
   return path.join(path.dirname(widgetPath), FILE);
+}
+
+function defaultsFileFor(widgetPath) {
+  return path.join(path.dirname(widgetPath), DEFAULTS_FILE);
 }
 
 exports.read = function read(widgetPath) {
@@ -34,6 +39,37 @@ exports.read = function read(widgetPath) {
   } catch (err) {
     // no file yet, or one that is not JSON: nothing was saved
     return {};
+  }
+};
+
+/* What a widget falls back to, beside it as settings.default.json. The manifest
+   already carries a default per setting; this file is where those land so they can
+   be read and changed without editing the widget, and it is what Reset goes back
+   to. */
+exports.readDefaults = function readDefaults(widgetPath) {
+  try {
+    const raw = JSON.parse(fs.readFileSync(defaultsFileFor(widgetPath), 'utf8'));
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  } catch (err) {
+    // no file yet, or one that is not JSON: the manifest's own defaults stand
+    return {};
+  }
+};
+
+/* Written once and then left alone, so an edit made here survives every launch.
+   Overwriting it would make the file look editable while quietly discarding what
+   anybody put in it. */
+exports.writeDefaults = function writeDefaults(widgetPath, defaults) {
+  const file = defaultsFileFor(widgetPath);
+  if (!defaults || !Object.keys(defaults).length) return false;
+  if (fs.existsSync(file)) return false;
+
+  try {
+    fs.writeFileSync(file, JSON.stringify(defaults, null, 2) + '\n');
+    return true;
+  } catch (err) {
+    console.log(`could not save defaults for ${widgetPath}:`, err.message);
+    return false;
   }
 };
 
