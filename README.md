@@ -351,6 +351,27 @@ Every setting needs a `key` and a `type`. `label`, `help` and `default` are
 optional, though a `default` is worth setting: it is what the control shows before
 anything has been chosen.
 
+A setting can also say when it applies. `enabledWhen` names other settings and the
+values that make this one usable; the control stays visible and greys out otherwise.
+
+```json
+{
+  "key": "hours",
+  "type": "choice",
+  "label": "Hours",
+  "default": "12",
+  "options": ["12", "24"],
+  "enabledWhen": {"face": "digital"}
+}
+```
+
+The clock uses exactly that: 12 or 24 hours says nothing about a dial, so it greys
+while the face is analog. A key can accept several values (`{"face": ["digital",
+"dots"]}`), and all the keys named have to be satisfied at once. Values are compared
+as text, so `true` and `82` match without being quoted. A condition naming a setting
+the widget never declares is ignored, so a typo leaves the control usable rather than
+stuck.
+
 `title` is separate from the settings and is the name the Widgets window shows,
 falling back to the widget id.
 
@@ -359,15 +380,23 @@ settings travel with the widget: copy the folder to another Mac and it looks the
 same. That file is not a widget, so saving one does not trigger a rebuild. Edit it
 by hand if you prefer; it is read when the widget loads.
 
+Beside it, `settings.default.json` holds what each setting falls back to. Gailan
+writes it the first time it sees the widget, taking the `default` from each entry in
+the manifest, and then leaves it alone, so anything you change in it survives. Where
+it names a setting it stands in for the manifest's default, which means you can
+change what a widget falls back to without editing the widget. **Reset to Defaults**
+in the settings sheet puts every setting back to what that file says.
+
 Widgets in their own folder are the tidy way to do this:
 
 ```
 ~/Library/Application Support/Gailan/widgets/
   clock/
-    index.tsx        the widget, and the id becomes "clock"
-    widget.json      title and settings
-    settings.json    written by Gailan
-    preview.jpg      shown on the card in the Widgets window
+    index.tsx              the widget, and the id becomes "clock"
+    widget.json            title and settings
+    settings.json          what you chose, written by Gailan
+    settings.default.json  what it falls back to, written once and yours to edit
+    preview.jpg            shown on the card in the Widgets window
 ```
 
 ### updateState : event, previousState
