@@ -82,6 +82,12 @@
     [background wallpaperChanged];
 }
 
+- (void)applySystemAccent
+{
+    [foreground applySystemAccent];
+    [background applySystemAccent];
+}
+
 - (void)workspaceChanged
 {
     [foreground workspaceChanged];

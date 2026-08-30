@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) double glassOpacity;
 @property (nonatomic, strong) NSColor* glassTint;
 
+- (void)applySystemAccent;
+
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style
                     tint:(NSColor*)tint

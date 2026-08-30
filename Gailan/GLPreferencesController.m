@@ -308,8 +308,7 @@ static NSArray* desktopGlassStyles(void)
     return @[@"follow", @"regular", @"clear", @"tinted"];
 }
 
-/* Left alone the glass follows what macOS is set to, so it matches the icons and widgets
-   around it. The three after that hold whatever they say whatever the system does. */
+/* Follow matches what macOS is set to; the rest hold regardless of the system. */
 - (NSString*)desktopGlassStyle
 {
     NSString* name = [[NSUserDefaults standardUserDefaults]
@@ -324,7 +323,7 @@ static NSArray* desktopGlassStyles(void)
 }
 
 /* How present the glass is, as a fraction. NSGlassEffectView has no transparency of its
-   own, so this is the view's, which reads as the frost being thinner or thicker. */
+   own, so this is the view's. */
 - (double)desktopGlassOpacity
 {
     NSNumber* stored = [[NSUserDefaults standardUserDefaults]
@@ -370,6 +369,52 @@ static NSArray* desktopGlassStyles(void)
            forKey: @"desktopGlassTint"
     ];
     [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
+}
+
+
+/* The accent colour macOS is set to.
+
+   Read from AppleAccentColor rather than from NSColor's controlAccentColor, which is
+   settled once per process and so goes stale as soon as the choice changes. The table is
+   the colour macOS draws for each choice; an unfamiliar value falls back to NSColor. */
++ (NSColor*)systemAccentColor
+{
+    NSNumber* chosen = [[NSUserDefaults standardUserDefaults]
+        objectForKey:@"AppleAccentColor"
+    ];
+
+    /* nothing chosen means multicolour, which draws as blue */
+    if (![chosen isKindOfClass:[NSNumber class]]) {
+        return [NSColor colorWithSRGBRed:0x00 / 255.0
+                                   green:0x7a / 255.0
+                                    blue:0xff / 255.0
+                                   alpha:1.0];
+    }
+
+    static NSDictionary<NSNumber*, NSArray<NSNumber*>*>* palette = nil;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        palette = @{
+            @(-1): @[@0x8c, @0x8c, @0x8c],  // graphite
+            @(0):  @[@0xff, @0x52, @0x57],  // red
+            @(1):  @[@0xf7, @0x82, @0x1b],  // orange
+            @(2):  @[@0xff, @0xc6, @0x00],  // yellow
+            @(3):  @[@0x62, @0xba, @0x46],  // green
+            @(4):  @[@0x00, @0x7a, @0xff],  // blue
+            @(5):  @[@0xa5, @0x50, @0xa7],  // purple
+            @(6):  @[@0xf7, @0x4f, @0x9e],  // pink
+        };
+    });
+
+    NSArray<NSNumber*>* channels = palette[@(chosen.integerValue)];
+    if (!channels) return [NSColor controlAccentColor];
+
+    return [NSColor
+        colorWithSRGBRed: channels[0].doubleValue / 255.0
+                   green: channels[1].doubleValue / 255.0
+                    blue: channels[2].doubleValue / 255.0
+                   alpha: 1.0
+    ];
 }
 
 - (NSColor*)desktopGlassTintColor

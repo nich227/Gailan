@@ -31,6 +31,7 @@ typedef NS_ENUM(NSInteger, GLWindowType) {
 - (void)reload;
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
+- (void)applySystemAccent;
 - (void)setGlassRegions:(NSArray*)regions;
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style

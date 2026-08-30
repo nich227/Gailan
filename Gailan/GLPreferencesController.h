@@ -28,6 +28,9 @@
 @property (nonatomic, copy) NSString* desktopGlassTint;
 
 - (NSString*)desktopGlassMaterial;
+/* The accent colour macOS is set to, read from the preference so it stays current. */
++ (NSColor*)systemAccentColor;
+
 - (NSString*)desktopGlassStyle;
 /* Declared as a property so Swift sees something it can bind a slider to; the accessors
    are written by hand in the implementation. */

@@ -18,7 +18,20 @@ export const refreshFrequency: number | false = false;
 // which is the documented way to keep state in a widget.
 /* Declared in widget.json so the app can build controls for them, and delivered
    to render as props.settings. The widths are what Small, Medium and Large mean. */
-const BACKGROUNDS = ["follow", "light", "dark", "pink"];
+const BACKGROUNDS = [
+  "follow",
+  "light",
+  "dark",
+  "red",
+  "orange",
+  "yellow",
+  "green",
+  "teal",
+  "blue",
+  "indigo",
+  "violet",
+  "pink",
+];
 
 type Settings = {
   size?: "small" | "medium" | "large";
@@ -207,9 +220,8 @@ const Window = styled("div")`
   }
 
 
-  /* Told to hold a style, the window holds it whatever the system is set to. The same
-     names every widget offers, so a desktop can be one thing throughout. Pink is the
-     light window with a modern pink in it. */
+  /* Held whatever the system is set to. Each tinted one is the light window with a
+     wash of a hue in place of the near-white, and ink a dark version of that hue. */
   &[data-background="dark"] {
     --panel: rgba(11, 11, 12, var(--fill, 0.82));
     --header-bg: rgba(244, 244, 242, 0.05);
@@ -228,13 +240,65 @@ const Window = styled("div")`
     --light-off: rgba(11, 11, 12, 0.18);
   }
 
+  &[data-background="red"] {
+    --panel: rgba(255, 226, 226, var(--fill, 0.9));
+    --text: #460809;
+  }
+
+  &[data-background="orange"] {
+    --panel: rgba(255, 237, 212, var(--fill, 0.9));
+    --text: #441306;
+  }
+
+  &[data-background="yellow"] {
+    --panel: rgba(254, 249, 194, var(--fill, 0.9));
+    --text: #432004;
+  }
+
+  &[data-background="green"] {
+    --panel: rgba(220, 252, 231, var(--fill, 0.9));
+    --text: #032e15;
+  }
+
+  &[data-background="teal"] {
+    --panel: rgba(203, 251, 241, var(--fill, 0.9));
+    --text: #022f2e;
+  }
+
+  &[data-background="blue"] {
+    --panel: rgba(219, 234, 254, var(--fill, 0.9));
+    --text: #162456;
+  }
+
+  &[data-background="indigo"] {
+    --panel: rgba(224, 231, 255, var(--fill, 0.9));
+    --text: #1e1a4d;
+  }
+
+  &[data-background="violet"] {
+    --panel: rgba(237, 233, 254, var(--fill, 0.9));
+    --text: #2f0d68;
+  }
+
   &[data-background="pink"] {
-    --panel: rgba(255, 226, 238, var(--fill, 0.9));
-    --header-bg: rgba(31, 16, 19, 0.04);
-    --border: rgba(31, 16, 19, 0.16);
+    --panel: rgba(255, 214, 230, var(--fill, 0.9));
     --text: #1f1013;
-    --dim: rgba(31, 16, 19, 0.5);
-    --light-off: rgba(31, 16, 19, 0.18);
+  }
+
+  /* Everything else a wash needs follows from its ink, so a hue is written once. */
+  &[data-background="red"],
+  &[data-background="orange"],
+  &[data-background="yellow"],
+  &[data-background="green"],
+  &[data-background="teal"],
+  &[data-background="blue"],
+  &[data-background="indigo"],
+  &[data-background="violet"],
+  &[data-background="pink"] {
+    --header-bg: color-mix(in srgb, var(--text) 5%, transparent);
+    --border: color-mix(in srgb, var(--text) 16%, transparent);
+    --dim: color-mix(in srgb, var(--text) 50%, transparent);
+    --light-off: color-mix(in srgb, var(--text) 20%, transparent);
   }
 
   pointer-events: auto;

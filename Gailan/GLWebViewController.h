@@ -17,6 +17,7 @@
 - (void)load:(NSURL*)url;
 - (void)reload;
 - (void)redraw;
+- (void)applySystemAccent;
 - (void)destroy;
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message;
 

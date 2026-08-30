@@ -20,10 +20,32 @@
     NSMutableDictionary* windows;
 }
 
+/* The accent macOS is set to lives in the global defaults, and the pages cannot read it
+   for themselves. */
+static NSString* const kAccentKey = @"AppleAccentColor";
+
+- (void)dealloc
+{
+    [[NSUserDefaults standardUserDefaults] removeObserver:self forKeyPath:kAccentKey];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (id)init
 {
     self = [super init];
     if (self) {
+        [[NSUserDefaults standardUserDefaults]
+            addObserver: self
+             forKeyPath: kAccentKey
+                options: 0
+                context: NULL
+        ];
+        [[NSNotificationCenter defaultCenter]
+            addObserver: self
+               selector: @selector(systemColorsChanged:)
+                   name: NSSystemColorsDidChangeNotification
+                 object: nil
+        ];
         windows = [[NSMutableDictionary alloc] initWithCapacity:42];
     }
     return self;
@@ -247,6 +269,35 @@ static NSString* const GLInspectorStartsAttachedKey =
     for (NSNumber* screenId in windows) {
         [windows[screenId] wallpaperChanged];
     }
+}
+
+- (void)applySystemAccent
+{
+    for (NSNumber* screenId in windows) {
+        [windows[screenId] applySystemAccent];
+    }
+}
+
+/* System Settings writes the accent from another process, and AppKit publishes no
+   notification for it, so the preference is observed directly. */
+- (void)observeValueForKeyPath:(NSString*)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary*)change
+                       context:(void*)context
+{
+    [self applySystemAccentRepeatedly];
+}
+
+- (void)applySystemAccentRepeatedly
+{
+    [self applySystemAccent];
+}
+
+/* AppKit's own signal for system colours changing, listened to alongside the
+   preference. */
+- (void)systemColorsChanged:(NSNotification*)note
+{
+    [self applySystemAccentRepeatedly];
 }
 
 - (NSURL*)screenUrl:(NSNumber*)screenId baseUrl:(NSURL*)baseUrl

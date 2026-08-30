@@ -11,6 +11,7 @@
 //
 
 #import "GLGlassLayer.h"
+#import "GLPreferencesController.h"
 
 @implementation GLGlassLayer {
     // one effect view per region id, so a widget that moves reuses its view
@@ -19,17 +20,14 @@
     NSString* styleName;
     double glassOpacity;
     NSColor* tintColor;
-    // the regions last reported, so anything that rebuilds can put the glass straight
-    // back rather than waiting for a widget to move and the page to report again
+    // the regions last reported, so a rebuild need not wait for the page
     NSArray<NSDictionary*>* lastRegions;
-    // and what the views standing right now were built from, so a change that comes to
-    // the same thing costs nothing
+    // what the standing views were built from, so an unchanged outcome costs nothing
     NSString* builtStyle;
     NSColor* builtTint;
 }
 
-/* The two settings that can change the glass out from under us: the Icon & widget style,
-   which is what Follow follows, and the accent, which a tinted glass borrows. */
+/* The Icon & widget style, which Follow follows, and the accent, which Tinted uses. */
 static NSArray* watchedSystemKeys(void)
 {
     return @[@"AppleIconAppearanceTheme", @"AppleAccentColor"];
@@ -43,9 +41,7 @@ static NSArray* watchedSystemKeys(void)
         materialName = @"off";
         lastRegions = @[];
 
-        /* System Settings writes these from its own process and AppKit announces
-           nothing, so this is key-value observing on the defaults, which is the one
-           hook that does fire for a write from somewhere else. */
+        /* Written from another process, with no notification published for them. */
         for (NSString* key in watchedSystemKeys()) {
             [[NSUserDefaults standardUserDefaults]
                 addObserver: self
@@ -76,9 +72,8 @@ static NSArray* watchedSystemKeys(void)
     [self systemAppearanceChanged];
 }
 
-/* Called for every write to either key, which is more often than the glass needs to be
-   rebuilt: a light to dark switch changes the name without changing the style. So the
-   answer is worked out and compared, and nothing happens unless it came out different. */
+/* Both keys change more often than the glass needs rebuilding: a light to dark switch
+   changes the name without changing the style. Rebuilds only when the outcome differs. */
 - (void)systemAppearanceChanged
 {
     NSString* style = [self resolvedStyle];
@@ -149,16 +144,12 @@ static NSArray* watchedSystemKeys(void)
     return mask;
 }
 
-/* What "follow" comes to. macOS 26 keeps its Icon & widget style in
-   AppleIconAppearanceTheme, as RegularLight, ClearDark, TintedDark and so on, so the
-   name is read for what it says rather than matched exactly: the light and dark halves
-   of each are the same glass. Anything unrecognised is regular, which is what the
-   system means by default. */
-/* The material is baked into each view, so a change means new ones. Throwing them away
-   used to be the whole of it, which left the desktop bare until a widget moved and the
-   page reported its regions again: turning glass on, or changing its style, appeared to
-   do nothing until something else happened. The regions last reported are kept, so the
-   glass comes back in the same breath. */
+/* What "follow" comes to. AppleIconAppearanceTheme holds names like RegularLight and
+   ClearDark, so the style is taken from what the name contains: the light and dark halves
+   of each are the same glass. Anything unrecognised is regular. */
+/* The material is baked into each view, so a change means building new ones. The regions
+   last reported are kept so the glass can be put back without waiting for the page to
+   report them again. */
 - (void)rebuild
 {
     for (NSView* view in views.allValues) {
@@ -187,21 +178,18 @@ static NSArray* watchedSystemKeys(void)
     return @"regular";
 }
 
-/* Tinted means carrying a colour, and the colour is whichever one was chosen. Nobody
-   having chosen one, it is the accent macOS is set to, which is what the system does to
-   a tinted icon. */
+/* Tinted carries whichever colour was chosen, or the system accent if none was. */
 - (NSColor*)effectiveTintForStyle:(NSString*)style
 {
     if (![style isEqualToString:@"tinted"]) return tintColor;
     if (tintColor && tintColor.alphaComponent > 0.01) return tintColor;
-    return [NSColor controlAccentColor];
+    return [GLPreferencesController systemAccentColor];
 }
 
 - (NSView*)viewWithRadius:(CGFloat)radius
 {
     NSString* style = [self resolvedStyle];
-    /* a glass nobody can see is a setting somebody will not understand, so it stops
-       short of gone */
+    /* stops short of invisible */
     double alpha = glassOpacity <= 0 ? 1.0 : MIN(MAX(glassOpacity, 0.1), 1.0);
 
     // macOS 26 has the real thing; older systems get the closest material
@@ -226,8 +214,7 @@ static NSArray* watchedSystemKeys(void)
 
 - (void)setRegions:(NSArray<NSDictionary*>*)regions
 {
-    /* kept whether or not glass is on, so turning it on shows something at once rather
-       than waiting for a widget to move */
+    /* kept whether or not glass is on, so turning it on can draw straight away */
     if (regions != lastRegions) lastRegions = [regions copy];
 
     if (![self isEnabled]) return;

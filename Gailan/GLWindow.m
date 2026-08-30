@@ -150,6 +150,11 @@
     [webViewController redraw];
 }
 
+- (void)applySystemAccent
+{
+    [webViewController applySystemAccent];
+}
+
 #
 #pragma mark window type and interaction
 #

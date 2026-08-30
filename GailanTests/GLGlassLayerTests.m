@@ -12,6 +12,7 @@
 
 #import <XCTest/XCTest.h>
 #import "GLGlassLayer.h"
+#import "GLPreferencesController.h"
 
 /* Private to the layer, named here so the tests can ask it what it worked out rather
    than inferring it from what got drawn. */
@@ -182,7 +183,7 @@
     [layer setMaterialName:@"frosted" style:@"tinted" tint:nil opacity:1.0];
     XCTAssertEqualObjects(
         [layer effectiveTintForStyle:@"tinted"],
-        [NSColor controlAccentColor],
+        [GLPreferencesController systemAccentColor],
         @"no colour chosen, so the system accent"
     );
 
@@ -197,7 +198,7 @@
     [layer setMaterialName:@"frosted" style:@"tinted" tint:invisible opacity:1.0];
     XCTAssertEqualObjects(
         [layer effectiveTintForStyle:@"tinted"],
-        [NSColor controlAccentColor],
+        [GLPreferencesController systemAccentColor],
         @"a colour with nothing in it is not a choice"
     );
 }

@@ -162,6 +162,31 @@
     return config;
 }
 
+/* Puts the system accent on the document for widgets to read. CSS has an AccentColor
+   keyword, but a WKWebView answers it with the default blue whatever the system is set
+   to, so the colour is supplied from here instead. */
+- (void)applySystemAccent
+{
+    NSColor* accent = [[GLPreferencesController systemAccentColor]
+        colorUsingColorSpace: [NSColorSpace sRGBColorSpace]
+    ];
+    if (!accent) return;
+
+    NSString* hex = [NSString stringWithFormat:@"#%02lx%02lx%02lx",
+        (unsigned long)lround(accent.redComponent * 255),
+        (unsigned long)lround(accent.greenComponent * 255),
+        (unsigned long)lround(accent.blueComponent * 255)
+    ];
+
+    [(WKWebView*)self.view
+        evaluateJavaScript: [NSString stringWithFormat:
+            @"document.documentElement.style.setProperty('--gailan-system-accent', '%@');",
+            hex
+        ]
+         completionHandler: NULL
+    ];
+}
+
 - (void)forceRedraw:(WKWebView*)webView
 {
     [webView
@@ -180,6 +205,9 @@
 {
     // the query carries the token, keep it out of the log
     NSLog(@"loaded %@", webView.URL.path);
+
+    // the page cannot read the accent for itself, so it is handed over on every load
+    [self applySystemAccent];
 }
 
 - (void)webView:(WKWebView *)sender

@@ -32,8 +32,7 @@ final class GLPreferences: ObservableObject {
     @Published var desktopGlassStyleTag: Int {
         didSet { controller.desktopGlassStyleTag = desktopGlassStyleTag }
     }
-    /* How present the glass is. Held as a percentage for the slider and handed over as a
-       fraction, which is what a view's transparency is. */
+    /* A percentage for the slider, handed over as a fraction. */
     @Published var desktopGlassOpacity: Double {
         didSet { controller.desktopGlassOpacity = desktopGlassOpacity / 100 }
     }

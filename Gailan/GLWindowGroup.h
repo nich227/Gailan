@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setFrame:(NSRect)frame display:(BOOL)flag;
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
+- (void)applySystemAccent;
 - (void)setAlwaysOnTop:(BOOL)flag;
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style
