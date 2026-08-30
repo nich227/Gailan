@@ -29,6 +29,7 @@
 @property (nonatomic, copy) NSString* desktopGlassTintMode;
 + (BOOL)systemTintsWindowBackgrounds;
 + (NSColor*)wallpaperTint;
++ (NSColor*)wallpaperTintForScreen:(NSScreen*)screen;
 
 - (NSString*)desktopGlassMaterial;
 /* The accent colour macOS is set to, read from the preference so it stays current. */

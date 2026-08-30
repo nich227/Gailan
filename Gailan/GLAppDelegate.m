@@ -511,11 +511,16 @@ int const PORT = 41416;
 
 - (void)applyDesktopGlass
 {
+    BOOL followsWallpaper =
+        [[self.preferences desktopGlassTintMode] isEqualToString:@"follow"]
+        && [GLPreferencesController systemTintsWindowBackgrounds];
+
     [windowsController
         setGlassMaterial: [self.preferences desktopGlassMaterial]
                    style: [self.preferences desktopGlassStyle]
                     tint: [self.preferences desktopGlassTintColor]
                  opacity: [self.preferences desktopGlassOpacity]
+       tintFromWallpaper: followsWallpaper
     ];
 }
 
@@ -645,6 +650,10 @@ int const PORT = 41416;
 - (void)wallpaperChanged:(NSNotification *)notification
 {
     [windowsController wallpaperChanged];
+    /* and the glass, since a tint that follows the wallpaper is now a different color.
+       Each screen is asked for its own, so this covers a wallpaper changed on one
+       display and not another. */
+    [self applyDesktopGlass];
 }
 
 - (void)loginSessionBecameActive:(NSNotification *)notification
@@ -666,9 +675,16 @@ int const PORT = 41416;
         YES
     );
     
-    CFStringRef path = (__bridge CFStringRef)[paths[0]
-        stringByAppendingPathComponent:@"/Application Support/Dock/"
-    ];
+    /* Two places, because macOS moved. Dock/desktoppicture.db is where the wallpaper
+       lived up to Ventura; from Sonoma on it is com.apple.wallpaper/Store/Index.plist,
+       and the old file stops changing. Watching both means one build works across the
+       versions the app supports. */
+    CFStringRef watched[2] = {
+        (__bridge CFStringRef)[paths[0]
+            stringByAppendingPathComponent:@"/Application Support/Dock/"],
+        (__bridge CFStringRef)[paths[0]
+            stringByAppendingPathComponent:@"/Application Support/com.apple.wallpaper/"]
+    };
     
     FSEventStreamContext context = {
         0,
@@ -680,7 +696,7 @@ int const PORT = 41416;
         NULL,
         &wallpaperSettingsChanged,
         &context,
-        CFArrayCreate(NULL, (const void **)&path, 1, NULL),
+        CFArrayCreate(NULL, (const void **)watched, 2, NULL),
         kFSEventStreamEventIdSinceNow,
         0,
         kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagUseCFTypes
@@ -705,10 +721,17 @@ void wallpaperSettingsChanged(
 
     for (int i=0; i < numEvents; i++) {
         path = CFArrayGetValueAtIndex(paths, i);
-        if (CFStringFindWithOptions(path, CFSTR("desktoppicture.db"),
-                                    CFRangeMake(0,CFStringGetLength(path)),
-                                    kCFCompareCaseInsensitive,
-                                    NULL) == true) {
+        BOOL oldStore = CFStringFindWithOptions(
+            path, CFSTR("desktoppicture.db"),
+            CFRangeMake(0, CFStringGetLength(path)),
+            kCFCompareCaseInsensitive, NULL) == true;
+        // Index.plist is rewritten when a wallpaper is chosen, per display or for all
+        BOOL currentStore = CFStringFindWithOptions(
+            path, CFSTR("Index.plist"),
+            CFRangeMake(0, CFStringGetLength(path)),
+            kCFCompareCaseInsensitive, NULL) == true;
+
+        if (oldStore || currentStore) {
             [(__bridge GLAppDelegate*)this
                 performSelector:@selector(wallpaperChanged:)
                 withObject:nil

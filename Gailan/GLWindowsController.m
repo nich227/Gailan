@@ -9,6 +9,7 @@
 
 #import "GLWindowsController.h"
 #import "GLWindowGroup.h"
+#import "GLPreferencesController.h"
 #import "WKInspector.h"
 #import "WKView.h"
 #import "WKPage.h"
@@ -69,7 +70,7 @@ static NSString* const kAccentKey = @"AppleAccentColor";
             [windowGroup
                 setGlassMaterial: self.glassMaterial
                            style: self.glassStyle
-                            tint: self.glassTint
+                            tint: [self glassTintForScreenId:screenId]
                          opacity: self.glassOpacity
             ];
             [windows setObject:windowGroup forKey:screenId];
@@ -138,14 +139,31 @@ static NSString* const kAccentKey = @"AppleAccentColor";
                    style:(NSString*)style
                     tint:(NSColor*)tint
                  opacity:(double)opacity
+       tintFromWallpaper:(BOOL)fromWallpaper
 {
     _glassMaterial = [name copy];
     _glassStyle = [style copy];
     _glassOpacity = opacity;
     _glassTint = tint;
-    for (GLWindowGroup* group in [windows allValues]) {
-        [group setGlassMaterial:name style:style tint:tint opacity:opacity];
+    _glassTintFromWallpaper = fromWallpaper;
+    for (NSNumber* screenId in [windows allKeys]) {
+        [windows[screenId]
+            setGlassMaterial: name
+                       style: style
+                        tint: [self glassTintForScreenId:screenId]
+                     opacity: opacity
+        ];
     }
+}
+
+/* macOS lets every display carry its own wallpaper, so a tint that follows the wallpaper
+   is worked out for each screen rather than once for the app. */
+- (NSColor*)glassTintForScreenId:(NSNumber*)screenId
+{
+    if (!_glassTintFromWallpaper) return _glassTint;
+
+    return [GLPreferencesController
+        wallpaperTintForScreen:[self getNSScreen:screenId]];
 }
 
 - (void)setAlwaysOnTop:(BOOL)flag

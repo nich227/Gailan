@@ -12,6 +12,7 @@
 //  details.
 
 #import "GLPreferencesController.h"
+#import <AVFoundation/AVFoundation.h>
 #import "Gailan-Swift.h"
 
 @import ServiceManagement;
@@ -406,49 +407,140 @@ static NSArray* desktopGlassStyles(void)
         boolForKey:@"AppleReduceDesktopTinting"];
 }
 
-/* The wallpaper's own color, which is what macOS tints with. AppKit will not hand over a
-   tint: windowBackgroundColor is flat whatever the wallpaper is, so the picture has to be
-   read and reduced to one color.
+/* Where macOS keeps what the desktop is showing. NSWorkspace's desktopImageURLForScreen:
+   is not it: since the wallpaper moved into its own agent that method answers with
+   /System/Library/CoreServices/DefaultDesktop.heic no matter what is on screen, which is
+   the stock picture and not the user's. The store is the truth, and it names a provider
+   and a configuration rather than a file, because a wallpaper can be a video. */
+static NSString* const kWallpaperStore =
+    @"Library/Application Support/com.apple.wallpaper/Store/Index.plist";
+static NSString* const kAerialVideos =
+    @"Library/Application Support/com.apple.wallpaper/aerials/videos";
 
-   Two things make that reduction better than a plain average.
++ (NSURL*)wallpaperStoreURL
+{
+    return [[NSURL fileURLWithPath:NSHomeDirectory()]
+        URLByAppendingPathComponent:kWallpaperStore];
+}
+
+/* The branch of the store that applies to one screen. A display with a wallpaper of its
+   own is under Displays, keyed by the display's UUID; otherwise every screen shares what
+   is under AllSpacesAndDisplays. Both branches are read the same way afterwards. */
++ (NSDictionary*)wallpaperChoiceForScreen:(NSScreen*)screen
+{
+    NSDictionary* store = [NSDictionary
+        dictionaryWithContentsOfURL:[self wallpaperStoreURL]];
+    if (!store) return nil;
+
+    NSDictionary* branch = nil;
+
+    NSNumber* number = screen.deviceDescription[@"NSScreenNumber"];
+    if (number) {
+        CFUUIDRef uuid = CGDisplayCreateUUIDFromDisplayID(number.unsignedIntValue);
+        if (uuid) {
+            CFStringRef text = CFUUIDCreateString(NULL, uuid);
+            branch = ((NSDictionary*)store[@"Displays"])[(__bridge NSString*)text];
+            if (text) CFRelease(text);
+            CFRelease(uuid);
+        }
+    }
+
+    if (!branch) branch = store[@"AllSpacesAndDisplays"];
+
+    return [self choiceWithin:branch depth:0];
+}
+
+/* The shapes differ between a linked wallpaper and a per display one, and Apple has
+   changed them before. Rather than naming every level, this looks for the dictionary that
+   carries a Provider, which is the part that matters. */
++ (NSDictionary*)choiceWithin:(id)node depth:(int)depth
+{
+    if (depth > 6 || !node) return nil;
+
+    if ([node isKindOfClass:[NSDictionary class]]) {
+        if (((NSDictionary*)node)[@"Provider"]) return node;
+        for (id value in [(NSDictionary*)node objectEnumerator]) {
+            NSDictionary* found = [self choiceWithin:value depth:depth + 1];
+            if (found) return found;
+        }
+        return nil;
+    }
+
+    if ([node isKindOfClass:[NSArray class]]) {
+        for (id value in (NSArray*)node) {
+            NSDictionary* found = [self choiceWithin:value depth:depth + 1];
+            if (found) return found;
+        }
+    }
+
+    return nil;
+}
+
+/* The file behind a choice. An aerial is a video in the user's own library named after the
+   asset id in the choice's configuration, which is itself a plist. A still wallpaper names
+   its files outright. Where neither says anything, NSWorkspace is asked, since it does
+   answer correctly for a plain picture. */
++ (NSURL*)wallpaperFileForScreen:(NSScreen*)screen isVideo:(BOOL*)isVideo
+{
+    if (isVideo) *isVideo = NO;
+
+    NSDictionary* choice = [self wallpaperChoiceForScreen:screen];
+    NSString* provider = choice[@"Provider"];
+
+    if ([provider rangeOfString:@"aerial" options:NSCaseInsensitiveSearch].location
+        != NSNotFound) {
+        NSData* encoded = choice[@"Configuration"];
+        NSDictionary* configuration = encoded
+            ? [NSPropertyListSerialization propertyListWithData:encoded
+                                                       options:NSPropertyListImmutable
+                                                        format:NULL
+                                                         error:NULL]
+            : nil;
+        NSString* assetID = configuration[@"assetID"];
+        if (assetID.length) {
+            NSURL* video = [[[NSURL fileURLWithPath:NSHomeDirectory()]
+                URLByAppendingPathComponent:kAerialVideos]
+                URLByAppendingPathComponent:
+                    [assetID stringByAppendingPathExtension:@"mov"]];
+            if ([video checkResourceIsReachableAndReturnError:NULL]) {
+                if (isVideo) *isVideo = YES;
+                return video;
+            }
+        }
+    }
+
+    NSArray* files = choice[@"Files"];
+    for (id entry in files) {
+        NSString* path = [entry isKindOfClass:[NSDictionary class]]
+            ? ((NSDictionary*)entry)[@"relative"] ?: ((NSDictionary*)entry)[@"path"]
+            : entry;
+        if (![path isKindOfClass:[NSString class]] || !path.length) continue;
+
+        NSURL* url = [path hasPrefix:@"file:"] ? [NSURL URLWithString:path]
+                                              : [NSURL fileURLWithPath:path];
+        if ([url checkResourceIsReachableAndReturnError:NULL]) return url;
+    }
+
+    return [[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen];
+}
+
+/* One color out of many pixels.
 
    The average is taken in linear light. sRGB values are gamma encoded, so adding them up
    as they stand is adding numbers that are not proportional to light, and the answer comes
-   out darker and muddier than the picture looks. Each sample is decoded to linear, averaged
-   there, and encoded back.
+   out darker and muddier than the picture looks.
 
-   Samples are weighted by how colorful they are. A wallpaper is mostly large, flat, quiet
-   areas, and an unweighted average of those is always a gray. Weighting by chroma lets the
-   parts of the picture that carry the color decide what the color is, which is what
-   somebody means by "the color of my wallpaper". A small base weight keeps a genuinely gray
-   wallpaper from dividing by nothing.
+   Samples are weighted by how colorful they are. A wallpaper is mostly large, quiet areas,
+   and an unweighted average of those is always a gray. Weighting by chroma lets the parts
+   carrying the color decide what the color is, which is what somebody means by the color
+   of their wallpaper. A small base weight keeps a genuinely gray picture from dividing by
+   nothing.
 
-   Read at 32 by 32 rather than one pixel, because one pixel is the unweighted average with
-   no chance to weight anything, and asked for with high interpolation so the reduction is
-   the picture's own colors rather than whatever four pixels the sampler happened to land
-   on.
-
-   Kept against the file it came from and the time that file was last written, so a
-   wallpaper swapped for another, or edited in place, is read again. */
-+ (NSColor*)wallpaperTint
+   Read at 32 by 32 with high interpolation: one pixel is an unweighted average with
+   nothing left to weight. */
++ (NSColor*)colorOfImage:(CGImageRef)image
 {
-    NSScreen* screen = [NSScreen mainScreen];
-    if (!screen) return nil;
-
-    NSURL* url = [[NSWorkspace sharedWorkspace] desktopImageURLForScreen:screen];
-    if (!url) return nil;
-
-    NSDate* written = nil;
-    [url getResourceValue:&written forKey:NSURLContentModificationDateKey error:NULL];
-    NSString* token = [NSString stringWithFormat:@"%@|%f", url.path,
-                                                 written.timeIntervalSince1970];
-
-    static NSString* sampledFrom = nil;
-    static NSColor* sampled = nil;
-    if ([sampledFrom isEqualToString:token]) return sampled;
-
-    NSImage* picture = [[NSImage alloc] initWithContentsOfURL:url];
-    if (!picture) return nil;
+    if (!image) return nil;
 
     const size_t side = 32;
     const size_t stride = side * 4;
@@ -465,38 +557,27 @@ static NSArray* desktopGlassStyles(void)
     }
 
     CGContextSetInterpolationQuality(bitmap, kCGInterpolationHigh);
-    NSGraphicsContext* context =
-        [NSGraphicsContext graphicsContextWithCGContext:bitmap flipped:NO];
-    [NSGraphicsContext saveGraphicsState];
-    [NSGraphicsContext setCurrentContext:context];
-    [picture drawInRect:NSMakeRect(0, 0, side, side)
-               fromRect:NSZeroRect
-              operation:NSCompositingOperationCopy
-               fraction:1.0];
-    [NSGraphicsContext restoreGraphicsState];
+    CGContextDrawImage(bitmap, CGRectMake(0, 0, side, side), image);
     CGContextRelease(bitmap);
 
     double totals[3] = {0, 0, 0};
     double weights = 0;
 
-    for (size_t y = 0; y < side; y++) {
-        for (size_t x = 0; x < side; x++) {
-            unsigned char* sample = pixels + y * stride + x * 4;
-            double channels[3];
-            for (int c = 0; c < 3; c++) {
-                double v = sample[c] / 255.0;
-                // sRGB to linear light, the standard transfer function
-                channels[c] = v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4);
-            }
-
-            double high = fmax(fmax(channels[0], channels[1]), channels[2]);
-            double low = fmin(fmin(channels[0], channels[1]), channels[2]);
-            // colorful samples decide the color; a flat gray one barely counts
-            double weight = 0.05 + (high - low);
-
-            for (int c = 0; c < 3; c++) totals[c] += channels[c] * weight;
-            weights += weight;
+    for (size_t i = 0; i < side * side; i++) {
+        unsigned char* sample = pixels + i * 4;
+        double channels[3];
+        for (int c = 0; c < 3; c++) {
+            double v = sample[c] / 255.0;
+            // sRGB to linear light, the standard transfer function
+            channels[c] = v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4);
         }
+
+        double high = fmax(fmax(channels[0], channels[1]), channels[2]);
+        double low = fmin(fmin(channels[0], channels[1]), channels[2]);
+        double weight = 0.05 + (high - low);
+
+        for (int c = 0; c < 3; c++) totals[c] += channels[c] * weight;
+        weights += weight;
     }
 
     free(pixels);
@@ -505,7 +586,6 @@ static NSArray* desktopGlassStyles(void)
     CGFloat rgb[3];
     for (int c = 0; c < 3; c++) {
         double linear = totals[c] / weights;
-        // and back to sRGB
         rgb[c] = linear <= 0.0031308 ? linear * 12.92
                                      : 1.055 * pow(linear, 1.0 / 2.4) - 0.055;
         rgb[c] = fmin(fmax(rgb[c], 0.0), 1.0);
@@ -513,10 +593,75 @@ static NSArray* desktopGlassStyles(void)
 
     /* The alpha is held well below full, since a tint at full strength stops the glass
        reading as glass. */
-    sampled = [NSColor colorWithSRGBRed:rgb[0] green:rgb[1] blue:rgb[2] alpha:0.35];
-    sampledFrom = [token copy];
+    return [NSColor colorWithSRGBRed:rgb[0] green:rgb[1] blue:rgb[2] alpha:0.35];
+}
 
-    return sampled;
+/* The color of one screen's wallpaper, video or still. Each screen is asked for its own,
+   since macOS lets every display carry a different picture.
+
+   A video wallpaper is sampled a little way in rather than at its first frame, which is
+   often a fade. Its light changes as it plays while its hue does not, so re-reading later
+   moves the tint's brightness and leaves its color alone.
+
+   Kept per screen against the file, the time that file was written, and the time the
+   store was written, so choosing a new wallpaper or editing the current one is noticed
+   and nothing else costs more than three stats. */
++ (NSColor*)wallpaperTintForScreen:(NSScreen*)screen
+{
+    if (!screen) return nil;
+
+    BOOL isVideo = NO;
+    NSURL* url = [self wallpaperFileForScreen:screen isVideo:&isVideo];
+    if (!url) return nil;
+
+    NSDate* written = nil;
+    [url getResourceValue:&written forKey:NSURLContentModificationDateKey error:NULL];
+    NSDate* storeWritten = nil;
+    [[self wallpaperStoreURL] getResourceValue:&storeWritten
+                                       forKey:NSURLContentModificationDateKey
+                                        error:NULL];
+
+    NSNumber* screenId = screen.deviceDescription[@"NSScreenNumber"];
+    NSString* token = [NSString
+        stringWithFormat:@"%@|%@|%f|%f", screenId, url.path,
+                         written.timeIntervalSince1970,
+                         storeWritten.timeIntervalSince1970];
+
+    static NSMutableDictionary<NSString*, NSColor*>* sampled = nil;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ sampled = [NSMutableDictionary dictionary]; });
+    if (sampled[token]) return sampled[token];
+
+    NSColor* color = nil;
+
+    if (isVideo) {
+        AVURLAsset* asset = [AVURLAsset URLAssetWithURL:url options:nil];
+        AVAssetImageGenerator* generator =
+            [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+        generator.appliesPreferredTrackTransform = YES;
+        CGImageRef frame = [generator copyCGImageAtTime:CMTimeMakeWithSeconds(2, 600)
+                                            actualTime:NULL
+                                                 error:NULL];
+        color = [self colorOfImage:frame];
+        if (frame) CGImageRelease(frame);
+    } else {
+        NSImage* picture = [[NSImage alloc] initWithContentsOfURL:url];
+        CGImageRef image = [picture CGImageForProposedRect:NULL context:nil hints:nil];
+        color = [self colorOfImage:image];
+    }
+
+    if (color) {
+        [sampled removeAllObjects];
+        sampled[token] = color;
+    }
+
+    return color;
+}
+
+// The main screen's, for callers with no screen in hand.
++ (NSColor*)wallpaperTint
+{
+    return [self wallpaperTintForScreen:[NSScreen mainScreen]];
 }
 
 - (NSString*)desktopGlassTint
