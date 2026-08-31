@@ -27,14 +27,14 @@
     NSColor* builtTint;
 }
 
-/* The Icon & widget style, which Follow follows, and the accent, which Tinted uses. */
+/* The Liquid Glass choice in System Settings, Appearance: Clear or Tinted, added in macOS
+   26.1, and what Follow follows.
+
+   AppleAccentColor was watched here too, from when tinted glass borrowed the accent. It
+   wears the wallpaper now, and the wallpaper is watched where it is read. */
 static NSArray* watchedSystemKeys(void)
 {
-    /* NSGlassDiffusionSetting is the Liquid Glass choice in System Settings, Appearance:
-       Clear or Tinted, added in macOS 26.1. AppleIconAppearanceTheme is a different
-       setting, Icon & widget style, and following that one meant a Mac set to Clear glass
-       still got regular glass on the desktop. */
-    return @[@"NSGlassDiffusionSetting", @"AppleAccentColor"];
+    return @[@"NSGlassDiffusionSetting"];
 }
 
 - (id)initWithFrame:(NSRect)frame
@@ -76,8 +76,9 @@ static NSArray* watchedSystemKeys(void)
     [self systemAppearanceChanged];
 }
 
-/* Both keys change more often than the glass needs rebuilding: a light to dark switch
-   changes the name without changing the style. Rebuilds only when the outcome differs. */
+/* The setting is written whenever anything in the Appearance pane is touched, more often
+   than the glass needs rebuilding, and rebuilding discards views a widget is sitting
+   behind. Rebuilds only when the glass it comes to is a different one. */
 - (void)systemAppearanceChanged
 {
     NSString* style = [self resolvedStyle];
