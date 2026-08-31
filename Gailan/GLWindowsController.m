@@ -137,15 +137,11 @@ static NSString* const kAccentKey = @"AppleAccentColor";
 
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style
-                    tint:(NSColor*)tint
                  opacity:(double)opacity
-       tintFromWallpaper:(BOOL)fromWallpaper
 {
     _glassMaterial = [name copy];
     _glassStyle = [style copy];
     _glassOpacity = opacity;
-    _glassTint = tint;
-    _glassTintFromWallpaper = fromWallpaper;
     for (NSNumber* screenId in [windows allKeys]) {
         [windows[screenId]
             setGlassMaterial: name
@@ -156,11 +152,13 @@ static NSString* const kAccentKey = @"AppleAccentColor";
     }
 }
 
-/* macOS lets every display carry its own wallpaper, so a tint that follows the wallpaper
-   is worked out for each screen rather than once for the app. */
+/* macOS lets every display carry its own wallpaper, so the tint is worked out for each
+   screen rather than once for the app. */
 - (NSColor*)glassTintForScreenId:(NSNumber*)screenId
 {
-    if (!_glassTintFromWallpaper) return _glassTint;
+    /* Unless macOS has been asked to tint window backgrounds less, which is a system
+       setting rather than one of Gailan's, and is the same request. */
+    if (![GLPreferencesController systemTintsWindowBackgrounds]) return nil;
 
     return [GLPreferencesController
         wallpaperTintForScreen:[self getNSScreen:screenId]];

@@ -478,7 +478,6 @@ int const PORT = 41416;
 
 - (void)wallpaperMayHaveChanged
 {
-    if (![[self.preferences desktopGlassTintMode] isEqualToString:@"follow"]) return;
     if (![GLPreferencesController systemTintsWindowBackgrounds]) return;
 
     /* The sampler keeps its answer against the file and the time it was written, so this
@@ -511,16 +510,10 @@ int const PORT = 41416;
 
 - (void)applyDesktopGlass
 {
-    BOOL followsWallpaper =
-        [[self.preferences desktopGlassTintMode] isEqualToString:@"follow"]
-        && [GLPreferencesController systemTintsWindowBackgrounds];
-
     [windowsController
         setGlassMaterial: [self.preferences desktopGlassMaterial]
                    style: [self.preferences desktopGlassStyle]
-                    tint: [self.preferences desktopGlassTintColor]
                  opacity: [self.preferences desktopGlassOpacity]
-       tintFromWallpaper: followsWallpaper
     ];
 }
 

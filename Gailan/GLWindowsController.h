@@ -29,17 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString* glassMaterial;
 @property (nonatomic, copy) NSString* glassStyle;
 @property (nonatomic) double glassOpacity;
-@property (nonatomic, strong) NSColor* glassTint;
-// whether the tint is taken from each screen's wallpaper rather than being one color
-@property (nonatomic) BOOL glassTintFromWallpaper;
 
 - (void)applySystemAccent;
 
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style
-                    tint:(NSColor*)tint
-                 opacity:(double)opacity
-       tintFromWallpaper:(BOOL)fromWallpaper;
+                 opacity:(double)opacity;
 - (void)closeAll;
 - (void)workspaceChanged;
 - (void)wallpaperChanged;

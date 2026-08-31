@@ -41,14 +41,6 @@
             @"desktopGlassStyle": @"follow",
             @"desktopGlassOpacity": @1.0,
 
-            /* Where a tint comes from. "follow" takes it from the wallpaper when macOS
-               is tinting window backgrounds and leaves the glass untinted when it is
-               not; "off" never tints; "custom" uses desktopGlassTint.
-
-               A tint already chosen means somebody picked a color before there was a
-               mode to hold, so that choice stands rather than being replaced by the
-               system's. */
-            @"desktopGlassTintMode": [self storedTintIsAColor] ? @"custom" : @"follow"
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
@@ -364,40 +356,6 @@ static NSArray* desktopGlassStyles(void)
 
 // stored as #rrggbbaa so it survives a plist round trip legibly. fully
 // transparent means untinted.
-/* Whether a tint was saved before the mode existed. Read straight from the store rather
-   than through the accessor, since this runs while the defaults are being registered. */
-- (BOOL)storedTintIsAColor
-{
-    NSString* hex = [[NSUserDefaults standardUserDefaults]
-        stringForKey:@"desktopGlassTint"
-    ];
-    if (hex.length < 9) return NO;
-
-    unsigned int value = 0;
-    NSScanner* scanner = [NSScanner scannerWithString:
-        [hex stringByReplacingOccurrencesOfString:@"#" withString:@""]];
-    if (![scanner scanHexInt:&value]) return NO;
-
-    return (value & 0xFF) > 0;
-}
-
-- (NSString*)desktopGlassTintMode
-{
-    NSString* mode = [[NSUserDefaults standardUserDefaults]
-        stringForKey:@"desktopGlassTintMode"
-    ];
-    return mode ?: @"follow";
-}
-
-- (void)setDesktopGlassTintMode:(NSString*)mode
-{
-    [[NSUserDefaults standardUserDefaults]
-        setObject: mode ?: @"follow"
-           forKey: @"desktopGlassTintMode"
-    ];
-    [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
-}
-
 /* Whether macOS is tinting window backgrounds with the wallpaper. The setting is
    AppleReduceDesktopTinting in the global domain and it counts the other way: 1 means
    reduce the tinting, so absent or 0 means tinting is on. */
@@ -664,22 +622,6 @@ static NSString* const kAerialVideos =
     return [self wallpaperTintForScreen:[NSScreen mainScreen]];
 }
 
-- (NSString*)desktopGlassTint
-{
-    NSString* hex = [[NSUserDefaults standardUserDefaults]
-        stringForKey:@"desktopGlassTint"
-    ];
-    return hex ?: @"#00000000";
-}
-
-- (void)setDesktopGlassTint:(NSString*)hex
-{
-    [[NSUserDefaults standardUserDefaults]
-        setObject: hex ?: @"#00000000"
-           forKey: @"desktopGlassTint"
-    ];
-    [(GLAppDelegate *)[NSApp delegate] desktopGlassDidChange];
-}
 
 
 /* The accent colour macOS is set to.
@@ -727,32 +669,15 @@ static NSString* const kAerialVideos =
     ];
 }
 
+/* The tint is the wallpaper's, always. There is no setting for it: a tint that is
+   anything else is a color sitting on the desktop disagreeing with the desktop, and every
+   answer somebody would want is already the wallpaper's own. Each screen resolves its own,
+   so this is the main screen's, for callers holding no screen. */
 - (NSColor*)desktopGlassTintColor
 {
-    NSString* mode = [self desktopGlassTintMode];
+    if (![GLPreferencesController systemTintsWindowBackgrounds]) return nil;
 
-    if ([mode isEqualToString:@"off"]) return nil;
-
-    if ([mode isEqualToString:@"follow"]) {
-        if (![GLPreferencesController systemTintsWindowBackgrounds]) return nil;
-        return [GLPreferencesController wallpaperTint];
-    }
-
-    NSString* hex = [self desktopGlassTint];
-    unsigned int value = 0;
-    NSScanner* scanner = [NSScanner scannerWithString:
-        [hex stringByReplacingOccurrencesOfString:@"#" withString:@""]];
-    if (![scanner scanHexInt:&value]) return nil;
-
-    CGFloat alpha = (value & 0xFF) / 255.0;
-    if (alpha <= 0.001) return nil;
-
-    return [NSColor
-        colorWithSRGBRed: ((value >> 24) & 0xFF) / 255.0
-                   green: ((value >> 16) & 0xFF) / 255.0
-                    blue: ((value >> 8) & 0xFF) / 255.0
-                   alpha: alpha
-    ];
+    return [GLPreferencesController wallpaperTint];
 }
 
 - (void)setDesktopGlassTag:(NSInteger)tag

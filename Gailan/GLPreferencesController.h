@@ -25,8 +25,6 @@
 @property BOOL alwaysOnTop;
 @property NSInteger desktopGlassTag;
 @property NSInteger desktopGlassStyleTag;
-@property (nonatomic, copy) NSString* desktopGlassTint;
-@property (nonatomic, copy) NSString* desktopGlassTintMode;
 + (BOOL)systemTintsWindowBackgrounds;
 + (NSColor*)wallpaperTint;
 + (NSColor*)wallpaperTintForScreen:(NSScreen*)screen;

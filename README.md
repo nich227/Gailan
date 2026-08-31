@@ -603,16 +603,22 @@ widget uses about 40% opacity, which reads the frost through it while keeping te
 legible.
 
 Preferences carries what macOS actually exposes. `Frost the desktop` picks the material
-and is on by default; `Off` opts out. On macOS 26 there is also a `Style`, a `Tint` color
-where no opacity means untinted, and a `Transparency`.
+and is on by default; `Off` opts out. On macOS 26 there is also a `Style` and a
+`Transparency`.
+
+There is no tint setting. The tint is the wallpaper's own color, taken from the picture
+macOS is showing, and each display resolves its own since a Mac can show a different
+wallpaper on each one. It changes when the wallpaper does. Where macOS has been asked to
+tint window backgrounds less, which is the `Tint window background with wallpaper color`
+setting, Gailan leaves the glass untinted for the same reason.
 
 `Style` is `Follow system` by default, which reads the Icon & widget style macOS is set to
 and matches it, so glass on the desktop agrees with the icons and widgets around it.
 Changing that setting takes effect as you change it: System Settings writes it from its own
 process and AppKit announces nothing, so Gailan watches the value itself. The
 other three hold what they say whatever the system does: `Regular` and `Clear` are the two
-`NSGlassEffectView` offers, and `Tinted` is the regular glass carrying a color, which is
-the accent macOS is set to unless a tint has been chosen.
+`NSGlassEffectView` offers, and `Tinted` is the regular glass carrying the wallpaper's
+color.
 
 `Transparency` is the glass view's own, not the glass effect's. `NSGlassEffectView` has no
 transparency to set, so this thins what is drawn rather than changing how it refracts. It
