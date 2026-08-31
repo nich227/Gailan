@@ -30,7 +30,11 @@
 /* The Icon & widget style, which Follow follows, and the accent, which Tinted uses. */
 static NSArray* watchedSystemKeys(void)
 {
-    return @[@"AppleIconAppearanceTheme", @"AppleAccentColor"];
+    /* NSGlassDiffusionSetting is the Liquid Glass choice in System Settings, Appearance:
+       Clear or Tinted, added in macOS 26.1. AppleIconAppearanceTheme is a different
+       setting, Icon & widget style, and following that one meant a Mac set to Clear glass
+       still got regular glass on the desktop. */
+    return @[@"NSGlassDiffusionSetting", @"AppleAccentColor"];
 }
 
 - (id)initWithFrame:(NSRect)frame
@@ -161,29 +165,30 @@ static NSArray* watchedSystemKeys(void)
     }
 }
 
-/* What "follow" comes to. AppleIconAppearanceTheme holds names like RegularLight and
-   ClearDark, so the style is taken from what the name contains: the light and dark halves
-   of each are the same glass. Anything unrecognised is regular. */
+/* What "follow" comes to: the Liquid Glass choice macOS is set to.
+
+   NSGlassDiffusionSetting holds it, 0 for Clear and 1 for Tinted. Nothing in AppKit
+   names the key and there is no API that answers for it, so it is read directly. Absent
+   means Clear, which is what macOS defaults to and what every Mac older than 26.1 looks
+   like, so the same read works there without a version check. */
 - (NSString*)resolvedStyle
 {
     if (![styleName isEqualToString:@"follow"]) {
-        return styleName.length > 0 ? styleName : @"regular";
+        return styleName.length > 0 ? styleName : @"clear";
     }
 
-    NSString* system = [[NSUserDefaults standardUserDefaults]
-        stringForKey:@"AppleIconAppearanceTheme"
-    ];
-    if ([system rangeOfString:@"Clear"].location != NSNotFound) return @"clear";
-    if ([system rangeOfString:@"Tinted"].location != NSNotFound) return @"tinted";
-    return @"regular";
+    NSInteger diffusion = [[NSUserDefaults standardUserDefaults]
+        integerForKey:@"NSGlassDiffusionSetting"];
+
+    return diffusion == 1 ? @"tinted" : @"clear";
 }
 
-/* Tinted carries whichever colour was chosen, or the system accent if none was. */
+/* Clear glass carries no tint and tinted glass carries the wallpaper's, which is the
+   difference between the two choices macOS offers. The color is never asked of the user,
+   so there is nothing here to fall back to. */
 - (NSColor*)effectiveTintForStyle:(NSString*)style
 {
-    if (![style isEqualToString:@"tinted"]) return tintColor;
-    if (tintColor && tintColor.alphaComponent > 0.01) return tintColor;
-    return [GLPreferencesController systemAccentColor];
+    return [style isEqualToString:@"tinted"] ? tintColor : nil;
 }
 
 - (NSView*)viewWithRadius:(CGFloat)radius

@@ -118,36 +118,33 @@
 /* Following the system means reading what macOS is set to rather than asking twice.
    The names it uses carry the appearance as well as the style, so a name is read for
    what it says. */
-- (void)testFollowingTheSystemReadsTheIconStyle
+- (void)testFollowingTheSystemReadsTheLiquidGlassSetting
 {
     GLGlassLayer* layer = [[GLGlassLayer alloc]
         initWithFrame: NSMakeRect(0, 0, 400, 400)
     ];
 
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
+    id before = [defaults objectForKey:@"NSGlassDiffusionSetting"];
 
-    [defaults setObject:@"ClearDark" forKey:@"AppleIconAppearanceTheme"];
+    [defaults setInteger:0 forKey:@"NSGlassDiffusionSetting"];
     [layer setMaterialName:@"frosted" style:@"follow" tint:nil opacity:1.0];
     XCTAssertEqualObjects([layer resolvedStyle], @"clear",
                           @"a clear system reads as clear glass");
 
-    [defaults setObject:@"TintedLight" forKey:@"AppleIconAppearanceTheme"];
+    [defaults setInteger:1 forKey:@"NSGlassDiffusionSetting"];
     XCTAssertEqualObjects([layer resolvedStyle], @"tinted",
                           @"a tinted system reads as tinted glass");
 
-    [defaults setObject:@"RegularDark" forKey:@"AppleIconAppearanceTheme"];
-    XCTAssertEqualObjects([layer resolvedStyle], @"regular",
-                          @"and the default reads as regular");
-
-    [defaults setObject:@"SomethingNew" forKey:@"AppleIconAppearanceTheme"];
-    XCTAssertEqualObjects([layer resolvedStyle], @"regular",
-                          @"a name nobody has seen before is regular rather than nothing");
+    [defaults removeObjectForKey:@"NSGlassDiffusionSetting"];
+    XCTAssertEqualObjects([layer resolvedStyle], @"clear",
+                          @"nothing stored is clear, which is what macOS defaults to and "
+                          @"what every system older than 26.1 looks like");
 
     if (before) {
-        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+        [defaults setObject:before forKey:@"NSGlassDiffusionSetting"];
     } else {
-        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+        [defaults removeObjectForKey:@"NSGlassDiffusionSetting"];
     }
 }
 
@@ -159,48 +156,36 @@
     ];
 
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
-    [defaults setObject:@"ClearDark" forKey:@"AppleIconAppearanceTheme"];
+    id before = [defaults objectForKey:@"NSGlassDiffusionSetting"];
+    [defaults setInteger:0 forKey:@"NSGlassDiffusionSetting"];
 
     [layer setMaterialName:@"frosted" style:@"tinted" tint:nil opacity:1.0];
     XCTAssertEqualObjects([layer resolvedStyle], @"tinted",
                           @"tinted stays tinted next to a clear system");
 
     if (before) {
-        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+        [defaults setObject:before forKey:@"NSGlassDiffusionSetting"];
     } else {
-        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+        [defaults removeObjectForKey:@"NSGlassDiffusionSetting"];
     }
 }
 
-/* Tinted with nothing chosen borrows the accent macOS is set to, which is what the
-   system does to a tinted icon. A colour that was chosen is used as it is. */
-- (void)testTintedBorrowsTheSystemAccentUntilToldOtherwise
+/* The two choices macOS offers differ in exactly this: clear glass carries no tint and
+   tinted glass carries one. The color is never asked of the user, so there is nothing to
+   fall back to and nothing to borrow. */
+- (void)testClearCarriesNoTintAndTintedCarriesTheOneItWasGiven
 {
-    GLGlassLayer* layer = [[GLGlassLayer alloc]
-        initWithFrame: NSMakeRect(0, 0, 400, 400)
-    ];
+    NSColor* wallpaper = [NSColor colorWithSRGBRed:0.36 green:0.33 blue:0.24 alpha:0.35];
 
-    [layer setMaterialName:@"frosted" style:@"tinted" tint:nil opacity:1.0];
+    [layer setMaterialName:@"frosted" style:@"tinted" tint:wallpaper opacity:1.0];
     XCTAssertEqualObjects(
-        [layer effectiveTintForStyle:@"tinted"],
-        [GLPreferencesController systemAccentColor],
-        @"no colour chosen, so the system accent"
+        [layer effectiveTintForStyle:@"tinted"], wallpaper,
+        @"tinted glass wears the color it was handed, which is the wallpaper's"
     );
 
-    NSColor* chosen = [NSColor colorWithSRGBRed:0.2 green:0.6 blue:0.4 alpha:0.8];
-    [layer setMaterialName:@"frosted" style:@"tinted" tint:chosen opacity:1.0];
-    XCTAssertEqualObjects(
-        [layer effectiveTintForStyle:@"tinted"], chosen,
-        @"a colour was chosen, so that one"
-    );
-
-    NSColor* invisible = [NSColor colorWithSRGBRed:0.2 green:0.6 blue:0.4 alpha:0.0];
-    [layer setMaterialName:@"frosted" style:@"tinted" tint:invisible opacity:1.0];
-    XCTAssertEqualObjects(
-        [layer effectiveTintForStyle:@"tinted"],
-        [GLPreferencesController systemAccentColor],
-        @"a colour with nothing in it is not a choice"
+    XCTAssertNil(
+        [layer effectiveTintForStyle:@"clear"],
+        @"and clear glass wears none, whatever it was handed"
     );
 }
 
@@ -216,34 +201,35 @@
     [layer setMaterialName:@"frosted" style:@"follow" tint:nil opacity:1.0];
 
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
-    [defaults setObject:@"RegularDark" forKey:@"AppleIconAppearanceTheme"];
+    id before = [defaults objectForKey:@"NSGlassDiffusionSetting"];
+    [defaults setInteger:0 forKey:@"NSGlassDiffusionSetting"];
 
     [layer setRegions:@[@{
         @"id": @"widget", @"x": @10, @"y": @10, @"w": @100, @"h": @80, @"radius": @18
     }]];
     XCTAssertEqual(layer.subviews.count, 1UL, @"one claim, one glass view");
     NSView* first = layer.subviews.firstObject;
-    XCTAssertEqualObjects([layer resolvedStyle], @"regular", @"following a regular system");
+    XCTAssertEqualObjects([layer resolvedStyle], @"clear", @"following a clear system");
 
-    // the system becomes clear, which is a different glass
-    [defaults setObject:@"ClearDark" forKey:@"AppleIconAppearanceTheme"];
+    // the system becomes tinted, which is a different glass
+    [defaults setInteger:1 forKey:@"NSGlassDiffusionSetting"];
 
-    XCTAssertEqualObjects([layer resolvedStyle], @"clear", @"the layer reads the change");
+    XCTAssertEqualObjects([layer resolvedStyle], @"tinted", @"the layer reads the change");
     XCTAssertEqual(layer.subviews.count, 1UL,
                    @"and the glass is still there rather than gone until something moves");
     XCTAssertNotEqual(layer.subviews.firstObject, first,
                       @"built again, because the style it was built from changed");
 
     if (before) {
-        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+        [defaults setObject:before forKey:@"NSGlassDiffusionSetting"];
     } else {
-        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+        [defaults removeObjectForKey:@"NSGlassDiffusionSetting"];
     }
 }
 
-/* Light to dark changes the name without changing the glass, so nothing should be
-   rebuilt for it. */
+/* The setting is written whenever anything in the Appearance pane is touched, so a value
+   arriving that comes to the same glass has to leave the standing views alone. Rebuilding
+   on every write would discard glass a widget is sitting behind for no reason. */
 - (void)testAChangeThatComesToTheSameGlassIsLeftAlone
 {
     GLGlassLayer* layer = [[GLGlassLayer alloc]
@@ -252,23 +238,24 @@
     [layer setMaterialName:@"frosted" style:@"follow" tint:nil opacity:1.0];
 
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    NSString* before = [defaults stringForKey:@"AppleIconAppearanceTheme"];
-    [defaults setObject:@"RegularLight" forKey:@"AppleIconAppearanceTheme"];
+    id before = [defaults objectForKey:@"NSGlassDiffusionSetting"];
+    [defaults setInteger:0 forKey:@"NSGlassDiffusionSetting"];
 
     [layer setRegions:@[@{
         @"id": @"widget", @"x": @10, @"y": @10, @"w": @100, @"h": @80, @"radius": @18
     }]];
     NSView* first = layer.subviews.firstObject;
 
-    [defaults setObject:@"RegularDark" forKey:@"AppleIconAppearanceTheme"];
+    // written again with what it already held
+    [defaults setInteger:0 forKey:@"NSGlassDiffusionSetting"];
 
     XCTAssertEqual(layer.subviews.firstObject, first,
                    @"same glass either way, so the view it had is the view it keeps");
 
     if (before) {
-        [defaults setObject:before forKey:@"AppleIconAppearanceTheme"];
+        [defaults setObject:before forKey:@"NSGlassDiffusionSetting"];
     } else {
-        [defaults removeObjectForKey:@"AppleIconAppearanceTheme"];
+        [defaults removeObjectForKey:@"NSGlassDiffusionSetting"];
     }
 }
 

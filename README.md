@@ -602,8 +602,8 @@ Keep the widget's own background thin, or it covers the glass it asked for. The 
 widget uses about 40% opacity, which reads the frost through it while keeping text
 legible.
 
-Preferences carries what macOS actually exposes. `Frost the desktop` picks the material
-and is on by default; `Off` opts out. On macOS 26 there is also a `Style` and a
+Preferences carries what macOS actually exposes. `Liquid Glass` turns it on or off, and it is on
+by default. On macOS 26 there is also a `Style` and a
 `Transparency`.
 
 There is no tint setting. The tint is the wallpaper's own color, taken from the picture
@@ -612,13 +612,17 @@ wallpaper on each one. It changes when the wallpaper does. Where macOS has been 
 tint window backgrounds less, which is the `Tint window background with wallpaper color`
 setting, Gailan leaves the glass untinted for the same reason.
 
-`Style` is `Follow system` by default, which reads the Icon & widget style macOS is set to
-and matches it, so glass on the desktop agrees with the icons and widgets around it.
+`Style` is `Follow system` by default, which reads the **Liquid Glass** setting in System
+Settings, Appearance, and matches it, so glass on the desktop agrees with the glass
+everywhere else. That setting arrived in macOS 26.1 with two choices, `Clear` and `Tinted`,
+and Gailan offers the same two plus following. Nothing in AppKit answers for it, so the
+value is read from `NSGlassDiffusionSetting`, where 0 is Clear and 1 is Tinted; absent
+means Clear, which is both the macOS default and how every system before 26.1 looks.
 Changing that setting takes effect as you change it: System Settings writes it from its own
-process and AppKit announces nothing, so Gailan watches the value itself. The
-other three hold what they say whatever the system does: `Regular` and `Clear` are the two
-`NSGlassEffectView` offers, and `Tinted` is the regular glass carrying the wallpaper's
-color.
+process and AppKit announces nothing, so Gailan watches the value itself. The other two
+hold what they say whatever the system does. `Clear` is glass with no tint, and `Tinted` is
+glass carrying the wallpaper's color, which is the difference between the two choices macOS
+offers.
 
 `Transparency` is the glass view's own, not the glass effect's. `NSGlassEffectView` has no
 transparency to set, so this thins what is drawn rather than changing how it refracts. It

@@ -307,7 +307,11 @@ static NSArray* desktopGlassMaterials(void)
 // get a vibrancy material, which takes neither.
 static NSArray* desktopGlassStyles(void)
 {
-    return @[@"follow", @"regular", @"clear", @"tinted"];
+    /* What macOS offers, and nothing more. Its Liquid Glass setting is Clear or Tinted, so
+       those are the two, with follow meaning whichever is set. Regular was here as a third
+       with no counterpart in the system, which made the menu read as though macOS had an
+       option it does not have. */
+    return @[@"follow", @"clear", @"tinted"];
 }
 
 /* Follow matches what macOS is set to; the rest hold regardless of the system. */
