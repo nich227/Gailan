@@ -4,6 +4,7 @@ const esbuild = require('esbuild');
 const bundleWidget = require('./esbuildWidget');
 const readWidgetSettings = require('./readWidgetSettings');
 const widgetConfigFile = require('./widgetConfigFile');
+const checkDependencies = require('./checkDependencies');
 const fs = require('fs');
 
 module.exports = function WidgetBundler() {
@@ -75,6 +76,14 @@ module.exports = function WidgetBundler() {
         savedConfig: widgetConfigFile.read(filePath),
       };
 
+      /* What the widget needs on the machine, and whether it is there. Started here so
+         it runs while the bundle is built rather than after it, and answered again on
+         every rebuild, which is when somebody who has just installed something looks. */
+      const checking = checkDependencies(
+        readWidgetSettings.dependenciesFor(filePath),
+        filePath
+      );
+
       fs.access(filePath, fs.constants.R_OK, (couldNotRead) => {
         if (couldNotRead || closed) return;
         bundle.bundle((err, srcBuffer) => {
@@ -90,8 +99,14 @@ module.exports = function WidgetBundler() {
             // here used to take the whole server down with it.
             if (statErr || closed) return;
             widget.mtime = stat.mtime;
-            bundle.widget = widget;
-            callback(widget);
+
+            // the check is time bounded, so this waits on it rather than racing it
+            checking.then((checked) => {
+              if (closed) return;
+              if (checked.length) widget.dependencies = checked;
+              bundle.widget = widget;
+              callback(widget);
+            });
           });
         });
       });

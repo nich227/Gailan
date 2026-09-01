@@ -375,6 +375,46 @@ stuck.
 `title` is separate from the settings and is the name the Widgets window shows,
 falling back to the widget id.
 
+### Dependencies
+
+A widget can say what it needs on the machine. Gailan checks each entry when the
+widget loads and, where something is missing, blurs the widget and writes across it
+which dependencies are not installed. The widget's command still runs, so a widget
+that can do something useful without one of them still does it.
+
+```json
+{
+  "title": "Media Stats",
+  "dependencies": [
+    {"type": "command", "name": "ffmpeg", "hint": "brew install ffmpeg"},
+    {"type": "python", "name": "requests", "hint": "pip3 install requests"},
+    {"type": "node", "name": "chalk"},
+    {"type": "brew", "name": "imagemagick"},
+    {"type": "shell", "name": "docker running", "test": "docker info"}
+  ]
+}
+```
+
+| type | what it checks |
+|---|---|
+| `command` | on `PATH`, by `command -v` |
+| `node` | resolvable, from the widget's own `node_modules` or wherever else node looks |
+| `python` | importable by `python3` |
+| `ruby` | requirable by `ruby` |
+| `brew` | installed under brew's prefix |
+| `shell` | whatever `test` says; a zero exit means present |
+
+`name` is what gets named in the message, `hint` is optional, and `test` applies to
+`shell` only. An entry without a usable type and a name is ignored.
+
+Where the interpreter itself is absent, the message names the interpreter rather than
+the package: a widget asking for a python module on a Mac with no `python3` reads
+`python3` in the list.
+
+Answers are cached for as long as the app runs and shared between widgets, so ten
+widgets naming `ffmpeg` cost one check. Refreshing a widget checks again, which is
+what to do after installing something.
+
 What you choose is written to `settings.json` in the widget's own folder, so the
 settings travel with the widget: copy the folder to another Mac and it looks the
 same. That file is not a widget, so saving one does not trigger a rebuild. Edit it

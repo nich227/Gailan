@@ -202,6 +202,29 @@ path, so the watcher ignores it.
 `VirtualDomWidget` layers the saved values over the manifest defaults and passes
 them as `props.settings`.
 
+### Dependencies a widget declares
+
+`dependencies` in `widget.json` is read by `readWidgetSettings.dependenciesFor` and
+checked by `checkDependencies.js`, which `WidgetBundler` starts alongside the bundle and
+waits on before emitting the widget. The result rides on `widget.dependencies` with a
+`state` per entry (`present`, `missing`, `no-interpreter`, `unknown-type`), so it travels
+with `WIDGET_ADDED` the way `settingsSchema` does and needs no action of its own.
+
+`VirtualDomWidget` wraps whatever the widget rendered in `MissingDependencies.js` when
+any state is not `present`. The command still runs either way. Four things to keep if you
+touch this:
+
+  - each check is the cheapest test that answers. `brew` is a stat of brew's prefix, not
+    `brew list`, which shells out to ruby and costs about a second per formula
+  - checks are bounded by `PATIENCE` (4s) and cached in a module-level map keyed by type,
+    name, test and widget directory. `checkDependencies.forget()` clears it
+  - an interpreter is checked before the package that needs it, so a Mac without
+    `python3` reports `no-interpreter` and the message names `python3`
+  - the overlay blurs the widget's content and takes `pointerEvents: none`. The notice
+    itself must stay outside the blurred element, since a filter applies to descendants
+
+The whole set for a four-entry manifest answered in 143ms on an M4 Mini.
+
 `GLWidgetsOverview.swift` is the window: a card per widget with its `preview.jpg`,
 and one `case` per setting type in `GLWidgetSettings.control`, which is the whole
 translator. Two traps worth remembering:

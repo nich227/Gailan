@@ -6,6 +6,7 @@ const {createRoot} = require('react-dom/client');
 const React = require('react');
 const html = React.createElement;
 const ErrorDetails = require('./ErrorDetails');
+const MissingDependencies = require('./MissingDependencies');
 window.html = html;
 // A widget writing <> needs somewhere for the fragment to come from. esbuild would
 // otherwise reach for React.Fragment, which a widget has no reason to have imported, and
@@ -38,6 +39,9 @@ module.exports = function VirtualDomWidget(widgetObject) {
   // manifest said the defaults were
   let config = {};
 
+  // what the widget asked for and the machine does not have
+  let missing = [];
+
   function init(widget) {
     currentError = widget.error ? JSON.parse(widget.error) : undefined;
     implementation = Object.create(defaults);
@@ -51,6 +55,11 @@ module.exports = function VirtualDomWidget(widgetObject) {
       }
     });
     config = Object.assign(defaultsFromManifest, widget.config || {});
+
+    /* A widget missing something still runs: it may do less rather than nothing, and
+       an author who handles the absence should be allowed to. What changes is that
+       Gailan says so over the top of whatever it draws. */
+    missing = (widget.dependencies || []).filter((dep) => dep.state !== 'present');
 
     return api;
   }
@@ -126,8 +135,15 @@ module.exports = function VirtualDomWidget(widgetObject) {
 
     try {
       // settings is reserved: a widget reads props.settings.<key>
+      const drawn = implementation.render(
+        Object.assign({}, state, {settings: config}),
+        dispatch
+      );
+
       root.render(
-        implementation.render(Object.assign({}, state, {settings: config}), dispatch)
+        missing.length
+          ? html(MissingDependencies, {missing: missing}, drawn)
+          : drawn
       );
     } catch (err) {
       handleError(err);

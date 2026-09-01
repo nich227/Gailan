@@ -23,6 +23,8 @@ const widgetConfigFile = require('./widgetConfigFile');
 // choice and list are the same data with a different control: segments or a menu
 const TYPES = ['choice', 'list', 'toggle', 'number', 'text', 'color'];
 const NEEDS_OPTIONS = ['choice', 'list'];
+// kept here rather than imported, so reading a manifest costs nothing extra
+const DEPENDENCY_TYPES = ['command', 'node', 'python', 'ruby', 'brew', 'shell'];
 
 function isUsable(setting) {
   if (!setting || typeof setting !== 'object') return false;
@@ -116,6 +118,39 @@ module.exports.titleFor = function titleFor(filePath) {
   } catch (err) {
     return null;
   }
+};
+
+/* What a widget says it needs on the machine to work. Each entry names a type and a
+   thing of that type, and may carry a hint saying how to install it. Anything without
+   both a usable type and a name is dropped, so a mistake in a manifest cannot block a
+   widget that would otherwise run. */
+module.exports.dependenciesFor = function dependenciesFor(filePath) {
+  const manifest = path.join(path.dirname(filePath), 'widget.json');
+
+  let raw;
+  try {
+    raw = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+  } catch (err) {
+    return [];
+  }
+
+  if (!Array.isArray(raw.dependencies)) return [];
+
+  return raw.dependencies
+    .filter(
+      (dep) =>
+        dep &&
+        typeof dep === 'object' &&
+        DEPENDENCY_TYPES.indexOf(dep.type) > -1 &&
+        typeof dep.name === 'string' &&
+        dep.name.length > 0
+    )
+    .map((dep) => {
+      const clean = {type: dep.type, name: dep.name};
+      if (typeof dep.hint === 'string' && dep.hint) clean.hint = dep.hint;
+      if (dep.type === 'shell' && typeof dep.test === 'string') clean.test = dep.test;
+      return clean;
+    });
 };
 
 module.exports.defaultsFor = function defaultsFor(schema) {
