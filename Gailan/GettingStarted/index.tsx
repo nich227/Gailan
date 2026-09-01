@@ -222,6 +222,48 @@ const Window = styled("div")`
   }
 
 
+  /* Which mark shows, decided by the same state that colours the panel. Following the
+     system is the default here, so the media query answers for it, and a background
+     named outright answers for itself: dark is the only dark one, since every wash is a
+     light window with a dark ink. */
+  .mark-light {
+    display: none;
+  }
+
+  .mark-dark {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: light) {
+    .mark-light {
+      display: block;
+    }
+
+    .mark-dark {
+      display: none;
+    }
+  }
+
+  &[data-background="dark"] {
+    .mark-light {
+      display: none;
+    }
+
+    .mark-dark {
+      display: block;
+    }
+  }
+
+  &[data-background]:not([data-background="dark"]) {
+    .mark-light {
+      display: block;
+    }
+
+    .mark-dark {
+      display: none;
+    }
+  }
+
   /* Held whatever the system is set to. Each tinted one is the light window with a
      wash of a hue in place of the near-white, and ink a dark version of that hue. */
   &[data-background="dark"] {
@@ -441,8 +483,12 @@ const Title = styled("span")`
 `;
 
 /* The mark, then the name set in live text rather than baked into a picture, so
-   it takes the widget's own color and needs no font loaded. The dark variant of
-   the mark is swapped in by the <picture> below. */
+   it takes the widget's own color and needs no font loaded.
+
+   Which mark is drawn follows the panel rather than the system. A <picture> with
+   prefers-color-scheme was reading the system, and the panel can be told to be dark
+   while the system is light, which left black artwork on a black window. Both are in
+   the page and the panel's own state hides one. */
 const Brand = styled("div")`
   display: flex;
   flex-direction: column;
@@ -453,7 +499,6 @@ const Brand = styled("div")`
 `;
 
 const Mark = styled("img")`
-  display: block;
   width: 62px;
   height: 62px;
 `;
@@ -578,10 +623,8 @@ export const render = ({ output, error, settings = {} }: State) => {
 
       <Brand>
         <WordmarkFont />
-        <picture>
-          <source srcSet="/mark-dark.png" media="(prefers-color-scheme: dark)" />
-          <Mark src="/mark.png" alt="" />
-        </picture>
+        <Mark className="mark-dark" src="/mark-dark.png" alt="" />
+        <Mark className="mark-light" src="/mark.png" alt="" />
         <Wordmark>Gailan</Wordmark>
         <Pronunciation>概览 · gàilǎn</Pronunciation>
       </Brand>
