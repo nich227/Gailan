@@ -1,11 +1,29 @@
 'use strict';
 
 function addWidget(widget) {
-  const {id, filePath, error, mtime, settingsSchema, title, savedConfig} =
-    widget;
+  const {
+    id,
+    filePath,
+    error,
+    mtime,
+    settingsSchema,
+    title,
+    savedConfig,
+    dependencies,
+  } = widget;
   return {
     type: 'WIDGET_ADDED',
-    payload: {id, filePath, error, mtime, settingsSchema, title, savedConfig},
+    payload: {
+      id,
+      filePath,
+      error,
+      mtime,
+      settingsSchema,
+      title,
+      savedConfig,
+      // what the widget needs and whether the machine has it, so the page can say
+      dependencies,
+    },
   };
 }
 
@@ -27,7 +45,7 @@ function removeWidget(id) {
 exports.applyWidgetSettings = function applyWidgetSettings(id, settings) {
   return {
     type: 'WIDGET_SETTINGS_CHANGED',
-    payload: { id: id, settings: settings },
+    payload: {id: id, settings: settings},
   };
 };
 
@@ -38,9 +56,11 @@ exports.setWidgetConfig = function setWidgetConfig(id, key, value) {
   };
 };
 
-exports.get = function(widgetEvent) {
+exports.get = function (widgetEvent) {
   switch (widgetEvent.type) {
-    case 'added': return addWidget(widgetEvent.widget);
-    case 'removed': return removeWidget(widgetEvent.id);
-  };
+    case 'added':
+      return addWidget(widgetEvent.widget);
+    case 'removed':
+      return removeWidget(widgetEvent.id);
+  }
 };

@@ -39,6 +39,7 @@ test('a widget appearing', (t) => {
         settingsSchema: undefined,
         title: undefined,
         savedConfig: undefined,
+        dependencies: undefined,
       },
     },
     'carries what the store needs and leaves the source behind'
