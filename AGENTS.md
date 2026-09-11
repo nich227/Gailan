@@ -245,7 +245,7 @@ what matches:
     too, not just the widget. This is the only change most widgets need.
   - `from "uebersicht"` can stay. `server/src/legacyAlias.js` exposes the module under that
     id as well, so rewriting the import is optional.
-  - `tracesOf.Uebersicht` in an AppleScript call becomes `com.nich227.Gailan`.
+  - `tracesOf.Uebersicht` in an AppleScript call becomes `com.kevster.Gailan`.
   - bash-only syntax in `command` (`shopt`, `[[ -o ...]]` idioms differing from zsh, bash
     arrays) either gets rewritten for zsh or the user switches the shell in Preferences.
   - a vendored native module gets rebuilt against Node 24.

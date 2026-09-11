@@ -73,7 +73,7 @@ module built for Node 16, needs rebuilding. Upstream breaking changes: Node
 
 The specifics:
 
-  - bundle id is `com.nich227.Gailan` (AppleScript needs the new id)
+  - bundle id is `com.kevster.Gailan` (AppleScript needs the new id)
   - widgets live in `~/Library/Application Support/Gailan/widgets`
   - the widget API module is imported as `gailan`; `uebersicht` still resolves, so existing
     widgets keep working
@@ -169,7 +169,7 @@ Gailan offers to do that for you when it starts.
     the one change most likely to be needed, and it applies to `main.css` in the widgets
     folder as well as to widget styles.
   - **AppleScript** referring to `application id "tracesOf.Uebersicht"` needs
-    `"com.nich227.Gailan"`.
+    `"com.kevster.Gailan"`.
   - **bash-specific command syntax** may need adjusting, or set the shell back in
     Preferences. Widget commands run through zsh by default, where Übersicht used bash.
     Plain POSIX commands behave the same in both.
@@ -788,19 +788,19 @@ Spotlight once the app has run.
 
 Gailan supports AppleScript. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name):
 
-    tell application id "com.nich227.Gailan" to refresh
+    tell application id "com.kevster.Gailan" to refresh
 
 refreshes all widgets.
 
-    tell application id "com.nich227.Gailan" to refresh widget id "my-widget"
+    tell application id "com.kevster.Gailan" to refresh widget id "my-widget"
 
 refreshes the widget with id "my-widget".
 
-    tell application id "com.nich227.Gailan" to every widget
+    tell application id "com.kevster.Gailan" to every widget
 
 lists all widgets.
 
-    tell application id "com.nich227.Gailan" to set hidden of widget id "top-cpu-js" to false
+    tell application id "com.kevster.Gailan" to set hidden of widget id "top-cpu-js" to false
 
 shows the widget with id "top-cpu-js"
 

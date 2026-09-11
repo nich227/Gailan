@@ -842,7 +842,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S3P44NRLCW;
+				DEVELOPMENT_TEAM = 8ZUR795GTN;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -862,7 +862,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nich227.Gailan;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevster.Gailan;
 				PRODUCT_NAME = "Gailan";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -882,7 +882,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S3P44NRLCW;
+				DEVELOPMENT_TEAM = 8ZUR795GTN;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -902,7 +902,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nich227.Gailan;
+								/* get-task-allow is the debug entitlement, and notarization refuses a
+				   build carrying it. Xcode injects it unless told not to. */
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+PRODUCT_BUNDLE_IDENTIFIER = com.kevster.Gailan;
 				PRODUCT_NAME = "Gailan";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -933,7 +936,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "GailanTests/GailanTests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nich227.GailanTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevster.GailanTests;
 				PRODUCT_NAME = GailanTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Gailan.app/Contents/MacOS/Gailan";
 				WRAPPER_EXTENSION = xctest;
@@ -958,7 +961,7 @@
 				   13.5 deployment target, so embedding it would add ~15MB for nothing */
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				INFOPLIST_FILE = "GailanTests/GailanTests-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nich227.GailanTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevster.GailanTests;
 				PRODUCT_NAME = GailanTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Gailan.app/Contents/MacOS/Gailan";
 				WRAPPER_EXTENSION = xctest;
