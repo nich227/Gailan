@@ -19,6 +19,16 @@ mkdir -p "$STAGE"
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 
+# The window's backdrop, drawn in the same language as the website. Finder wants one
+# file holding both sizes, so the two pngs are folded into a tiff; without the 2x the
+# window looks soft on every display made in the last decade.
+HERE="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$STAGE/.background"
+swift "$HERE/make-dmg-background.swift" "$VERSION" "$STAGE/.background" > /dev/null
+tiffutil -cathidpicheck "$STAGE/.background/background.png" \
+  "$STAGE/.background/background@2x.png" -out "$STAGE/.background/background.tiff"
+rm -f "$STAGE/.background/background.png" "$STAGE/.background/background@2x.png"
+
 RW="$(mktemp -u).dmg"
 # room for the app plus slack; hdiutil grows the image as needed anyway
 hdiutil create -srcfolder "$STAGE" -volname "Gailan $VERSION" \
@@ -39,6 +49,7 @@ tell application "Finder"
     set viewOptions to the icon view options of container window
     set arrangement of viewOptions to not arranged
     set icon size of viewOptions to 96
+    set background picture of viewOptions to file ".background:background.tiff"
     set position of item "Gailan.app" of container window to {150, 180}
     set position of item "Applications" of container window to {450, 180}
     close
