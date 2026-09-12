@@ -33,6 +33,44 @@ jobs:
         working-directory: server
       - run: pod install
 
+      # The certificate lives in a keychain made for this run and deleted after it,
+      # rather than in the login keychain, so nothing survives the runner. The
+      # password is generated here: it protects a keychain that exists for minutes
+      # and is never written down.
+      - name: import signing certificate
+        env:
+          CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+
+          printf '%s' "$CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 900 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
+            -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          # codesign runs without a prompt only if it is allowed to use the key
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" \
+            | grep 'Developer ID Application' | head -1 \
+            | sed 's/.*"\(.*\)"/\1/')"
+          if [ -z "$IDENTITY" ]; then
+            echo "no Developer ID Application identity in the imported certificate" >&2
+            exit 1
+          fi
+          echo "identity=$IDENTITY" >> "$GITHUB_OUTPUT"
+          echo "keychain=$KEYCHAIN" >> "$GITHUB_OUTPUT"
+        id: keychain
+
       - name: build
         run: >
           set -o pipefail &&
@@ -43,9 +81,66 @@ jobs:
           -derivedDataPath dd
           MARKETING_VERSION=${{ steps.v.outputs.version }}
           CURRENT_PROJECT_VERSION=${{ steps.v.outputs.build }}
-          CODE_SIGN_IDENTITY=-
-          CODE_SIGNING_REQUIRED=NO
+          CODE_SIGN_STYLE=Manual
+          CODE_SIGN_IDENTITY="${{ steps.keychain.outputs.identity }}"
+          DEVELOPMENT_TEAM=8ZUR795GTN
+          OTHER_CODE_SIGN_FLAGS="--timestamp --keychain ${{ steps.keychain.outputs.keychain }}"
           build | tail -20
+
+      # Every executable in the bundle has to carry the certificate, or notarization
+      # refuses the whole thing. scripts/sign-nested.sh signs the ones Xcode does not,
+      # and this says so before Apple does.
+      - name: verify the signature
+        run: |
+          set -euo pipefail
+          APP=dd/Build/Products/Release/Gailan.app
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+          if codesign -dvv "$APP" 2>&1 | grep -q adhoc; then
+            echo "the app is ad-hoc signed" >&2
+            exit 1
+          fi
+
+          # get-task-allow is the debug entitlement and notarization rejects it
+          if codesign -d --entitlements :- "$APP" 2>/dev/null \
+            | grep -q get-task-allow; then
+            echo "the build carries get-task-allow" >&2
+            exit 1
+          fi
+
+          find "$APP" -type f -perm +111 | while read -r f; do
+            if file "$f" | grep -q 'Mach-O' \
+              && codesign -dvv "$f" 2>&1 | grep -q adhoc; then
+              echo "ad-hoc signed: $f" >&2
+              exit 1
+            fi
+          done
+
+      # Notarized before the zip and the dmg are made, since both have to carry the
+      # stapled ticket. A stapled app opens without asking Apple at launch.
+      - name: notarize
+        env:
+          API_KEY: ${{ secrets.APPLE_API_KEY_P8 }}
+          API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$API_KEY" | base64 --decode > "$RUNNER_TEMP/key.p8"
+          ditto -c -k --keepParent dd/Build/Products/Release/Gailan.app \
+            "$RUNNER_TEMP/notarize.zip"
+
+          xcrun notarytool submit "$RUNNER_TEMP/notarize.zip" \
+            --key "$RUNNER_TEMP/key.p8" \
+            --key-id "$API_KEY_ID" \
+            --issuer "$API_ISSUER" \
+            --wait --timeout 45m
+
+          xcrun stapler staple dd/Build/Products/Release/Gailan.app
+          xcrun stapler validate dd/Build/Products/Release/Gailan.app
+          spctl --assess --type execute --verbose=2 \
+            dd/Build/Products/Release/Gailan.app
+
+          rm -f "$RUNNER_TEMP/key.p8" "$RUNNER_TEMP/notarize.zip"
 
       - name: archive
         run: ditto -c -k --sequesterRsrc --keepParent dd/Build/Products/Release/Gailan.app "Gailan-${{ steps.v.outputs.version }}.zip"
@@ -76,6 +171,14 @@ jobs:
             "Gailan-${{ steps.v.outputs.version }}.zip" \
             --title "Gailan ${{ steps.v.outputs.version }}" \
             --notes-file "$NOTES"
+
+      # deleted whether the run passed or failed, so a cancelled release leaves no
+      # certificate behind on the runner
+      - name: remove the keychain
+        if: always()
+        run: |
+          security list-keychains -d user -s login.keychain-db || true
+          security delete-keychain "${{ steps.keychain.outputs.keychain }}" || true
 
       - name: update appcast
         env:
