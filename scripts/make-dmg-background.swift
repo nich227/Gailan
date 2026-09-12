@@ -11,21 +11,27 @@ import AppKit
 import CoreText
 
 let arguments = CommandLine.arguments
-guard arguments.count >= 3 else {
+guard arguments.count >= 4 else {
     FileHandle.standardError.write(
-        "usage: make-dmg-background.swift <version> <output directory>\n".data(using: .utf8)!)
+        ("usage: make-dmg-background.swift <version> <minimum macos>"
+            + " <output directory>\n").data(using: .utf8)!)
     exit(1)
 }
 let version = arguments[1]
-let outputDirectory = arguments[2]
+// read from the app being packaged rather than written here, so raising the deployment
+// target cannot leave the window claiming something the app no longer supports
+let minimumSystem = arguments[2]
+let outputDirectory = arguments[3]
 
 // the window make-dmg.sh opens, in points
 let width: CGFloat = 600
-let height: CGFloat = 360
+let height: CGFloat = 430
 
 // where the icons land, so the art can stay out of their way
-let appIcon = CGPoint(x: 150, y: 180)
-let applicationsIcon = CGPoint(x: 450, y: 180)
+let appIcon = CGPoint(x: 150, y: 175)
+let applicationsIcon = CGPoint(x: 450, y: 175)
+// the webloc sits here, so nothing is drawn over it either
+let linkIcon = CGPoint(x: 300, y: 320)
 
 let paper = NSColor(srgbRed: 0xf1 / 255, green: 0xf1 / 255, blue: 0xef / 255, alpha: 1)
 let ink = NSColor(srgbRed: 0x0b / 255, green: 0x0b / 255, blue: 0x0c / 255, alpha: 1)
@@ -121,10 +127,13 @@ func draw(scale: CGFloat) -> NSBitmapImageRep {
     let shaftStart = appIcon.x + clearance
     let tip = applicationsIcon.x - clearance
 
-    cg.setFillColor(ink.withAlphaComponent(0.32).cgColor)
+    cg.setFillColor(ink.withAlphaComponent(0.45).cgColor)
 
+    /* Snapped to whole pixels. Drawn at halves, a three pixel square lands across four
+       and antialiases into a smudge, which is the opposite of a dot matrix. */
     func plot(_ x: CGFloat, _ y: CGFloat) {
-        cg.fill(CGRect(x: x - dot / 2, y: y - dot / 2, width: dot, height: dot))
+        cg.fill(CGRect(x: (x - dot / 2).rounded(), y: (y - dot / 2).rounded(),
+                       width: dot, height: dot))
     }
 
     var x = shaftStart
@@ -147,7 +156,14 @@ func draw(scale: CGFloat) -> NSBitmapImageRep {
         font: NSFont.monospacedSystemFont(ofSize: 9, weight: .medium),
         color: inkSoft, ems: 0.20)
     let instructionWidth = instruction.size().width
-    instruction.draw(at: CGPoint(x: (width - instructionWidth) / 2, y: 74))
+    instruction.draw(at: CGPoint(x: (width - instructionWidth) / 2, y: height - 250))
+
+    // a rule between installing and the link below it
+    cg.setStrokeColor(rule.cgColor)
+    cg.setLineWidth(1)
+    cg.move(to: CGPoint(x: 40, y: height - 268))
+    cg.addLine(to: CGPoint(x: width - 40, y: height - 268))
+    cg.strokePath()
 
     // the footer: what this is on the left, what it needs on the right
     cg.setStrokeColor(rule.cgColor)
@@ -160,7 +176,7 @@ func draw(scale: CGFloat) -> NSBitmapImageRep {
         .draw(at: CGPoint(x: 40, y: 32))
 
     let requirement = spacedOut(
-        "REQUIRES MACOS 13.5", font: footer, color: inkFaint, ems: 0.18)
+        "REQUIRES MACOS \(minimumSystem)", font: footer, color: inkFaint, ems: 0.18)
     requirement.draw(at: CGPoint(x: width - 40 - requirement.size().width, y: 32))
 
     NSGraphicsContext.restoreGraphicsState()

@@ -19,12 +19,28 @@ mkdir -p "$STAGE"
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 
+# Something to click. The address is drawn into the background as well, but a window
+# background is wallpaper and carries no link, so the clickable one is a file.
+cat > "$STAGE/Gailan Website.webloc" <<'WEBLOC'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>URL</key>
+	<string>https://gailanapp.pages.dev</string>
+</dict>
+</plist>
+WEBLOC
+
 # The window's backdrop, drawn in the same language as the website. Finder wants one
 # file holding both sizes, so the two pngs are folded into a tiff; without the 2x the
 # window looks soft on every display made in the last decade.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 mkdir -p "$STAGE/.background"
-swift "$HERE/make-dmg-background.swift" "$VERSION" "$STAGE/.background" > /dev/null
+MINIMUM="$(/usr/bin/plutil -extract LSMinimumSystemVersion raw -o - \
+  "$APP/Contents/Info.plist" 2>/dev/null || echo "13.5")"
+swift "$HERE/make-dmg-background.swift" "$VERSION" "$MINIMUM" \
+  "$STAGE/.background" > /dev/null
 tiffutil -cathidpicheck "$STAGE/.background/background.png" \
   "$STAGE/.background/background@2x.png" -out "$STAGE/.background/background.tiff"
 rm -f "$STAGE/.background/background.png" "$STAGE/.background/background@2x.png"
@@ -45,13 +61,17 @@ tell application "Finder"
     set current view of container window to icon view
     set toolbar visible of container window to false
     set statusbar visible of container window to false
-    set the bounds of container window to {200, 120, 800, 480}
+    set the bounds of container window to {200, 120, 800, 550}
     set viewOptions to the icon view options of container window
     set arrangement of viewOptions to not arranged
     set icon size of viewOptions to 96
     set background picture of viewOptions to file ".background:background.tiff"
-    set position of item "Gailan.app" of container window to {150, 180}
-    set position of item "Applications" of container window to {450, 180}
+    set position of item "Gailan.app" of container window to {150, 175}
+    set position of item "Applications" of container window to {450, 175}
+    set position of item "Gailan Website.webloc" of container window to {300, 320}
+    -- shown as "Gailan Website", the way the Applications symlink is shown as a
+    -- folder. A symlink cannot point at a url, so the link itself is a webloc.
+    set extension hidden of item "Gailan Website.webloc" of container window to true
     close
     open
     update without registering applications
