@@ -172,8 +172,8 @@ struct GLPreferencesView: View {
                 Toggle("Frost the desktop behind widgets", isOn: $prefs.desktopGlassOn)
                 LabeledContent("Opacity") {
                     HStack(spacing: 10) {
-                        Slider(value: $prefs.desktopGlassOpacity, in: 10...100)
-                        Text("\(Int(prefs.desktopGlassOpacity))%")
+                        Slider(value: glassOpacity, in: 10...100)
+                        Text("\(Int(glassOpacity.wrappedValue))%")
                             .font(.caption)
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
@@ -209,6 +209,21 @@ struct GLPreferencesView: View {
         }
     }
 
+    /* What the slider shows. With the glass switched off there is nothing being made
+       more or less present, so it reads full rather than wherever it was left: a value
+       near the bottom of the track suggests the widgets will be faint, which is not what
+       switching the glass off does.
+
+       Only the reading changes. What was chosen stays in the defaults and comes back the
+       moment the glass is switched on again, and the slider is disabled while off, so
+       nothing can be written through this. */
+    private var glassOpacity: Binding<Double> {
+        Binding(
+            get: { prefs.desktopGlassOn ? prefs.desktopGlassOpacity : 100 },
+            set: { prefs.desktopGlassOpacity = $0 }
+        )
+    }
+
     private var glassIsLiquid: Bool {
         if #available(macOS 26.0, *) { return true }
         return false
@@ -228,8 +243,8 @@ struct GLPreferencesView: View {
 
             LabeledContent("Opacity") {
                 HStack(spacing: 10) {
-                    Slider(value: $prefs.desktopGlassOpacity, in: 10...100)
-                    Text("\(Int(prefs.desktopGlassOpacity))%")
+                    Slider(value: glassOpacity, in: 10...100)
+                    Text("\(Int(glassOpacity.wrappedValue))%")
                         .font(.caption)
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
