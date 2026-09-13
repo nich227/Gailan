@@ -648,11 +648,11 @@ legible.
 
 Preferences carries what macOS actually exposes. `Liquid Glass` turns it on or off, and it is on
 by default. On macOS 26 and later there is also a `Style` and
-a `Transparency`.
+an `Opacity`.
 
 Before macOS 26 there is no Liquid Glass to draw, so the wallpaper is frosted with the
 vibrancy material AppKit has had for years. That lives under **Appearance** as `Frost
-Effect`, with the same on and off and the same transparency. There is one frost and no
+Effect`, with the same on and off and the same opacity. There is one frost and no
 choice of how much: the lighter and heavier materials AppKit offers cannot be told apart
 over a wallpaper, under a widget's own background. How much is hidden is the material's to
 decide, since AppKit offers no blur radius to set.
@@ -675,7 +675,7 @@ hold what they say whatever the system does. `Clear` is glass with no tint, and 
 glass carrying the wallpaper's color, which is the difference between the two choices macOS
 offers.
 
-`Transparency` is the glass view's own, not the glass effect's. `NSGlassEffectView` has no
+`Opacity` is the glass view's own, not the glass effect's. `NSGlassEffectView` has no
 transparency to set, so this thins what is drawn rather than changing how it refracts. It
 stops at 10% rather than reaching nothing, since a setting that makes glass vanish reads as
 a fault. There is still no blur radius or refraction setting, because AppKit has none to

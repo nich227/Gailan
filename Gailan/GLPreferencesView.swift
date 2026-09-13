@@ -170,7 +170,7 @@ struct GLPreferencesView: View {
         if !glassIsLiquid {
             Section {
                 Toggle("Frost the desktop behind widgets", isOn: $prefs.desktopGlassOn)
-                LabeledContent("Transparency") {
+                LabeledContent("Opacity") {
                     HStack(spacing: 10) {
                         Slider(value: $prefs.desktopGlassOpacity, in: 10...100)
                         Text("\(Int(prefs.desktopGlassOpacity))%")
@@ -180,6 +180,8 @@ struct GLPreferencesView: View {
                             .frame(width: 38, alignment: .trailing)
                     }
                 }
+                // nothing is drawn to be more or less present, so it greys out
+                .disabled(!prefs.desktopGlassOn)
             } header: {
                 heading(
                     "Frost Effect",
@@ -224,7 +226,7 @@ struct GLPreferencesView: View {
                 .pickerStyle(.menu)
                 .disabled(!prefs.desktopGlassOn)
 
-            LabeledContent("Transparency") {
+            LabeledContent("Opacity") {
                 HStack(spacing: 10) {
                     Slider(value: $prefs.desktopGlassOpacity, in: 10...100)
                     Text("\(Int(prefs.desktopGlassOpacity))%")
@@ -234,6 +236,7 @@ struct GLPreferencesView: View {
                         .frame(width: 38, alignment: .trailing)
                 }
             }
+            .disabled(!prefs.desktopGlassOn)
         } header: {
             heading(
                 "System glass",
