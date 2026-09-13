@@ -326,8 +326,18 @@ int const PORT = 41416;
     };
 
     void (^handleExit)(NSTask*) = ^(NSTask* theTask) {
+        /* The server ending while the app is not shutting down means it died rather than
+           was dismissed: killed by hand, or by something else wanting its port. Widgets
+           are drawn by it, so without it the desktop goes bare while the app sits there
+           looking healthy.
+
+           shutdown, with no argument, means the app is going away and stops the server
+           being started again. That was called here, so the one path that most needed a
+           restart was the one that turned restarting off. Tearing down while asking to
+           be brought back is what this case wants. */
         if (!self->shuttingDown) {
-            [self shutdown];
+            NSLog(@"the widget server ended on its own; starting it again");
+            [self shutdown:YES];
         }
         if (self->portOffset >= 20) {
             self->keepServerAlive = NO;
