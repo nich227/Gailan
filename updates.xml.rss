@@ -6,14 +6,5 @@
     <description>Gailan updates</description>
     <language>en</language>
     <!-- items -->
-    <item>
-      <title>1.0.0</title>
-      <pubDate>Sun, 13 Sep 2026 22:10:03 GMT</pubDate>
-      <sparkle:version>10000</sparkle:version>
-      <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>13.5</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/nich227/Gailan/releases/tag/v1.0.0</sparkle:releaseNotesLink>
-      <enclosure url="https://github.com/nich227/Gailan/releases/download/v1.0.0/Gailan-1.0.0.zip" length="101639104" type="application/octet-stream" sparkle:edSignature="SQzJCTT0zly4zL1fM/0L14ey2ySdDsHLIzPN3EUcG9ipIrJOMWWuHKHpK54U/0UMF5rxGicktnVxkuwYzvhBDA=="/>
-    </item>
   </channel>
 </rss>
