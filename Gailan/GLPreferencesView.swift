@@ -27,7 +27,16 @@ final class GLPreferences: ObservableObject {
     @Published var shellTag: Int { didSet { controller.shellTag = shellTag } }
     @Published var loginShell: Bool { didSet { controller.loginShell = loginShell } }
     @Published var desktopGlassOn: Bool {
-        didSet { controller.desktopGlassTag = desktopGlassOn ? 2 : 0 }
+        didSet {
+            controller.desktopGlassTag =
+                desktopGlassOn ? max(1, min(3, desktopGlassMaterialTag)) : 0
+        }
+    }
+    /* Which vibrancy material is drawn on systems before macOS 26: subtle, frosted or
+       heavy, which is the only sense in which those systems have a glass style. Off is
+       the toggle's business, so this never sets it. */
+    @Published var desktopGlassMaterialTag: Int {
+        didSet { controller.desktopGlassTag = max(1, min(3, desktopGlassMaterialTag)) }
     }
     @Published var desktopGlassStyleTag: Int {
         didSet { controller.desktopGlassStyleTag = desktopGlassStyleTag }
@@ -53,6 +62,8 @@ final class GLPreferences: ObservableObject {
         shellTag = controller.shellTag
         loginShell = controller.loginShell
         desktopGlassOn = controller.desktopGlassTag != 0
+        // off leaves nothing to show as a choice, so it falls back to frosted
+        desktopGlassMaterialTag = max(1, controller.desktopGlassTag)
         desktopGlassStyleTag = controller.desktopGlassStyleTag
         desktopGlassOpacity = controller.desktopGlassOpacity * 100
         widgetPath = controller.widgetDir?.path ?? ""
@@ -82,7 +93,11 @@ struct GLPreferencesView: View {
 
         var id: String { rawValue }
 
-        // liquid glass is a macOS 26 feature; older systems get no pane for it
+        /* Liquid Glass is its own pane, and only where there is Liquid Glass to
+           configure: it arrived in macOS 26 and is in every version after, so the check
+           is a floor. Older systems frost the wallpaper too, through the vibrancy
+           material AppKit has had for years, and that lives under Appearance, since a
+           pane of its own would promise more than those systems can do. */
         static var available: [Pane] {
             if #available(macOS 26.0, *) { return allCases }
             return allCases.filter { $0 != .glass }
@@ -143,7 +158,7 @@ struct GLPreferencesView: View {
         }
     }
 
-    private var appearance: some View {
+    @ViewBuilder private var appearance: some View {
         Section {
             Picker("Theme", selection: $prefs.appearanceTag) {
                 Text("System").tag(0)
@@ -154,6 +169,41 @@ struct GLPreferencesView: View {
             Text("Widgets follow this through prefers-color-scheme and a data-appearance attribute.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
+        }
+
+        /* Systems before macOS 26 frost the wallpaper with the vibrancy material AppKit
+           has had for years. It is not Liquid Glass and does not pretend to be, so it
+           sits here as part of how things look rather than in a pane of its own. */
+        if !glassIsLiquid {
+            Section {
+                Toggle("Frost the desktop behind widgets", isOn: $prefs.desktopGlassOn)
+                Picker("Frost", selection: $prefs.desktopGlassMaterialTag) {
+                    Text("Subtle").tag(1)
+                    Text("Frosted").tag(2)
+                    Text("Heavy").tag(3)
+                }
+                .pickerStyle(.segmented)
+                .disabled(!prefs.desktopGlassOn)
+                LabeledContent("Transparency") {
+                    HStack(spacing: 10) {
+                        Slider(value: $prefs.desktopGlassOpacity, in: 10...100, step: 1)
+                        Text("\(Int(prefs.desktopGlassOpacity))%")
+                            .font(.caption)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                            .frame(width: 38, alignment: .trailing)
+                    }
+                }
+            } header: {
+                heading(
+                    "Frost Effect",
+                    help: """
+                        macOS blurs your wallpaper underneath a widget that asks for it. \
+                        The widget draws nothing: the system draws the material behind \
+                        the page, in the shape the widget claims. How much is hidden is \
+                        the material's to decide, since AppKit offers no blur radius.
+                        """)
+            }
         }
     }
 
@@ -171,15 +221,23 @@ struct GLPreferencesView: View {
         }
     }
 
+    private var glassIsLiquid: Bool {
+        if #available(macOS 26.0, *) { return true }
+        return false
+    }
+
     @ViewBuilder private var glass: some View {
         Section {
             Toggle("Liquid Glass", isOn: $prefs.desktopGlassOn)
-            Picker("Style", selection: $prefs.desktopGlassStyleTag) {
-                Text("Follow system").tag(0)
-                Text("Clear").tag(1)
-                Text("Tinted").tag(2)
-            }
-            .pickerStyle(.menu)
+
+                Picker("Style", selection: $prefs.desktopGlassStyleTag) {
+                    Text("Follow system").tag(0)
+                    Text("Clear").tag(1)
+                    Text("Tinted").tag(2)
+                }
+                .pickerStyle(.menu)
+                .disabled(!prefs.desktopGlassOn)
+
             LabeledContent("Transparency") {
                 HStack(spacing: 10) {
                     Slider(value: $prefs.desktopGlassOpacity, in: 10...100, step: 1)

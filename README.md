@@ -650,6 +650,12 @@ Preferences carries what macOS actually exposes. `Liquid Glass` turns it on or o
 by default. On macOS 26 and later there is also a `Style` and
 a `Transparency`.
 
+Before macOS 26 there is no Liquid Glass to draw, so the wallpaper is frosted with the
+vibrancy material AppKit has had for years. That lives under **Appearance** as `Frost
+Effect`, with the same on and off, a choice of `Subtle`, `Frosted` or `Heavy`, and the
+same transparency. How much is hidden is the material's to decide, since AppKit offers no
+blur radius to set.
+
 There is no tint setting. The tint is the wallpaper's own color, taken from the picture
 macOS is showing, and each display resolves its own since a Mac can show a different
 wallpaper on each one. It changes when the wallpaper does. Where macOS has been asked to

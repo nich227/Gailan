@@ -115,15 +115,26 @@ static NSArray* watchedSystemKeys(void)
     return ![materialName isEqualToString:@"off"];
 }
 
+/* Three materials that read as different amounts of frost over a wallpaper.
+
+   The three this used to name, underWindowBackground, sidebar and menu, are all
+   interface chrome: over a photograph they blur by about the same amount and differ
+   only in a tint nobody can see through a widget's own background. Choosing between
+   them looked like a setting that did nothing.
+
+   These three separate. underWindowBackground is the lightest touch AppKit has,
+   hudWindow is darker and plainly frosted, and toolTip is the most opaque of the
+   behind-window materials. AppKit exposes no blur radius, so the material is the only
+   lever for how much is hidden, with the view's own alpha for how present it is. */
 - (NSVisualEffectMaterial)material
 {
     if ([materialName isEqualToString:@"subtle"]) {
         return NSVisualEffectMaterialUnderWindowBackground;
     }
     if ([materialName isEqualToString:@"heavy"]) {
-        return NSVisualEffectMaterialMenu;
+        return NSVisualEffectMaterialToolTip;
     }
-    return NSVisualEffectMaterialSidebar;
+    return NSVisualEffectMaterialHUDWindow;
 }
 
 // A rounded rect the effect view can stretch: cap insets keep the corners
