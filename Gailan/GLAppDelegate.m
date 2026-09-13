@@ -75,11 +75,82 @@ int const PORT = 41416;
     }
 }
 
+/* Two copies of Gailan running at once take each other's work apart, and do it quietly.
+   Each starts its own server, the second finds the first's port taken and moves to the
+   next one, and each page holds a token the other server will not accept. What somebody
+   sees is a desktop with no widgets on it, an app that looks perfectly healthy, and
+   nothing in any log to explain it.
+
+   It happens in ordinary use: a copy in Applications while another runs from a build
+   directory, or a copy still open from a disk image. Both times it has bitten here, it
+   cost a long while to work out. So it is said out loud, naming where the other one is
+   running from, since that is the part somebody needs in order to act. */
+/* Said once, and in the menu bar as well as in a dialog, since somebody who dismissed
+   the dialog still needs to know why the desktop is bare. */
+- (void)reportNoPortAvailable
+{
+    static BOOL alreadySaid = NO;
+    if (alreadySaid) return;
+    alreadySaid = YES;
+
+    NSAlert* alert = [[NSAlert alloc] init];
+    alert.messageText = @"Gailan could not start its server";
+    alert.informativeText =
+        @"Every port it tried, from 41416 to 41436, is in use. Widgets cannot be drawn "
+        @"without it. Another copy of Gailan may be running, or another program may "
+        @"have taken the ports.";
+    [alert addButtonWithTitle:@"OK"];
+    [alert runModal];
+}
+
+- (void)resolveSecondCopyConflict
+{
+    NSString* mine = [[NSBundle mainBundle] bundlePath];
+    NSMutableArray<NSRunningApplication*>* others = [NSMutableArray array];
+
+    for (NSRunningApplication* app in [NSRunningApplication
+             runningApplicationsWithBundleIdentifier:
+                 [[NSBundle mainBundle] bundleIdentifier]]) {
+        if (app.processIdentifier == [[NSProcessInfo processInfo] processIdentifier]) {
+            continue;
+        }
+        // the same bundle opened twice is macOS's business, not ours
+        if ([app.bundleURL.path isEqualToString:mine]) continue;
+
+        [others addObject:app];
+    }
+
+    if (others.count == 0) return;
+
+    NSRunningApplication* other = others.firstObject;
+    NSString* where = other.bundleURL.path ?: @"somewhere else";
+
+    NSAlert* alert = [[NSAlert alloc] init];
+    alert.messageText = @"Gailan is already running";
+    alert.informativeText = [NSString
+        stringWithFormat:
+            @"Another copy is running from:\n%@\n\nTwo copies take each other's "
+            @"widgets off the desktop, because each serves its own and neither accepts "
+            @"the other's. Only one should run.",
+        where];
+    [alert addButtonWithTitle:@"Quit the Other Copy"];  // first button = default
+    [alert addButtonWithTitle:@"Quit This One"];
+
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        for (NSRunningApplication* app in others) {
+            [app terminate];
+        }
+    } else {
+        [NSApp terminate:nil];
+    }
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     [self watchSystemTinting];
     [self.preferences enableStartAtLoginOnFirstLaunch];
     [self resolveUbersichtConflict];
+    [self resolveSecondCopyConflict];
 
     needsRefresh = YES;
     statusBarItem = [self addStatusItemToMenu: statusBarMenu];
@@ -246,6 +317,11 @@ int const PORT = 41416;
         if (self->portOffset >= 20) {
             self->keepServerAlive = NO;
             NSLog(@"couldn't find an open port. Giving up...");
+            /* Twenty ports taken is not something to write only to a log. Without a
+               server there are no widgets, and the app otherwise looks fine. */
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self reportNoPortAvailable];
+            });
         }
         if (self->keepServerAlive) {
             [self
