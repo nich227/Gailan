@@ -61,14 +61,16 @@ tell application "Finder"
     set current view of container window to icon view
     set toolbar visible of container window to false
     set statusbar visible of container window to false
-    set the bounds of container window to {200, 120, 800, 550}
+    -- the height here is the background's height exactly: bounds give the content
+      -- rectangle, with no title bar counted in it
+      set the bounds of container window to {200, 100, 800, 620}
     set viewOptions to the icon view options of container window
     set arrangement of viewOptions to not arranged
     set icon size of viewOptions to 96
     set background picture of viewOptions to file ".background:background.tiff"
-    set position of item "Gailan.app" of container window to {150, 175}
-    set position of item "Applications" of container window to {450, 175}
-    set position of item "Gailan Website.webloc" of container window to {300, 320}
+    set position of item "Gailan.app" of container window to {150, 180}
+    set position of item "Applications" of container window to {450, 180}
+    set position of item "Gailan Website.webloc" of container window to {300, 350}
     -- shown as "Gailan Website", the way the Applications symlink is shown as a
     -- folder. A symlink cannot point at a url, so the link itself is a webloc.
     set extension hidden of item "Gailan Website.webloc" of container window to true

@@ -643,8 +643,8 @@ widget uses about 40% opacity, which reads the frost through it while keeping te
 legible.
 
 Preferences carries what macOS actually exposes. `Liquid Glass` turns it on or off, and it is on
-by default. On macOS 26 there is also a `Style` and a
-`Transparency`.
+by default. On macOS 26 and later there is also a `Style` and
+a `Transparency`.
 
 There is no tint setting. The tint is the wallpaper's own color, taken from the picture
 macOS is showing, and each display resolves its own since a Mac can show a different

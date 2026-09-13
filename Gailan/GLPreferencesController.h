@@ -17,6 +17,7 @@
 
 @property (weak) IBOutlet NSPopUpButton *filePicker;
 @property BOOL startAtLogin;
+- (void)enableStartAtLoginOnFirstLaunch;
 @property BOOL compatibilityMode;
 @property NSURL* widgetDir;
 @property BOOL loginShell;

@@ -742,8 +742,27 @@ static NSString* const kAerialVideos =
     return [SMAppService mainAppService].status == SMAppServiceStatusEnabled;
 }
 
+/* Opening at login is on to begin with, since a desktop of widgets that has to be
+   started by hand is a desktop of widgets nobody sees.
+
+   Whether it is on is SMAppService's to answer, not a preference of ours, so there is
+   nothing to register a default for. Instead the first launch asks for it and records
+   that it asked. Somebody who turns it off stays off: the flag says the question has
+   been settled, not what the answer was. */
+- (void)enableStartAtLoginOnFirstLaunch
+{
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults boolForKey:@"askedToStartAtLogin"]) return;
+
+    [defaults setBool:YES forKey:@"askedToStartAtLogin"];
+    [self setStartAtLogin:YES];
+}
+
 - (void)setStartAtLogin:(BOOL)doStart
 {
+    // a change made by hand settles the question, so the first launch cannot undo it
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"askedToStartAtLogin"];
+
     NSError* error = nil;
     if (doStart) {
         [[SMAppService mainAppService] registerAndReturnError:&error];

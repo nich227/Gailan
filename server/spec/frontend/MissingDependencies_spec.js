@@ -132,3 +132,22 @@ test('nothing missing draws nothing over the widget', (t) => {
   );
   t.end();
 });
+
+/* A widget whose dependency is missing often has nothing to draw, and a notice inside a
+   box of no size is a notice nobody sees. */
+test('the notice keeps a size when the widget drew nothing', (t) => {
+  const missing = [{type: 'command', name: 'ffmpeg', state: 'missing'}];
+  const overNothing = renderToStaticMarkup(
+    React.createElement(MissingDependencies, {missing: missing}, null)
+  );
+  const overSomething = draw(missing);
+
+  t.ok(overNothing.indexOf('min-width') > -1, 'it takes a width of its own');
+  t.ok(overNothing.indexOf('min-height') > -1, 'and a height');
+  t.equal(
+    overSomething.indexOf('min-width'),
+    -1,
+    'and leaves a widget that did draw to its own size'
+  );
+  t.end();
+});

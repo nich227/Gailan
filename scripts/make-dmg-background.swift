@@ -23,21 +23,31 @@ let version = arguments[1]
 let minimumSystem = arguments[2]
 let outputDirectory = arguments[3]
 
-// the window make-dmg.sh opens, in points
-let width: CGFloat = 600
-let height: CGFloat = 430
+/* The window make-dmg.sh opens, and the canvas drawn behind it.
+
+   Finder paints a background at its natural size, anchored top left, and never scales
+   it: drag the window wider and the image simply runs out, leaving bare grey. So the
+   canvas is drawn larger than the window and the layout is placed inside the window's
+   part of it. Opened, it looks exactly composed; pulled bigger, more of the same grid
+   comes into view instead of an edge.
+
+   Everything is measured from the top left for that reason, since that corner is the
+   one the window and the canvas share. */
+let windowWidth: CGFloat = 600
+let windowHeight: CGFloat = 520
+let width: CGFloat = 1000
+let height: CGFloat = 880
 
 // where the icons land, so the art can stay out of their way
-let appIcon = CGPoint(x: 150, y: 175)
-let applicationsIcon = CGPoint(x: 450, y: 175)
+let appIcon = CGPoint(x: 150, y: 180)
+let applicationsIcon = CGPoint(x: 450, y: 180)
 // the webloc sits here, so nothing is drawn over it either
-let linkIcon = CGPoint(x: 300, y: 320)
+let linkIcon = CGPoint(x: 300, y: 350)
 
 let paper = NSColor(srgbRed: 0xf1 / 255, green: 0xf1 / 255, blue: 0xef / 255, alpha: 1)
 let ink = NSColor(srgbRed: 0x0b / 255, green: 0x0b / 255, blue: 0x0c / 255, alpha: 1)
 let inkSoft = NSColor(srgbRed: 0x45 / 255, green: 0x45 / 255, blue: 0x4a / 255, alpha: 1)
 let inkFaint = NSColor(srgbRed: 0x8a / 255, green: 0x8a / 255, blue: 0x90 / 255, alpha: 1)
-let rule = NSColor(srgbRed: 0x0b / 255, green: 0x0b / 255, blue: 0x0c / 255, alpha: 0.12)
 
 /* The wordmark is set in the same dot matrix face the website and the starter widget
    use. The app carries a subset holding only the letters of the name, which is all
@@ -90,29 +100,44 @@ func draw(scale: CGFloat) -> NSBitmapImageRep {
     paper.setFill()
     cg.fill(CGRect(x: 0, y: 0, width: width, height: height))
 
-    // A wide grid, drawn faintly. The site sets its columns at 120, and the same
-    // measure keeps the window feeling like part of the same object.
-    cg.setStrokeColor(rule.withAlphaComponent(0.5).cgColor)
-    cg.setLineWidth(0.5)
-    for x in stride(from: 120.0, to: width, by: 120.0) {
-        cg.move(to: CGPoint(x: x, y: 0))
-        cg.addLine(to: CGPoint(x: x, y: height))
-    }
-    cg.strokePath()
+    /* The same grid the website rules its pages with: one pixel lines every 120 in both
+       directions, squares starting from the top left so the two rulings agree. The site
+       draws them at the rule color and then holds the whole layer at just over half
+       opacity, which comes to this.
 
-    // the header, and the rule under it
+       Filled as rectangles rather than stroked, since a stroked line down a whole
+       pixel boundary lands half in each neighbour and greys across two. */
+    let gridStep: CGFloat = 120
+    cg.setFillColor(ink.withAlphaComponent(0.12 * 0.55).cgColor)
+
+    var gridX = gridStep
+    while gridX < width {
+        cg.fill(CGRect(x: gridX, y: 0, width: 1, height: height))
+        gridX += gridStep
+    }
+
+    // measured down from the top, the way the page is
+    var fromTop = gridStep
+    while fromTop < height {
+        cg.fill(CGRect(x: 0, y: height - fromTop - 1, width: width, height: 1))
+        fromTop += gridStep
+    }
+
+    /* From here on, positions are given in the window's terms and turned into the
+       canvas's. The two share their top left corner, so a distance down from the top is
+       the same in both; the window's bottom edge is what moves. */
+    let windowBottom = height - windowHeight
+    func down(_ n: CGFloat) -> CGFloat { height - n }
+    func up(_ n: CGFloat) -> CGFloat { windowBottom + n }
+    let rightMargin = windowWidth - 40
+
+    // the header
     let mark = spacedOut("GAILAN", font: wordmarkFont(size: 20), color: ink, ems: 0.10)
-    mark.draw(at: CGPoint(x: 40, y: height - 52))
+    mark.draw(at: CGPoint(x: 40, y: down(52)))
 
     let label = NSFont.monospacedSystemFont(ofSize: 8, weight: .medium)
     spacedOut("DESKTOP WIDGETS", font: label, color: inkFaint, ems: 0.22)
-        .draw(at: CGPoint(x: 41, y: height - 66))
-
-    cg.setStrokeColor(rule.cgColor)
-    cg.setLineWidth(1)
-    cg.move(to: CGPoint(x: 40, y: height - 80))
-    cg.addLine(to: CGPoint(x: width - 40, y: height - 80))
-    cg.strokePath()
+        .draw(at: CGPoint(x: 41, y: down(66)))
 
     /* Between the icons, an arrow built out of dots rather than drawn as a line, so it
        belongs to the same dot matrix as the wordmark and the widgets. A shaft of dots
@@ -122,7 +147,7 @@ func draw(scale: CGFloat) -> NSBitmapImageRep {
        Kept clear of both icons by the radius they occupy. */
     let dot: CGFloat = 3
     let pitch: CGFloat = 7
-    let centre = height - appIcon.y
+    let centre = down(appIcon.y)
     let clearance: CGFloat = 76
     let shaftStart = appIcon.x + clearance
     let tip = applicationsIcon.x - clearance
@@ -156,28 +181,17 @@ func draw(scale: CGFloat) -> NSBitmapImageRep {
         font: NSFont.monospacedSystemFont(ofSize: 9, weight: .medium),
         color: inkSoft, ems: 0.20)
     let instructionWidth = instruction.size().width
-    instruction.draw(at: CGPoint(x: (width - instructionWidth) / 2, y: height - 250))
+    instruction.draw(at: CGPoint(x: (windowWidth - instructionWidth) / 2, y: down(268)))
 
-    // a rule between installing and the link below it
-    cg.setStrokeColor(rule.cgColor)
-    cg.setLineWidth(1)
-    cg.move(to: CGPoint(x: 40, y: height - 268))
-    cg.addLine(to: CGPoint(x: width - 40, y: height - 268))
-    cg.strokePath()
-
-    // the footer: what this is on the left, what it needs on the right
-    cg.setStrokeColor(rule.cgColor)
-    cg.move(to: CGPoint(x: 40, y: 52))
-    cg.addLine(to: CGPoint(x: width - 40, y: 52))
-    cg.strokePath()
-
+    /* The footer, and nothing ruling it off. The graph paper is the only ruling on the
+       page: a line anywhere else lands between its squares and breaks the pattern up. */
     let footer = NSFont.monospacedSystemFont(ofSize: 8, weight: .regular)
     spacedOut("VERSION \(version)", font: footer, color: inkFaint, ems: 0.18)
-        .draw(at: CGPoint(x: 40, y: 32))
+        .draw(at: CGPoint(x: 40, y: up(32)))
 
     let requirement = spacedOut(
         "REQUIRES MACOS \(minimumSystem)", font: footer, color: inkFaint, ems: 0.18)
-    requirement.draw(at: CGPoint(x: width - 40 - requirement.size().width, y: 32))
+    requirement.draw(at: CGPoint(x: rightMargin - requirement.size().width, y: up(32)))
 
     NSGraphicsContext.restoreGraphicsState()
     return rep

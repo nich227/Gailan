@@ -78,6 +78,7 @@ int const PORT = 41416;
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     [self watchSystemTinting];
+    [self.preferences enableStartAtLoginOnFirstLaunch];
     [self resolveUbersichtConflict];
 
     needsRefresh = YES;

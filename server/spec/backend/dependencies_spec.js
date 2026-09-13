@@ -242,3 +242,61 @@ test('a formula is looked for under brew prefix', (t) => {
     t.end();
   });
 });
+
+/* Everything a manifest carries is read when the widget is built, so a manifest that
+   arrived after the widget, or was edited since, has to rebuild it. Copying a widget
+   folder in file by file is how this shows: read before the manifest landed, the Widgets
+   window shows the folder name where a title was declared. */
+test('a manifest change rebuilds the widget beside it', (t) => {
+  const resolveWidget = require('../../src/resolveWidget');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-resolve-'));
+  fs.mkdirSync(path.join(root, 'clock'));
+  fs.writeFileSync(path.join(root, 'clock', 'index.tsx'), 'export const render = () => null;');
+  fs.writeFileSync(path.join(root, 'clock', 'widget.json'), '{"title":"Clock"}');
+
+  const fromManifest = resolveWidget({
+    filePath: path.join(root, 'clock', 'widget.json'),
+    rootPath: root,
+    type: 'added',
+  });
+
+  t.equal(fromManifest.id, 'clock', 'named after the folder, as the widget is');
+  t.equal(
+    path.basename(fromManifest.filePath),
+    'index.tsx',
+    'and it is the widget that gets built, not the manifest'
+  );
+
+  t.equal(
+    resolveWidget({
+      filePath: path.join(root, 'clock', 'settings.json'),
+      rootPath: root,
+      type: 'added',
+    }),
+    undefined,
+    'saved settings are not a manifest, so saving one cannot start a rebuild'
+  );
+
+  t.equal(
+    resolveWidget({
+      filePath: path.join(root, 'clock', 'node_modules', 'dep', 'widget.json'),
+      rootPath: root,
+      type: 'added',
+    }),
+    undefined,
+    'and a manifest belonging to a dependency is not this widget'
+  );
+
+  const noWidget = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-bare-'));
+  fs.writeFileSync(path.join(noWidget, 'widget.json'), '{"title":"Orphan"}');
+  t.equal(
+    resolveWidget({
+      filePath: path.join(noWidget, 'widget.json'),
+      rootPath: noWidget,
+      type: 'added',
+    }),
+    undefined,
+    'a manifest with no widget beside it has nothing to rebuild'
+  );
+  t.end();
+});

@@ -27,6 +27,16 @@ const holder = {
   display: 'inline-block',
 };
 
+/* A widget that renders nothing gives the notice nothing to sit over, and an absolutely
+   positioned message inside a box of no size is a message nobody sees. This is the case
+   that matters most: a widget whose dependency is missing often has nothing to draw. */
+const holderWithNothingBehind = {
+  position: 'relative',
+  display: 'inline-block',
+  minWidth: '260px',
+  minHeight: '72px',
+};
+
 const behind = {
   filter: 'blur(6px)',
   // it cannot do anything useful, so it should not answer a click either
@@ -75,9 +85,15 @@ module.exports = function MissingDependencies(props) {
   // the same name twice reads as a mistake, and two widgets can want one thing
   const unique = listed.filter((name, i) => listed.indexOf(name) === i);
 
+  // whether the widget drew anything at all
+  const drewNothing =
+    props.children === null ||
+    props.children === undefined ||
+    props.children === false;
+
   return html(
     'div',
-    {style: holder},
+    {style: drewNothing ? holderWithNothingBehind : holder},
     html('div', {style: behind, key: 'content'}, props.children),
     html(
       'div',

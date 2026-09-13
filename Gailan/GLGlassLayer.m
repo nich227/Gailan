@@ -198,7 +198,7 @@ static NSArray* watchedSystemKeys(void)
     /* stops short of invisible */
     double alpha = glassOpacity <= 0 ? 1.0 : MIN(MAX(glassOpacity, 0.1), 1.0);
 
-    // macOS 26 has the real thing; older systems get the closest material
+    // macOS 26 and later have the real thing; older systems get the closest material
     if (@available(macOS 26.0, *)) {
         NSGlassEffectView* glass = [[NSGlassEffectView alloc] init];
         glass.cornerRadius = radius;
