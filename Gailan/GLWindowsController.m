@@ -149,8 +149,6 @@ static NSString* const kAccentKey = @"AppleAccentColor";
                         tint: [self glassTintForScreenId:screenId]
                      opacity: opacity
         ];
-        // the page adapts its own background to whether it is sitting on frost
-        [windows[screenId] setDesktopGlassOn:![name isEqualToString:@"off"]];
     }
 }
 

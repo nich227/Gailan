@@ -16,8 +16,6 @@
 
 
 @implementation GLWebViewController {
-    // what the page was last told about the glass behind it
-    BOOL desktopGlassOn;
     NSURL* url;
 }
 
@@ -167,12 +165,6 @@
 /* Puts the system accent on the document for widgets to read. CSS has an AccentColor
    keyword, but a WKWebView answers it with the default blue whatever the system is set
    to, so the colour is supplied from here instead. */
-- (void)setDesktopGlassOn:(BOOL)on
-{
-    desktopGlassOn = on;
-    [self applyDesktopGlassState:on];
-}
-
 - (void)applySystemAccent
 {
     NSColor* accent = [[GLPreferencesController systemAccentColor]
@@ -190,26 +182,6 @@
         evaluateJavaScript: [NSString stringWithFormat:
             @"document.documentElement.style.setProperty('--gailan-system-accent', '%@');",
             hex
-        ]
-         completionHandler: NULL
-    ];
-}
-
-/* Whether the system is frosting the wallpaper behind this page.
-
-   A widget cannot find this out for itself: the glass is drawn by the app underneath the
-   web view, and the page has no way to see behind its own window. Without knowing, a
-   widget keeps the background it chose for sitting on frost, which over a bare wallpaper
-   reads as washed out rather than deliberate.
-
-   Given as an attribute rather than a custom property, since a widget wants to select on
-   it, and data-appearance already works that way. */
-- (void)applyDesktopGlassState:(BOOL)on
-{
-    [(WKWebView*)self.view
-        evaluateJavaScript: [NSString stringWithFormat:
-            @"document.documentElement.dataset.desktopGlass = '%@';",
-            on ? @"on" : @"off"
         ]
          completionHandler: NULL
     ];
@@ -236,7 +208,6 @@
 
     // the page cannot read the accent for itself, so it is handed over on every load
     [self applySystemAccent];
-    [self applyDesktopGlassState:desktopGlassOn];
 }
 
 - (void)webView:(WKWebView *)sender

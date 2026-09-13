@@ -18,7 +18,6 @@
 - (void)reload;
 - (void)redraw;
 - (void)applySystemAccent;
-- (void)setDesktopGlassOn:(BOOL)on;
 - (void)destroy;
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message;
 

@@ -385,12 +385,6 @@ const Window = styled("div")`
   font-size: 12.5px;
   color: var(--text);
   line-height: 1.55;
-  /* Nothing is frosting the wallpaper behind this, so the panel carries itself: at the
-     fill it wears over frost it reads as washed out rather than deliberate. The app sets
-     this attribute, since a page cannot see behind its own window. */
-  html[data-desktop-glass="off"] & {
-    --fill: 1;
-  }
 `;
 
 const Header = styled("div")`

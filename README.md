@@ -646,26 +646,6 @@ Keep the widget's own background thin, or it covers the glass it asked for. The 
 widget uses about 40% opacity, which reads the frost through it while keeping text
 legible.
 
-A widget cannot tell whether it got any glass: the app draws it underneath the web view,
-and a page cannot see behind its own window. So the app says, in a `data-desktop-glass`
-attribute on the root element reading `on` or `off`. Widgets that thin their background
-for frost should carry themselves without it, or they read as washed out over a bare
-wallpaper rather than deliberate:
-
-```tsx
-export const className = `
-  background: rgba(11, 11, 12, var(--fill, 0.82));
-
-  html[data-desktop-glass="off"] & {
-    --fill: 1;
-  }
-`
-```
-
-The bundled widgets all do this. It follows the setting rather than the system, so it says
-`off` on macOS 26 with Liquid Glass switched off exactly as it does on an older system with
-the frost switched off.
-
 Preferences carries what macOS actually exposes. `Liquid Glass` turns it on or off, and it is on
 by default. On macOS 26 and later there is also a `Style` and
 an `Opacity`.
