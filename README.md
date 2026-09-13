@@ -49,7 +49,8 @@ folder of files you can read, and each downloads as a zip from the
   <tr>
     <td><strong>Clock</strong><br />The time on a dot matrix, or hands on a dial.</td>
     <td><strong>System Monitor</strong><br />Memory, processor, disk or network, on a scale you can read a value off.</td>
-    <td><strong>Now Playing</strong><br />The track, its cover, and controls that work.</td>
+    <td><strong>Now Playing</strong><br />The track, its cover, and controls that work.
+    Needs Spotify or the Music app.</td>
   </tr>
 </table>
 
@@ -99,6 +100,9 @@ The specifics:
   - widget ids no longer carry the file extension: `Clock.jsx` is `Clock`, not
     `Clock-jsx`, and a widget in its own folder takes the folder's name. Anything
     referring to a widget by id, AppleScript included, needs updating
+  - **Opens at login** the first time it runs, since a desktop of widgets that has to
+    be started by hand is a desktop of widgets nobody sees. The switch is in
+    Preferences, and turning it off is remembered
   - **Open Widgets Hub** in the menu opens the
     [widget gallery](https://gailanapp.pages.dev/hub), where each widget in
     [GailanHub](https://github.com/nich227/GailanHub) downloads as a zip. Übersicht

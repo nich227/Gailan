@@ -137,9 +137,45 @@ means the intent did not compile into the metadata even though the build passed.
 
 ## Releasing
 
-1.0.0 was published and taken down because it was only ad-hoc signed. Signing it
-properly waits on an Apple Developer certificate.
+Releases are signed with a Developer ID certificate and notarized, and the workflow does
+all of it. 1.0.0 was published this way; an earlier attempt at 1.0.0 was taken down for
+being only ad-hoc signed.
 
+Five secrets carry it: `MACOS_CERTIFICATE_P12` and `MACOS_CERTIFICATE_PASSWORD` for the
+certificate, `APPLE_API_KEY_P8`, `APPLE_API_KEY_ID` and `APPLE_API_ISSUER` for
+notarization, alongside the `SPARKLE_ED_PRIVATE_KEY` that already existed. The workflow
+runs only on a tag push, so a pull request cannot reach them.
+
+Four things in that path each broke it once, and each is now guarded:
+
+  - `scripts/sign-nested.sh` signs what Xcode does not: both node runtimes, `fsevents`,
+    both esbuild binaries, and everything inside Sparkle. It has `set -e`, because
+    without it a failing `codesign` scrolled past and the build still reported success.
+    That hid a path naming Sparkle 1's `Versions/A/Resources/AutoUpdate.app`, which
+    stopped existing at Sparkle 2, leaving four executables unsigned
+  - that phase must run **after** `[CP] Embed Pods Frameworks`. It used to run before,
+    so Sparkle was not in the bundle yet whatever path was named
+  - Release sets `CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO`. Xcode otherwise injects
+    `com.apple.security.get-task-allow`, the debug entitlement, and notarization refuses
+    a build carrying it. Debug keeps it, since attaching a debugger needs it
+  - the workflow verifies before asking Apple: deep and strict, nothing ad-hoc anywhere,
+    and no `get-task-allow`. Each of those was a real fault here, and the notary service
+    names none of them usefully
+
+Notarizing and stapling happen **before** the zip and the disk image are built, so both
+carry the ticket. Building the archive first ships an unstapled app to everyone updating
+through Sparkle.
+
+The disk image itself is not yet signed or notarized, only the app inside it. `spctl` on
+the image says `no usable signature`. Worth fixing: a download carrying the quarantine bit
+can prompt on the image before reaching the app.
+
+`scripts/make-dmg.sh` builds the installer window, calling
+`scripts/make-dmg-background.swift` for the backdrop. The background is drawn larger than
+the window, because Finder paints it at natural size anchored top left and never scales
+it, so a resize reveals more grid rather than bare grey. Window bounds must equal the
+window part of that canvas exactly; `bounds` is the content rectangle with no title bar in
+it. The version and the minimum macOS are drawn in, both read from the app being packaged.
 
 Push a tag like `v1.0.2` and the release workflow does the rest: builds the app,
 zips it, signs the zip with the EdDSA key in the `SPARKLE_ED_PRIVATE_KEY` secret,
@@ -225,6 +261,15 @@ touch this:
 
 The whole set for a four-entry manifest answered in 143ms on an M4 Mini.
 
+### A manifest change rebuilds the widget
+
+`resolveWidget` maps a `widget.json` to the widget beside it, so a manifest arriving or
+changing rebuilds it. Everything the manifest carries is read at build time: the title,
+the declared settings, the dependencies. Without this, a folder copied in file by file was
+read before its manifest landed and listed by folder name, and editing a title by hand did
+nothing until the widget's own file moved. `settings.json` still resolves to nothing, so
+saving one cannot start a rebuild, and a manifest under `node_modules` is not the widget's.
+
 `GLWidgetsOverview.swift` is the window: a card per widget with its `preview.jpg`,
 and one `case` per setting type in `GLWidgetSettings.control`, which is the whole
 translator. Two traps worth remembering:
@@ -276,6 +321,33 @@ offers to quit Übersicht at launch.
     codes. They are opaque, and changing them buys nothing.
   - Settings live in `~/Library/Application Support/Gailan`, widgets in its `widgets`
     subdirectory.
+
+## Traps that have cost real time
+
+  - **`xcodebuild test` empties the desktop.** It launches the Debug app, whose server
+    takes port 41416 from whatever was already using it. The Release app then has nothing
+    to talk to: widgets vanish, the app looks healthy, and no log says why. Kill anything
+    under `ddt/Build` after a test run. The app now says so when it finds a second copy
+    running, and restarts its own server when that server dies, but the port is still
+    first come first served.
+
+  - **A modal dialog at launch stops the test suite dead.** XCTest launches the app, the
+    app asks something nobody can answer, and the run reports `Executed 0 tests`. Every
+    launch dialog is behind `isRunningTests`, which reads
+    `XCTestConfigurationFilePath` from the environment. Add new ones the same way.
+
+  - **AppleScript resolves applications at compile time.** A script naming an app this Mac
+    does not have fails to compile, so nothing in it runs, including the parts about apps
+    that are installed. A `try` block cannot help. The shell has to decide what to hand
+    `osascript`, which is what the now playing widget does per player.
+
+  - **Quoting through `osascript -e` does not survive being built up in a string.** A
+    multi-player reading assembled that way broke with `syntax error: Expected then`. Put
+    the AppleScript in one `-e` with real newlines, or in a file.
+
+  - **`--deep` is for repairing a signature, not making one.** It hands every nested
+    binary the same entitlements, and only the node runtimes should get the unsigned
+    executable memory exception.
 
 ## Known rough edges
 
