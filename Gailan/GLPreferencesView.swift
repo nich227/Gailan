@@ -26,17 +26,12 @@ final class GLPreferences: ObservableObject {
     @Published var appearanceTag: Int { didSet { controller.appearanceTag = appearanceTag } }
     @Published var shellTag: Int { didSet { controller.shellTag = shellTag } }
     @Published var loginShell: Bool { didSet { controller.loginShell = loginShell } }
+    /* There is one frost, so this is on or off. The material list still holds the
+       lighter and heavier ones, and a value set by hand is honoured, but they are not
+       offered: over a wallpaper, and under a widget's own background, they could not be
+       told apart. */
     @Published var desktopGlassOn: Bool {
-        didSet {
-            controller.desktopGlassTag =
-                desktopGlassOn ? max(1, min(3, desktopGlassMaterialTag)) : 0
-        }
-    }
-    /* Which vibrancy material is drawn on systems before macOS 26: subtle, frosted or
-       heavy, which is the only sense in which those systems have a glass style. Off is
-       the toggle's business, so this never sets it. */
-    @Published var desktopGlassMaterialTag: Int {
-        didSet { controller.desktopGlassTag = max(1, min(3, desktopGlassMaterialTag)) }
+        didSet { controller.desktopGlassTag = desktopGlassOn ? 2 : 0 }
     }
     @Published var desktopGlassStyleTag: Int {
         didSet { controller.desktopGlassStyleTag = desktopGlassStyleTag }
@@ -62,8 +57,6 @@ final class GLPreferences: ObservableObject {
         shellTag = controller.shellTag
         loginShell = controller.loginShell
         desktopGlassOn = controller.desktopGlassTag != 0
-        // off leaves nothing to show as a choice, so it falls back to frosted
-        desktopGlassMaterialTag = max(1, controller.desktopGlassTag)
         desktopGlassStyleTag = controller.desktopGlassStyleTag
         desktopGlassOpacity = controller.desktopGlassOpacity * 100
         widgetPath = controller.widgetDir?.path ?? ""
@@ -177,16 +170,9 @@ struct GLPreferencesView: View {
         if !glassIsLiquid {
             Section {
                 Toggle("Frost the desktop behind widgets", isOn: $prefs.desktopGlassOn)
-                Picker("Frost", selection: $prefs.desktopGlassMaterialTag) {
-                    Text("Subtle").tag(1)
-                    Text("Frosted").tag(2)
-                    Text("Heavy").tag(3)
-                }
-                .pickerStyle(.segmented)
-                .disabled(!prefs.desktopGlassOn)
                 LabeledContent("Transparency") {
                     HStack(spacing: 10) {
-                        Slider(value: $prefs.desktopGlassOpacity, in: 10...100, step: 1)
+                        Slider(value: $prefs.desktopGlassOpacity, in: 10...100)
                         Text("\(Int(prefs.desktopGlassOpacity))%")
                             .font(.caption)
                             .monospacedDigit()
@@ -240,7 +226,7 @@ struct GLPreferencesView: View {
 
             LabeledContent("Transparency") {
                 HStack(spacing: 10) {
-                    Slider(value: $prefs.desktopGlassOpacity, in: 10...100, step: 1)
+                    Slider(value: $prefs.desktopGlassOpacity, in: 10...100)
                     Text("\(Int(prefs.desktopGlassOpacity))%")
                         .font(.caption)
                         .monospacedDigit()

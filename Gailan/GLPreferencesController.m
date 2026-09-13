@@ -39,7 +39,9 @@
             // for it. on by default; "off" opts out.
             @"desktopGlass": @"frosted",
             @"desktopGlassStyle": @"follow",
-            @"desktopGlassOpacity": @1.0,
+            /* Three quarters rather than all of it: at full strength the material hides
+               the wallpaper it is there to show. */
+            @"desktopGlassOpacity": @0.75,
 
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
@@ -335,7 +337,7 @@ static NSArray* desktopGlassStyles(void)
     NSNumber* stored = [[NSUserDefaults standardUserDefaults]
         objectForKey:@"desktopGlassOpacity"
     ];
-    double value = stored ? stored.doubleValue : 1.0;
+    double value = stored ? stored.doubleValue : 0.75;
     return MIN(MAX(value, 0.1), 1.0);
 }
 
