@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
 - (void)applySystemAccent;
+- (void)setDesktopGlassOn:(BOOL)on;
 - (void)setAlwaysOnTop:(BOOL)flag;
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style

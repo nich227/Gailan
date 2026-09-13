@@ -155,6 +155,11 @@
     [webViewController applySystemAccent];
 }
 
+- (void)setDesktopGlassOn:(BOOL)on
+{
+    [webViewController setDesktopGlassOn:on];
+}
+
 #
 #pragma mark window type and interaction
 #
