@@ -53,6 +53,8 @@ int const PORT = 41416;
 // everything twice; only one of them should run
 - (void)resolveUbersichtConflict
 {
+    if ([self isRunningTests]) return;
+
     NSArray<NSRunningApplication*>* others = [NSRunningApplication
         runningApplicationsWithBundleIdentifier:@"tracesOf.Uebersicht"
     ];
@@ -89,6 +91,8 @@ int const PORT = 41416;
    the dialog still needs to know why the desktop is bare. */
 - (void)reportNoPortAvailable
 {
+    if ([self isRunningTests]) return;
+
     static BOOL alreadySaid = NO;
     if (alreadySaid) return;
     alreadySaid = YES;
@@ -103,8 +107,19 @@ int const PORT = 41416;
     [alert runModal];
 }
 
+/* A modal dialog at launch stops a test run dead: XCTest launches the app, the app finds
+   the installed copy running, and puts up an alert nobody can answer. So neither of these
+   asks anything while the tests are running. */
+- (BOOL)isRunningTests
+{
+    return [[NSProcessInfo processInfo] environment][@"XCTestConfigurationFilePath"]
+        != nil;
+}
+
 - (void)resolveSecondCopyConflict
 {
+    if ([self isRunningTests]) return;
+
     NSString* mine = [[NSBundle mainBundle] bundlePath];
     NSMutableArray<NSRunningApplication*>* others = [NSMutableArray array];
 
