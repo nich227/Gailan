@@ -88,6 +88,12 @@
     [background applySystemAccent];
 }
 
+- (void)setDesktopGlassOn:(BOOL)on
+{
+    [foreground setDesktopGlassOn:on];
+    [background setDesktopGlassOn:on];
+}
+
 - (void)workspaceChanged
 {
     [foreground workspaceChanged];

@@ -32,6 +32,7 @@ typedef NS_ENUM(NSInteger, GLWindowType) {
 - (void)workspaceChanged;
 - (void)wallpaperChanged;
 - (void)applySystemAccent;
+- (void)setDesktopGlassOn:(BOOL)on;
 - (void)setGlassRegions:(NSArray*)regions;
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style
