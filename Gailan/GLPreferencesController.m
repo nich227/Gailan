@@ -39,9 +39,6 @@
             // for it. on by default; "off" opts out.
             @"desktopGlass": @"frosted",
             @"desktopGlassStyle": @"follow",
-            /* Three quarters rather than all of it: at full strength the material hides
-               the wallpaper it is there to show. */
-            @"desktopGlassOpacity": @0.75,
 
         };
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
@@ -332,12 +329,41 @@ static NSArray* desktopGlassStyles(void)
 
 /* How present the glass is, as a fraction. NSGlassEffectView has no transparency of its
    own, so this is the view's. */
+/* What the opacity falls back to before anybody sets it.
+
+   Since the setting draws a solid over the glass, how much of it suits the glass
+   underneath. Clear glass is the subtle one and wants almost none, so the surface is barely
+   there and the refraction carries the widget. Tinted glass already carries the wallpaper's
+   colour, and a surface at the fill the widgets themselves use sits with it.
+
+   Older systems frost rather than refract, and there is no style to read, so they keep
+   three quarters. */
+- (double)defaultDesktopGlassOpacity
+{
+    if (@available(macOS 26.0, *)) {
+        return [[self class] resolvedDesktopGlassStyleIsClear] ? 0.10 : 0.82;
+    }
+    return 0.75;
+}
+
++ (BOOL)resolvedDesktopGlassStyleIsClear
+{
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* chosen = [defaults stringForKey:@"desktopGlassStyle"];
+
+    if ([chosen isEqualToString:@"tinted"]) return NO;
+    if ([chosen isEqualToString:@"clear"]) return YES;
+
+    // following the system, where the setting is absent unless it has been changed
+    return [defaults integerForKey:@"NSGlassDiffusionSetting"] != 1;
+}
+
 - (double)desktopGlassOpacity
 {
     NSNumber* stored = [[NSUserDefaults standardUserDefaults]
         objectForKey:@"desktopGlassOpacity"
     ];
-    double value = stored ? stored.doubleValue : 0.75;
+    double value = stored ? stored.doubleValue : [self defaultDesktopGlassOpacity];
     return MIN(MAX(value, 0.1), 1.0);
 }
 

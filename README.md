@@ -695,12 +695,20 @@ hold what they say whatever the system does. `Clear` is glass with no tint, and 
 glass carrying the wallpaper's color, which is the difference between the two choices macOS
 offers.
 
-`Opacity` is the glass view's own, not the glass effect's. `NSGlassEffectView` has no
-transparency to set, so this thins what is drawn rather than changing how it refracts. It
-stops at 10% rather than reaching nothing, since a setting that makes glass vanish reads as
-a fault. There is still no blur radius or refraction setting, because AppKit has none to
-offer: `NSGlassEffectView` takes a corner radius, a tint and those two styles, and nothing
-else.
+`Opacity` is a solid surface drawn over the glass, so it reads the same whether or not
+Gailan is the frontmost app. macOS draws Liquid Glass one way for the frontmost app and
+another for everybody else, and the difference cannot be turned off. Thinning the glass
+itself meant the setting also decided how much of that difference showed: full strength
+read as glass while Gailan was clicked and as a slab the rest of the time, and thinned it
+lost the refraction the setting was meant to be adjusting. With a surface over the top,
+full opacity covers the glass so both states are the same solid color, and low opacity
+leaves the glass fully drawn so both states are nearly the same glass. It defaults to 10%
+with `Clear`, which is the subtle style and wants almost no surface, and 82% with `Tinted`,
+which already carries the wallpaper's color. It stops at 10% rather than reaching nothing.
+
+Before macOS 26 the setting is the frost view's own alpha, since `NSVisualEffectView` can
+be told to keep its active appearance whatever the app is doing, so there is no difference
+between the two states to reconcile.
 
 ## Running shell commands
 

@@ -216,7 +216,25 @@ static NSArray* watchedSystemKeys(void)
         glass.style = [style isEqualToString:@"clear"] ? NSGlassEffectViewStyleClear
                                                       : NSGlassEffectViewStyleRegular;
         glass.tintColor = [self effectiveTintForStyle:style];
-        glass.alphaValue = alpha;
+
+        /* The glass itself is always drawn at full strength, and the setting is a solid
+           surface over it instead of the glass view's own alpha.
+
+           Thinning the glass view meant the setting also decided how much of the system's
+           own appearance showed, and macOS draws Liquid Glass one way for the frontmost
+           app and another for everybody else. At full strength that read as glass while
+           Gailan was clicked and as a slab the rest of the time, and thinned it lost the
+           refraction the setting was supposed to be adjusting. The difference is the
+           system's and cannot be turned off: an earlier attempt measured every property
+           of the view and the layer tree reading identical across a real activation
+           change while the appearance visibly changed.
+
+           A surface over the top settles it. At full opacity it covers the glass, so both
+           states are the same solid colour, and at low opacity the glass is fully drawn
+           and refracting, so both states are nearly the same glass. What the system does
+           differently is only visible in between. */
+        glass.alphaValue = 1.0;
+        glass.contentView = [self surfaceWithOpacity:alpha radius:radius];
         return glass;
     }
 
@@ -227,6 +245,21 @@ static NSArray* watchedSystemKeys(void)
     effect.maskImage = [self maskWithRadius:radius];
     effect.alphaValue = alpha;
     return effect;
+}
+
+/* The solid the opacity setting draws over the glass. windowBackgroundColor rather than a
+   colour of our own, so it follows light and dark and the appearance override with it. */
+- (NSView*)surfaceWithOpacity:(CGFloat)opacity radius:(CGFloat)radius
+{
+    NSView* surface = [[NSView alloc] init];
+    surface.wantsLayer = YES;
+    // measured: the glass sizes it once on being given it, and not again
+    surface.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    surface.layer.backgroundColor =
+        [[NSColor windowBackgroundColor] colorWithAlphaComponent:opacity].CGColor;
+    surface.layer.cornerRadius = radius;
+    surface.layer.cornerCurve = kCACornerCurveContinuous;
+    return surface;
 }
 
 - (void)setRegions:(NSArray<NSDictionary*>*)regions
