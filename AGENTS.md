@@ -166,9 +166,12 @@ Notarizing and stapling happen **before** the zip and the disk image are built, 
 carry the ticket. Building the archive first ships an unstapled app to everyone updating
 through Sparkle.
 
-The disk image itself is not yet signed or notarized, only the app inside it. `spctl` on
-the image says `no usable signature`. Worth fixing: a download carrying the quarantine bit
-can prompt on the image before reaching the app.
+The disk image is signed, notarized and stapled as well as the app inside it. Both need it:
+a download carries the quarantine bit on the image, so the image is what macOS judges first,
+before anything is copied out of it, and a stapled app in an unsigned image can still
+prompt. The image is assessed with `--type open` and `--context
+context:primary-signature`, which is how a download is judged. The `--type execute`
+assessment the app gets answers a different question and passes either way.
 
 `scripts/make-dmg.sh` builds the installer window, calling
 `scripts/make-dmg-background.swift` for the backdrop. The background is drawn larger than

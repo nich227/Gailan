@@ -149,6 +149,39 @@ jobs:
       - name: disk image
         run: ./scripts/make-dmg.sh dd/Build/Products/Release/Gailan.app "${{ steps.v.outputs.version }}" "Gailan-${{ steps.v.outputs.version }}.dmg"
 
+      # The app inside is signed and stapled already, and the image needs its own
+      # signature and its own ticket: a download carries the quarantine bit on the image,
+      # so that is what macOS checks first, before anything is copied out of it.
+      - name: sign the disk image
+        env:
+          API_KEY: ${{ secrets.APPLE_API_KEY_P8 }}
+          API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          set -euo pipefail
+          DMG="Gailan-${{ steps.v.outputs.version }}.dmg"
+
+          codesign --force --sign "${{ steps.keychain.outputs.identity }}" \
+            --timestamp \
+            --keychain "${{ steps.keychain.outputs.keychain }}" \
+            "$DMG"
+          codesign --verify --strict --verbose=2 "$DMG"
+
+          printf '%s' "$API_KEY" | base64 --decode > "$RUNNER_TEMP/dmgkey.p8"
+          xcrun notarytool submit "$DMG" \
+            --key "$RUNNER_TEMP/dmgkey.p8" \
+            --key-id "$API_KEY_ID" \
+            --issuer "$API_ISSUER" \
+            --wait --timeout 45m
+          rm -f "$RUNNER_TEMP/dmgkey.p8"
+
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+
+          # what a download is judged by, rather than the execute assessment the app gets
+          spctl --assess --type open \
+            --context context:primary-signature --verbose=2 "$DMG"
+
       - name: sign
         id: sign
         env:
