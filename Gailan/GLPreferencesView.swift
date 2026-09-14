@@ -232,14 +232,13 @@ struct GLPreferencesView: View {
     @ViewBuilder private var glass: some View {
         Section {
             Toggle("Liquid Glass", isOn: $prefs.desktopGlassOn)
-
-                Picker("Style", selection: $prefs.desktopGlassStyleTag) {
-                    Text("Follow system").tag(0)
-                    Text("Clear").tag(1)
-                    Text("Tinted").tag(2)
-                }
-                .pickerStyle(.menu)
-                .disabled(!prefs.desktopGlassOn)
+            Picker("Style", selection: $prefs.desktopGlassStyleTag) {
+                Text("Follow system").tag(0)
+                Text("Clear").tag(1)
+                Text("Tinted").tag(2)
+            }
+            .pickerStyle(.menu)
+            .disabled(!prefs.desktopGlassOn)
 
             LabeledContent("Opacity") {
                 HStack(spacing: 10) {
