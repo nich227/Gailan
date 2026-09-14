@@ -73,6 +73,12 @@ static NSString* const kAccentKey = @"AppleAccentColor";
                             tint: [self glassTintForScreenId:screenId]
                          opacity: self.glassOpacity
             ];
+            /* A window created here has to be told the glass state as well as the
+               material. The app applies the glass once at launch, before the server has
+               reported any screens, so that pass finds no windows to tell and every
+               window made afterwards would keep the default of off. The page then thins
+               nothing and covers the glass completely. */
+            [windowGroup setDesktopGlassOn:[self desktopGlassIsOn]];
             [windows setObject:windowGroup forKey:screenId];
             [windowGroup loadUrl: [self screenUrl:screenId baseUrl:baseUrl]];
         } else {
@@ -135,6 +141,13 @@ static NSString* const kAccentKey = @"AppleAccentColor";
     }
 }
 
+/* Nil counts as off, since a material that has never been set is not being drawn. */
+- (BOOL)desktopGlassIsOn
+{
+    return self.glassMaterial != nil
+        && ![self.glassMaterial isEqualToString:@"off"];
+}
+
 - (void)setGlassMaterial:(NSString*)name
                    style:(NSString*)style
                  opacity:(double)opacity
@@ -150,7 +163,7 @@ static NSString* const kAccentKey = @"AppleAccentColor";
                      opacity: opacity
         ];
         // the page adapts its own background to whether it is sitting on frost
-        [windows[screenId] setDesktopGlassOn:![name isEqualToString:@"off"]];
+        [windows[screenId] setDesktopGlassOn:[self desktopGlassIsOn]];
     }
 }
 
