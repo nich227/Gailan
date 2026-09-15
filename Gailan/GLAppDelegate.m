@@ -49,6 +49,7 @@ int const PORT = 41416;
 
 @synthesize statusBarMenu;
 
+
 // Gailan is Übersicht with the same widget surface, so running both renders
 // everything twice; only one of them should run
 - (void)resolveUbersichtConflict
@@ -69,12 +70,70 @@ int const PORT = 41416;
     [alert addButtonWithTitle:@"Quit Gailan"];
 
     if ([alert runModal] == NSAlertFirstButtonReturn) {
-        for (NSRunningApplication* app in others) {
-            [app terminate];
-        }
+        [self quitApplications:others named:@"Übersicht"];
     } else {
         [NSApp terminate:nil];
     }
+}
+
+/* Quit the applications, and make sure they went.
+
+   NSRunningApplication terminate sends a quit apple event the other app is free to ignore,
+   returns a BOOL that says only that the event was sent, and reports a refusal nowhere. A
+   shipped Übersicht was seen ignoring both this and an AppleScript quit, leaving both apps
+   drawing the same widgets, which is the state the dialog exists to prevent, with the user
+   believing they had dealt with it.
+
+   So it is asked, then checked, then insisted, then checked again. forceTerminate is
+   SIGKILL, which the observed case needed. If something survives even that, it is said out
+   loud rather than left to look like success. */
+- (void)quitApplications:(NSArray<NSRunningApplication*>*)apps
+                   named:(NSString*)name
+{
+    for (NSRunningApplication* app in apps) {
+        [app terminate];
+    }
+
+    if ([self waitForExitOf:apps within:2.0]) return;
+
+    for (NSRunningApplication* app in apps) {
+        if (!app.terminated) [app forceTerminate];
+    }
+
+    if ([self waitForExitOf:apps within:2.0]) return;
+
+    NSAlert* alert = [[NSAlert alloc] init];
+    alert.messageText = [NSString stringWithFormat:@"%@ is still running", name];
+    alert.informativeText = [NSString stringWithFormat:
+        @"%@ ignored both a request to quit and being told to. Quit it yourself, or both "
+        @"it and Gailan will draw the same widgets.", name];
+    [alert addButtonWithTitle:@"OK"];
+    [alert runModal];
+}
+
+/* Spun rather than slept, because this runs on the main thread while the app is starting
+   and the applications being waited on need it to answer. */
+- (BOOL)waitForExitOf:(NSArray*)apps within:(NSTimeInterval)patience
+{
+    NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:patience];
+
+    while ([deadline timeIntervalSinceNow] > 0) {
+        BOOL allGone = YES;
+        for (NSRunningApplication* app in apps) {
+            if (!app.terminated) allGone = NO;
+        }
+        if (allGone) return YES;
+
+        [[NSRunLoop currentRunLoop]
+            runMode: NSDefaultRunLoopMode
+         beforeDate: [NSDate dateWithTimeIntervalSinceNow:0.1]
+        ];
+    }
+
+    for (NSRunningApplication* app in apps) {
+        if (!app.terminated) return NO;
+    }
+    return YES;
 }
 
 /* Two copies of Gailan running at once take each other's work apart, and do it quietly.
@@ -152,9 +211,7 @@ int const PORT = 41416;
     [alert addButtonWithTitle:@"Quit This One"];
 
     if ([alert runModal] == NSAlertFirstButtonReturn) {
-        for (NSRunningApplication* app in others) {
-            [app terminate];
-        }
+        [self quitApplications:others named:@"The other copy"];
     } else {
         [NSApp terminate:nil];
     }
@@ -164,11 +221,17 @@ int const PORT = 41416;
 {
     [self watchSystemTinting];
     [self.preferences enableStartAtLoginOnFirstLaunch];
+
+    /* The icon goes up before anything can ask a question. Both dialogs below are modal,
+       and a modal dialog can sit behind another window or on another space; with no dock
+       icon and no menu bar item there was nothing to click to find the app that was
+       waiting. */
+    needsRefresh = YES;
+    statusBarItem = [self addStatusItemToMenu: statusBarMenu];
+
     [self resolveUbersichtConflict];
     [self resolveSecondCopyConflict];
 
-    needsRefresh = YES;
-    statusBarItem = [self addStatusItemToMenu: statusBarMenu];
     self.preferences = [[GLPreferencesController alloc]
         initWithWindowNibName:@"GLPreferencesController"
     ];
@@ -394,13 +457,79 @@ int const PORT = 41416;
     
 }
 
+/* macOS remembers where the status item was put, in points from the right edge of the
+   screen, and hands the value back on the next launch without checking it still fits.
+
+   A menu bar manager rearranging items can write a position wider than any display. One
+   machine held 6121 against displays 1728 and 3008 points wide, which drew the item past
+   the left edge of both: the icon was gone, the app was fine, and relaunching did not help,
+   since the same value was read again. Nothing recreates the item while the app runs and
+   NSStatusItemBehaviorRemovalAllowed is not set, so there was no way back from inside the
+   app either.
+
+   The name is set rather than left to be generated, so the key is ours and is written down
+   here.
+
+   Checking where the item landed instead of what was stored does not work. Measured on a
+   2560 point display: the button's window frame reads x=-3430 from a quarter of a second
+   after creation onwards, stable through three seconds, while the item reports itself
+   visible and the icon is on the menu bar. The frame is not where the icon is drawn, so a
+   frame that misses every screen says nothing, and acting on it threw the saved position
+   away on every launch. */
+static NSString* const GLStatusItemAutosaveName = @"GailanStatusItem";
+
+static NSString* GLStatusItemPositionKey(void)
+{
+    return [NSString stringWithFormat:@"NSStatusItem Preferred Position %@",
+        GLStatusItemAutosaveName];
+}
+
+/* Anything beyond the width of every display put together cannot be a position on one of
+   them. Nothing stored is fine: that is a first launch. Zero and the exact width are both
+   on screen, so the range is inclusive. */
++ (BOOL)isStatusItemPosition:(NSNumber*)position usableWithinWidth:(CGFloat)width
+{
+    if (position == nil) return YES;
+
+    double value = position.doubleValue;
+    return value >= 0 && value <= width;
+}
+
++ (CGFloat)totalScreenWidth
+{
+    CGFloat total = 0;
+    for (NSScreen* screen in [NSScreen screens]) {
+        total += screen.frame.size.width;
+    }
+    return total;
+}
+
+/* Read before the item is made, since the position is applied as it is created. */
+- (void)discardUnusableStatusItemPosition
+{
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    NSString* key = GLStatusItemPositionKey();
+    NSNumber* stored = [defaults objectForKey:key];
+
+    if ([[self class] isStatusItemPosition:stored
+                        usableWithinWidth:[[self class] totalScreenWidth]]) {
+        return;
+    }
+
+    NSLog(@"status item position %@ is off every screen, forgetting it", stored);
+    [defaults removeObjectForKey:key];
+}
+
 - (NSStatusItem*)addStatusItemToMenu:(NSMenu*)aMenu
 {
+    [self discardUnusableStatusItemPosition];
+
     NSStatusBar*  bar = [NSStatusBar systemStatusBar];
     NSStatusItem* item;
 
     item = [bar statusItemWithLength: NSSquareStatusItemLength];
-    
+    item.autosaveName = GLStatusItemAutosaveName;
+
     NSImage *image = [[NSBundle mainBundle] imageForResource:@"status-icon"];
     [image setTemplate:YES];
     [item.button setImage: image];

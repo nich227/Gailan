@@ -20,6 +20,14 @@
 @interface GLAppDelegate : NSObject <NSApplicationDelegate, UNUserNotificationCenterDelegate, GLScreenChangeListener>
 
 @property (weak) IBOutlet NSMenu *statusBarMenu;
+
+/* A stored status item position is only usable if it lands on a display. Exposed so it can
+   be tested without a status bar. */
++ (BOOL)isStatusItemPosition:(NSNumber*)position usableWithinWidth:(CGFloat)width;
+
+/* Waits for applications asked to quit to actually be gone. Anything answering `terminated`
+   will do, which is what lets it be tested without quitting real applications. */
+- (BOOL)waitForExitOf:(NSArray*)apps within:(NSTimeInterval)patience;
 @property (nonatomic, copy, readonly) NSString *serverToken;
 @property (nonatomic, readonly) GLPreferencesController *preferences;
 @property (readonly) NSArray* widgets;

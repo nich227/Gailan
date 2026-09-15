@@ -348,6 +348,19 @@ offers to quit Übersicht at launch.
     multi-player reading assembled that way broke with `syntax error: Expected then`. Put
     the AppleScript in one `-e` with real newlines, or in a file.
 
+  - **A status item's window frame is not where its icon is.** Measured on a 2560 point
+    display: the button's window reads x=-3430 from a quarter second after creation
+    onwards, and two other apps whose icons are plainly visible read -3207 and -3283. So
+    an off-screen frame says nothing about a lost icon, and recreating the item on the
+    strength of one threw the saved position away on every launch. Check the stored
+    position instead, which is a number with a documented meaning.
+
+  - **`NSRunningApplication terminate` is a request.** It sends a quit apple event the
+    other application may ignore, and its BOOL says only that the event went out. A
+    shipped Übersicht was seen refusing both this and an AppleScript quit, where only
+    SIGKILL worked. Anything quitting another app has to check `isTerminated` afterwards
+    and fall back to `forceTerminate`.
+
   - **`--deep` is for repairing a signature, not making one.** It hands every nested
     binary the same entitlements, and only the node runtimes should get the unsigned
     executable memory exception.

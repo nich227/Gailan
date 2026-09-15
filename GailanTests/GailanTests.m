@@ -178,4 +178,109 @@ static BOOL menuHasAction(NSMenu* menu, SEL action)
     [overview close];
 }
 
+
+#pragma mark - status item position
+
+/* The reported machine: 6121 stored against displays 1728 and 3008 wide. */
+- (void)testStatusItemPositionBeyondEveryDisplayIsRejected
+{
+    XCTAssertFalse([GLAppDelegate isStatusItemPosition:@6121
+                                    usableWithinWidth:1728 + 3008]);
+}
+
+- (void)testStatusItemPositionOnScreenIsKept
+{
+    XCTAssertTrue([GLAppDelegate isStatusItemPosition:@420
+                                   usableWithinWidth:1728 + 3008]);
+}
+
+// a first launch has nothing stored, which is not a fault
+- (void)testStatusItemPositionAbsentIsUsable
+{
+    XCTAssertTrue([GLAppDelegate isStatusItemPosition:nil usableWithinWidth:1728]);
+}
+
+// both ends of the range are on the screen
+- (void)testStatusItemPositionAtTheEdgesIsUsable
+{
+    XCTAssertTrue([GLAppDelegate isStatusItemPosition:@0 usableWithinWidth:1728]);
+    XCTAssertTrue([GLAppDelegate isStatusItemPosition:@1728 usableWithinWidth:1728]);
+}
+
+- (void)testStatusItemPositionNegativeIsRejected
+{
+    XCTAssertFalse([GLAppDelegate isStatusItemPosition:@(-40) usableWithinWidth:1728]);
+}
+
+/* One display of 1728 cannot hold a position that two displays could, which is the case
+   that turns a second monitor being unplugged into a lost icon. */
+- (void)testStatusItemPositionValidOnTwoDisplaysIsRejectedOnOne
+{
+    XCTAssertTrue([GLAppDelegate isStatusItemPosition:@3000
+                                   usableWithinWidth:1728 + 3008]);
+    XCTAssertFalse([GLAppDelegate isStatusItemPosition:@3000
+                                    usableWithinWidth:1728]);
+}
+
+@end
+
+#pragma mark - waiting for an application to quit
+
+/* Stands in for NSRunningApplication. Only `terminated` is read, and a real one cannot be
+   made to refuse on demand. */
+@interface GLFakeRunningApp : NSObject
+// NSRunningApplication declares this with getter=isTerminated, so the stand-in must too
+@property (assign, getter=isTerminated) BOOL terminated;
+@end
+
+@implementation GLFakeRunningApp
+@end
+
+@interface GLQuitWaitTests : XCTestCase
+@end
+
+@implementation GLQuitWaitTests
+
+- (void)testWaitingReturnsAtOnceWhenEverythingHasGone
+{
+    GLAppDelegate* delegate = [[GLAppDelegate alloc] init];
+    GLFakeRunningApp* gone = [[GLFakeRunningApp alloc] init];
+    gone.terminated = YES;
+
+    NSDate* started = [NSDate date];
+    XCTAssertTrue([delegate waitForExitOf:@[gone] within:2.0]);
+    XCTAssertLessThan([[NSDate date] timeIntervalSinceDate:started], 0.5);
+}
+
+// the reported case: asked to quit, and still there
+- (void)testWaitingGivesUpOnSomethingThatRefuses
+{
+    GLAppDelegate* delegate = [[GLAppDelegate alloc] init];
+    GLFakeRunningApp* stubborn = [[GLFakeRunningApp alloc] init];
+    stubborn.terminated = NO;
+
+    NSDate* started = [NSDate date];
+    XCTAssertFalse([delegate waitForExitOf:@[stubborn] within:0.5]);
+    XCTAssertGreaterThanOrEqual([[NSDate date] timeIntervalSinceDate:started], 0.5);
+}
+
+// one refusal among several is still a refusal
+- (void)testWaitingFailsWhenOnlyOneRemains
+{
+    GLAppDelegate* delegate = [[GLAppDelegate alloc] init];
+    GLFakeRunningApp* gone = [[GLFakeRunningApp alloc] init];
+    gone.terminated = YES;
+    GLFakeRunningApp* stubborn = [[GLFakeRunningApp alloc] init];
+
+    // the array is a variable because a comma inside a macro argument splits it
+    NSArray* both = @[gone, stubborn];
+    XCTAssertFalse([delegate waitForExitOf:both within:0.4]);
+}
+
+- (void)testWaitingOnNothingSucceeds
+{
+    GLAppDelegate* delegate = [[GLAppDelegate alloc] init];
+    XCTAssertTrue([delegate waitForExitOf:@[] within:2.0]);
+}
+
 @end
