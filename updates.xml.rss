@@ -20,8 +20,6 @@
       <li><strong>Quit Übersicht could quietly do nothing.</strong> The request to quit is one the other app may ignore, and nothing checked whether it went. Gailan now waits, insists, and says so if Übersicht is still running. The same goes for a second copy of Gailan.</li>
       <li><strong>A dialog could appear with nothing to click.</strong> Both conflict dialogs ran before the menu bar icon existed. The icon goes up first.</li>
       </ul>
-      <h3>Install</h3>
-      <p>Open the dmg and drag Gailan to Applications. Requires macOS 13.5 or later.</p>
       <p>
         <a href="https://github.com/nich227/Gailan/releases/tag/v1.0.1">All the
         details for 1.0.1</a>
@@ -36,7 +34,16 @@
       <sparkle:version>10000</sparkle:version>
       <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>13.5</sparkle:minimumSystemVersion>
-      <sparkle:releaseNotesLink>https://github.com/nich227/Gailan/releases/tag/v1.0.0</sparkle:releaseNotesLink>
+      <description>
+        <![CDATA[
+      <h3>First release</h3>
+      <p>Gailan is a fork of <a href="https://github.com/felixhageloh/uebersicht">Übersicht</a>, rebuilt on Node 24, React 19 and esbuild, with widget settings, declared dependencies, Liquid Glass behind widgets, and a widget gallery.</p>
+      <p>
+        <a href="https://github.com/nich227/Gailan/releases/tag/v1.0.0">All the
+        details for 1.0.0</a>
+      </p>
+        ]]>
+      </description>
       <enclosure url="https://github.com/nich227/Gailan/releases/download/v1.0.0/Gailan-1.0.0.zip" length="101650901" type="application/octet-stream" sparkle:edSignature="nxblypTEzc6TmArUeagMTsmNg41tRGrOLy4V/sm17HdNrMIxYjS+fQdzuffwnpdPjmYb5NtvbuiO4xUJ9z2bBw=="/>
     </item>
   </channel>
