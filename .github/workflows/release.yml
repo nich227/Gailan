@@ -227,7 +227,8 @@ jobs:
             "${{ steps.v.outputs.build }}" \
             "https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/Gailan-${{ steps.v.outputs.version }}.zip" \
             "${{ steps.sign.outputs.length }}" \
-            "${{ steps.sign.outputs.signature }}"
+            "${{ steps.sign.outputs.signature }}" \
+            "notes.md"
           cd pages
           git -c user.name=github-actions -c user.email=github-actions@github.com \
             add updates.xml.rss

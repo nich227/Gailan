@@ -180,6 +180,14 @@ it, so a resize reveals more grid rather than bare grey. Window bounds must equa
 window part of that canvas exactly; `bounds` is the content rectangle with no title bar in
 it. The version and the minimum macOS are drawn in, both read from the app being packaged.
 
+The update window shows the notes carried in the appcast item, not a page fetched from it.
+`sparkle:releaseNotesLink` wins over an inline `<description>` where both are present, and
+pointing it at the GitHub release made Sparkle render that whole page, repository furniture
+and all. `scripts/update-appcast.js` converts `docs/release-notes/<version>.md` to small HTML
+and puts it in the item, which is what Übersicht did. Headings floor at `h3`, since the window
+is small. Write the notes for that window: a heading and bullets read well there, paragraphs
+of prose do not.
+
 Push a tag like `v1.0.2` and the release workflow does the rest: builds the app,
 zips it, signs the zip with the EdDSA key in the `SPARKLE_ED_PRIVATE_KEY` secret,
 publishes a GitHub Release, and adds an item to `updates.xml.rss` on `gh-pages`,
