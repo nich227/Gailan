@@ -7,6 +7,30 @@
     <language>en</language>
     <!-- items -->
     <item>
+      <title>1.0.1</title>
+      <pubDate>Tue, 15 Sep 2026 19:04:38 GMT</pubDate>
+      <sparkle:version>10001</sparkle:version>
+      <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>13.5</sparkle:minimumSystemVersion>
+      <description>
+        <![CDATA[
+      <h3>Fixed</h3>
+      <ul>
+      <li><strong>The menu bar icon could go missing and stay missing.</strong> macOS remembers where the icon was put and restores it without checking it still fits, so a position wider than every display drew the icon off the edge, and relaunching read the same value again. The stored position is now checked before the icon is placed.</li>
+      <li><strong>Quit Übersicht could quietly do nothing.</strong> The request to quit is one the other app may ignore, and nothing checked whether it went. Gailan now waits, insists, and says so if Übersicht is still running. The same goes for a second copy of Gailan.</li>
+      <li><strong>A dialog could appear with nothing to click.</strong> Both conflict dialogs ran before the menu bar icon existed. The icon goes up first.</li>
+      </ul>
+      <h3>Install</h3>
+      <p>Open the dmg and drag Gailan to Applications. Requires macOS 13.5 or later.</p>
+      <p>
+        <a href="https://github.com/nich227/Gailan/releases/tag/v1.0.1">All the
+        details for 1.0.1</a>
+      </p>
+        ]]>
+      </description>
+      <enclosure url="https://github.com/nich227/Gailan/releases/download/v1.0.1/Gailan-1.0.1.zip" length="101654032" type="application/octet-stream" sparkle:edSignature="RtE+a5ArNgHHw/cBC1Ex0K97dFDiyvcl/k68VdYoX2AP/oKke3BBU1UvnW6NpLTvWWNnBIC1EIdNcZQA+xTdAQ=="/>
+    </item>
+    <item>
       <title>1.0.0</title>
       <pubDate>Mon, 14 Sep 2026 01:31:01 GMT</pubDate>
       <sparkle:version>10000</sparkle:version>
