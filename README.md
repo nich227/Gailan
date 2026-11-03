@@ -12,121 +12,117 @@
   </picture>
 </h1>
 
-<p align="center"><em>Keep an eye on what's happening on your machine and in the world.</em></p>
+<p align="center"><em>Watch what's happening on your machine and in the world.</em></p>
 
-**Gailan** (概览 - Gàilǎn) is the Mandarin Chinese translation of the German *Übersicht* ("Overview").
+**Gailan** (概览, Gàilǎn) is the Mandarin Chinese translation of the German Übersicht ("Overview").
 
-Read it in Cantonese instead and you get 芥蘭 🥦, Chinese broccoli. That wasn't the plan, but
+Read it in Cantonese and you get 芥蘭 🥦, Chinese broccoli. That wasn't the plan, but
 it's a fine vegetable and I'm not fighting it.
 
-Gailan is a fork of [felixhageloh/uebersicht](https://github.com/felixhageloh/uebersicht). For general
-info on the original project, check out the [Übersicht website](http://tracesof.net/uebersicht).
+Gailan is a fork of [felixhageloh/uebersicht](https://github.com/felixhageloh/uebersicht). See the [Übersicht website](http://tracesof.net/uebersicht).
 
 ## Widgets
 
-Three to start with, from [GailanHub](https://github.com/nich227/GailanHub). Each is a
-folder of files you can read, and each downloads as a zip from the
+Start with these three widgets from [GailanHub](https://github.com/nich227/GailanHub). Each widget is a folder of readable files. Download its zip from the
 [gallery](https://gailanapp.pages.dev/hub).
 
 <table>
   <tr>
     <td width="33%">
       <a href="https://github.com/nich227/GailanHub/tree/main/widgets/clock">
-        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/clock/preview.jpg" alt="The clock widget on a desktop in its light style, showing the time on a dot matrix with red seconds" />
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/clock/preview.jpg" alt="The clock widget in its light style on a desktop, showing a dot matrix time with red seconds" />
       </a>
     </td>
     <td width="33%">
       <a href="https://github.com/nich227/GailanHub/tree/main/widgets/system">
-        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/system/preview.jpg" alt="The system monitor widget on a desktop in its light style, showing 42 percent of memory in use on a twenty-division scale" />
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/system/preview.jpg" alt="The system monitor widget in its light style on a desktop, showing 42 percent memory usage on a twenty-division scale" />
       </a>
     </td>
     <td width="33%">
       <a href="https://github.com/nich227/GailanHub/tree/main/widgets/nowplaying">
-        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/nowplaying/preview.jpg" alt="The now playing widget on a desktop in its light style, showing a track with its cover, a progress bar and pixel transport controls" />
+        <img src="https://raw.githubusercontent.com/nich227/GailanHub/main/widgets/nowplaying/preview.jpg" alt="The now playing widget in its light style on a desktop, showing a track cover, progress bar, and pixel transport controls" />
       </a>
     </td>
   </tr>
   <tr>
-    <td><strong>Clock</strong><br />The time on a dot matrix, or hands on a dial.</td>
-    <td><strong>System Monitor</strong><br />Memory, processor, disk or network, on a scale you can read a value off.</td>
-    <td><strong>Now Playing</strong><br />The track, its cover, and controls that work.
+    <td><strong>Clock</strong><br />The time on a dot matrix or hands on a dial.</td>
+    <td><strong>System Monitor</strong><br />Memory, processor, disk, or network usage on a scale with a readable value.</td>
+    <td><strong>Now Playing</strong><br />The track, its cover, and working controls.
     Needs Spotify or the Music app.</td>
   </tr>
 </table>
 
 ## Differences from Übersicht
 
-Gailan is not backwards compatible with Übersicht, and it is not an in-place upgrade. The
-app is a separate application with its own name, bundle id and support directory, so it
-installs beside Übersicht instead of replacing it, and Übersicht's own updater will never
-offer it. Widget code carries over, since the widget API is the same; settings and the
-widgets folder do not, and have to be moved by hand. The bundled Node also jumped from 16
-to 24, so a widget whose command depends on old Node behavior, or that bundles a native
-module built for Node 16, needs rebuilding. Upstream breaking changes: Node
+Gailan is a separate application, not an in-place or backward-compatible Übersicht upgrade. It
+has its own name, bundle ID, and support directory, so it installs beside Übersicht.
+Übersicht's updater will never offer Gailan, but widget code carries over because the widget API is
+the same. Settings and the widgets folder do not carry over, so you must move them by hand. Gailan
+also upgrades bundled Node from 16 to 24. Rebuild widgets if their commands depend on old Node
+behavior or include native modules built for Node 16. Upstream breaking changes: Node
 [18](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md),
 [20](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V20.md),
 [22](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V22.md),
-[24](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V24.md) ·
-[React 19](https://react.dev/blog/2024/04/25/react-19-upgrade-guide) ·
-[CoffeeScript 2](https://coffeescript.org/#breaking-changes) ·
-[Emotion 11](https://emotion.sh/docs/emotion-11) ·
+[24](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V24.md),
+[React 19](https://react.dev/blog/2024/04/25/react-19-upgrade-guide),
+[CoffeeScript 2](https://coffeescript.org/#breaking-changes),
+[Emotion 11](https://emotion.sh/docs/emotion-11),
 [ws 8](https://github.com/websockets/ws/releases/tag/8.0.0)
 
 The specifics:
 
-  - bundle id is `com.kevster.Gailan` (AppleScript needs the new id)
-  - widgets live in `~/Library/Application Support/Gailan/widgets`
-  - the widget API module is imported as `gailan`; `uebersicht` still resolves, so existing
+  - Bundle ID: `com.kevster.Gailan` (AppleScript needs the new ID)
+  - Widgets live in `~/Library/Application Support/Gailan/widgets`
+  - Import the widget API module as `gailan`; `uebersicht` still resolves, so existing
     widgets keep working
-  - the container element is `#gailan`, so user CSS targeting `#uebersicht` needs updating
-  - widget commands run through **zsh** by default; Preferences has a dropdown to use
-    **fish** instead. Übersicht used bash, so plain POSIX commands work the same in zsh,
-    though bash-specific syntax may need adjusting
-  - Preferences also has an appearance override: System, Light or Dark, which widgets
-    see through `prefers-color-scheme`
-  - if Übersicht is running when Gailan starts, a dialog offers to quit one of them
-    (Gailan is an upgraded Übersicht, so running both doubles every widget)
-  - widgets are bundled with **esbuild** rather than browserify. `.jsx`, `.tsx` and
-    classic object-literal widgets all still work; what changed is that a widget bundle
-    publishes itself into `globalThis.__gailanWidgets` instead of registering with
-    browserify's require
-  - a widget can ask macOS to glass the desktop behind it; see
+  - The container element is `#gailan`. User CSS that targets `#uebersicht` no longer matches, so update it
+  - Widget commands use zsh by default. Preferences lets you select
+    fish instead. Übersicht used bash. Plain POSIX commands work the same in both,
+    but bash-specific syntax may need changes
+  - Preferences also has a System, Light, or Dark appearance override. Widgets read it
+    through `prefers-color-scheme`
+  - If Übersicht is running when Gailan starts, a dialog offers to quit either app.
+    Gailan is an upgraded Übersicht, so running both apps renders every widget twice
+  - esbuild bundles widgets instead of browserify. `.jsx`, `.tsx` and
+    classic object-literal widgets still work. Widget bundles now publish themselves
+    to `globalThis.__gailanWidgets` instead of registering with browserify's require
+  - A widget can ask macOS to apply a glass effect to the desktop behind it. See
     [Glass over the desktop](#glass-over-the-desktop)
-  - **Widgets…** in the menu opens a window showing every installed widget as a
-    card, with a switch, its screens, and the settings the widget declares. See
+  - Widgets… in the menu opens a window with a card for every installed widget.
+    Each card shows its switch, screens, and declared settings. See
     [Widget settings](#widget-settings)
-  - a widget can declare **its own settings**, which the app turns into controls
-    and saves beside the widget
-  - widget ids no longer carry the file extension: `Clock.jsx` is `Clock`, not
-    `Clock-jsx`, and a widget in its own folder takes the folder's name. Anything
-    referring to a widget by id, AppleScript included, needs updating
-  - **Opens at login** the first time it runs, since a desktop of widgets that has to
-    be started by hand is a desktop of widgets nobody sees. The switch is in
-    Preferences, and turning it off is remembered
-  - **Open Widgets Hub** in the menu opens the
+  - A widget can declare its own settings. The app creates controls and saves the
+    values beside the widget
+  - Widget IDs no longer include the file extension: `Clock.jsx` is `Clock`, not
+    `Clock-jsx`, and a widget in its own folder uses the folder name. Update anything that refers
+    to a widget by ID, including AppleScript
+  - Gailan enables Opens at login the first time it runs because widgets are not
+    visible until the app starts. You can disable it in Preferences, and Gailan
+    remembers the setting
+  - Open Widgets Hub in the menu opens the
     [widget gallery](https://gailanapp.pages.dev/hub), where each widget in
-    [GailanHub](https://github.com/nich227/GailanHub) downloads as a zip. Übersicht
-    widgets still work, so that gallery is worth a look too
-  - **Check for Widget Updates** compares the version in each widget's `widget.json`
-    against the version GailanHub holds and lists what is behind, one checkbox per
-    widget, so you install the ones you want. The same check runs once a day and
-    opens nothing when there is nothing to install. Your saved settings survive an
-    update, since only the files the hub ships are replaced
-  - **requires macOS 13.5 or later**, which the bundled Node runtime and the system APIs
-    it uses both need. The app will not launch on anything older
+    [GailanHub](https://github.com/nich227/GailanHub) downloads as a zip. Übersicht widgets still work, so you can also use that gallery
+    too
+  - Check for Widget Updates compares the version in each widget's `widget.json`
+    with the GailanHub version and lists outdated widgets. Each widget has a checkbox,
+    so you can choose which updates to install. The check also runs once a day and
+    opens nothing when no updates are available. Saved settings survive an update
+    because Gailan replaces only files shipped by the hub
+  - Gailan requires macOS 13.5 or later because the bundled Node runtime and system APIs
+    need it. The app does not launch on older versions
 
-The Node runtime is Node 24, the current LTS, and is no longer checked into git; see [Building Gailan](#building-gailan).
+Gailan uses Node 24, the current LTS. Git no longer stores the Node runtime. See [Building Gailan](#building-gailan).
 
 ### Dependency versions
 
-Against Übersicht 1.6.82, the most recent release at the time of the fork:
+Compared with Übersicht 1.6.82, the latest release when Gailan was forked:
 
 | | Übersicht | Gailan |
 |---|---|---|
 | bundled Node | 16.1.0 | 24.20.0 |
 | minimum macOS | 10.11 (Podfile), 12.0 (target) | 13.5 |
 | React | 16.13 | 19.2 |
-| CoffeeScript | `coffee-script` 1.12, for widgets and the server | removed; the server is TypeScript |
+| CoffeeScript | `coffee-script` 1.12 for widgets and the server | removed, and the server uses TypeScript |
 | Emotion | 10 (`emotion`, `@emotion/core`) | 11 (`@emotion/css`, `@emotion/react`) |
 | widget bundler | browserify 16.5 | esbuild 0.25 |
 | browserify | 16.5 | 17.0, client and server bundles only |
@@ -137,71 +133,66 @@ Against Übersicht 1.6.82, the most recent release at the time of the fork:
 | minifier | uglify-js 3.10 | terser 5.51 |
 | stylus | 0.54 | 0.64 |
 | tape | 4.13 | 5.10 |
-| through2 | 2.0 | replaced by node streams |
+| through2 | 2.0 | replaced by Node streams |
 | jQuery | 3.5 | 3.7, deliberately not 4.x |
 | Sparkle API | `SUUpdater` (Sparkle 1, deprecated) | `SPUStandardUpdaterController` |
 
-jQuery stays on 3.x because 4.0 removes APIs that classic widgets use.
-Everything else is the current release of its line.
+jQuery remains on 3.x because 4.0 removes APIs used by classic widgets.
+All other dependencies use the current release in their version line.
 
 ## Migrating from Übersicht
 
-Copy your widgets across and they will run. Gailan reads the same widget API, so the
-files themselves need no changes in the common case.
+Copy your widgets to Gailan, and they will run. Gailan uses the same widget API, so
+most widget files need no changes.
 
     cp -R ~/Library/Application\ Support/Übersicht/widgets/* \
           ~/Library/Application\ Support/Gailan/widgets/
 
-Übersicht's directory name contains a `ü`, which macOS may store either precomposed or
-decomposed, so if the shell cannot find the path use tab completion or copy the folder in
-Finder instead.
+Übersicht's directory name contains a `ü`, which macOS may store in precomposed or decomposed form. If the shell cannot find
+that path, use tab completion or copy the folder in Finder.
 
-Settings do not carry over. Per-widget choices (which screen a widget shows on, whether it
-is hidden, whether it sits in the background) live in the app's own preferences and have to
-be set again from the status bar menu. The widgets folder location, the shell, and the
-login item are in Gailan Preferences.
+Settings do not transfer. Gailan stores each widget's screen, hidden state, and
+background placement in its own preferences. Set them again from the status bar menu.
+Gailan Preferences shows the widgets folder location, shell, and login item.
 
-Both apps can run at once, but they will each render every widget, so quit Übersicht first.
-Gailan offers to do that for you when it starts.
+Both apps can run together, but each renders every widget. Quit Übersicht first.
+Gailan offers to quit Übersicht when it starts.
 
-### What might need changing in a widget
+### Changes a widget might need
 
-  - **`import {...} from "uebersicht"`** keeps working. Gailan exposes the same module
-    under both names, so there is nothing to rewrite, though `"gailan"` is the name going
-    forward.
-  - **CSS targeting `#uebersicht`** does not. The container element is `#gailan`. This is
-    the one change most likely to be needed, and it applies to `main.css` in the widgets
-    folder as well as to widget styles.
-  - **AppleScript** referring to `application id "tracesOf.Uebersicht"` needs
+  - `import {...} from "uebersicht"` still works. Gailan exposes the same module under both names, so no rewrite is
+    needed. However, `"gailan"` is the name to use.
+  - CSS that targets `#uebersicht` no longer works. The container element is `#gailan`. This is the change a widget most likely needs. It applies to `main.css` in the widgets folder and to widget styles.
+  - AppleScript references to `application id "tracesOf.Uebersicht"` need
     `"com.kevster.Gailan"`.
-  - **bash-specific command syntax** may need adjusting, or set the shell back in
-    Preferences. Widget commands run through zsh by default, where Übersicht used bash.
+  - bash-specific command syntax may need changes. You can also change the shell in
+    Preferences. Gailan uses zsh by default, while Übersicht used bash.
     Plain POSIX commands behave the same in both.
-  - **native modules** bundled inside a widget need rebuilding against Node 24.
-  - **Widget commands that depend on old Node behavior** need looking at, per the
+  - Rebuild native modules bundled inside a widget against Node 24.
+  - Review widget commands that depend on old Node behavior. See the
     breaking changes linked above.
 
-Nothing else about a widget changes: `command`, `refreshFrequency`, `render`,
-`updateState`, `className`, the classic object-literal widgets, `window.$`, and the
-`/run/` proxy all behave as they did.
+The remaining widget features are unchanged: `command`, `refreshFrequency`, `render`,
+`updateState`, `className`, classic object-literal widgets, `window.$`, and the
+`/run/` proxy.
 
 ## Writing widgets
 
-In essence, widgets are TypeScript (or JavaScript) modules that expose a few key properties and methods. They need to be defined in a single file with a `.tsx` (or `.jsx`) extension for Gailan to pick them up. Types are stripped when the widget is bundled, not checked. CoffeeScript widgets are not supported: Übersicht's classic API still works, but the file has to be `.js`. Check [the old documentation](ClassicWidgets.md) for that API. Gailan listens for file changes inside your widget directory, so you can edit widgets and see the result live.
+Widgets are TypeScript (or JavaScript) modules that expose properties and methods. Define each widget in one file with a `.tsx` (or `.jsx`) extension so Gailan can find it. Bundling removes type annotations but does not type-check the code. Gailan does not support CoffeeScript widgets. Übersicht's classic API still works, but the file must be `.js`. See [the old documentation](ClassicWidgets.md) for that API. Gailan watches the widget directory for file changes, so edits appear live.
 
-Widget rendering is done using [React](https://react.dev) and its [JSX](https://react.dev/learn/writing-markup-with-jsx) syntax. Simple widget state is managed for you by Gailan, but for more advanced widgets you can manage state using a Redux-like pattern. You `dispatch` events, which are processed by a single `updateState` function that returns the new state, which is then passed to your widget's render function.
+Gailan renders widgets with [React](https://react.dev) and [JSX](https://react.dev/learn/writing-markup-with-jsx) syntax. Gailan manages simple widget state. Advanced widgets can use a Redux-like pattern to manage state. You `dispatch` events. A single `updateState` function processes each event and returns the new state. Gailan passes this state to the widget's render function.
 
-State is kept when you modify your widget, which allows for live coding. Any changes to the UI of your widget will be immediately visible. One drawback (at least with the current implementation) is that if you change the shape of your state you might have to 'Refresh all Widgets' from the app menu for your widget to work.
+Gailan keeps state when you modify a widget, so UI changes appear immediately during live coding. The current implementation might require you to select 'Refresh all Widgets' from the app menu after changing the state shape.
 
-You can also include node modules and split your widget into separate files using [ESM syntax](http://2ality.com/2014/09/es6-modules-final.html). Any file that is in a directory called `/node_modules`, `/lib` or `/src` will be treated as a module and will not show up as a separate widget.
+Widgets can include Node modules. You can split a widget into separate files with [ESM syntax](http://2ality.com/2014/09/es6-modules-final.html). Files in a directory named `/node_modules`, `/lib` or `/src` are modules and do not appear as separate widgets.
 
-The following properties and methods are supported:
+Widgets support these properties and methods:
 
 ### command
 
-A **string** containing the shell command to be executed, or<br>
-a **function(dispatch : function)** which eventually dispatches an event,
-or **undefined**, meaning that no command will be executed for this widget.
+A string containing a shell command to execute, or<br>
+a function(dispatch: function) that eventually dispatches an event,
+or undefined when the widget has no command.
 
 For example:
 
@@ -209,13 +200,13 @@ For example:
 export const command = "echo Hello World";
 ```
 
-Watch out for quotes inside commands. Often they need to be properly escaped, like:
+Quotes inside commands often need escaping, as shown here:
 
 ```tsx
 export const command = "ps axo \"rss,pid,ucomm\" | sort -nr | head -n3";
 ```
 
-Example using a command function:
+Command function example:
 
 ```tsx
 export const command = (dispatch) =>
@@ -228,26 +219,24 @@ export const command = (dispatch) =>
     });
 ```
 
-The first and only argument passed to a command function is a `dispatch` function, which you can use to dispatch plain JavaScript objects, called events, to be picked up by your `updateState` function.
+A command function receives one argument, a `dispatch` function. Use it to dispatch plain JavaScript objects called events to your `updateState` function.
 
 
 ### refreshFrequency
 
-A **number** specifying how often the above command is executed.
-
-It defines the delay in milliseconds between consecutive command executions. Example:
+A number that sets the delay, in milliseconds, between command executions. Example:
 
 ```tsx
 export const refreshFrequency = 1000; // widget will run command once a second
 ```
 
-The default is 1000 (1s). If set to `false` the widget won't refresh automatically.
+The default is 1000 milliseconds (1 second). Setting the value to `false` disables automatic refresh.
 
 ### className
 
-An **object** or **string** defining the CSS rules to be applied to the root of your widget.
+An object or string that defines the CSS rules for the widget's root.
 
-It is most commonly used to control the position of your widget. It is converted to a CSS class name using the [Emotion CSS-in-JS library](https://emotion.sh/docs/css). Read more about [styling your widgets](#styling-widgets).
+This property usually controls the widget's position. The [Emotion CSS-in-JS library](https://emotion.sh/docs/css) converts the value to a CSS class name. Read more about [styling your widgets](#styling-widgets).
 
 ```tsx
 export const className = {
@@ -267,13 +256,13 @@ export const className = `
 `
 ```
 
-Note that widgets are positioned absolutely in relation to the screen (minus the menu bar), so a widget with `top: 0` and `left: 0` will be positioned in the top left corner of the screen, just below the menu bar.
+Widgets use absolute positioning relative to the screen (excluding the menu bar). Thus, a widget with `top: 0` and `left: 0` appears at the screen's top left, just below the menu bar.
 
 ### render : props
 
-A **function(props : object)** to render your widget.
+A function(props: object) that renders your widget.
 
-If you know [React functional components](https://react.dev/learn/your-first-component), you know how render works. The `props` passed to this function is whatever state your `updateState` function returns. If you don't provide your own `updateState` function, the default props that are passed are `output` and `error`, containing the output your command produced and any error that might have occurred.
+If you know [React functional components](https://react.dev/learn/your-first-component), this render function works the same way. Gailan passes `props` to this function. They contain the state returned by your `updateState` function. If you do not provide an `updateState` function, Gailan passes the default properties `output` and `error`. These properties contain the command output and any error that might have occurred.
 
 ```tsx
 export const render = ({output, error}) => {
@@ -288,13 +277,11 @@ export const render = ({output, error}) => {
 }
 ```
 
-The default implementation of render just returns `output`.
+The default render function returns `output`.
 
 ### Widget settings
 
-A widget can declare settings of its own in a `widget.json` beside it. Gailan turns
-each into a control in the Widgets window, saves what you choose, and hands the
-values to `render` as `props.settings`.
+A widget can declare its settings in the `widget.json` beside the widget. Gailan creates each setting's control in the Widgets window and saves the selected values. Gailan passes the values to `render` as `props.settings`.
 
 ```json
 {
@@ -336,7 +323,7 @@ export const render = ({output, settings = {}}) => (
 )
 ```
 
-Each type becomes one control:
+Each type uses one control:
 
 | type | control | extras |
 |---|---|---|
@@ -347,16 +334,11 @@ Each type becomes one control:
 | `text` | text field | |
 | `color` | color well with opacity | stored as `#rrggbbaa` |
 
-`choice` and `list` hold the same thing and differ only in the control. Segments read
-well for two or three short options and badly for more, where a menu is what somebody
-expects.
+`choice` and `list` use the same values and differ only in the control. Use segments for two or three short options and a menu for more.
 
-Every setting needs a `key` and a `type`. `label`, `help` and `default` are
-optional, though a `default` is worth setting: it is what the control shows before
-anything has been chosen.
+Every setting needs a `key` and a `type`. `label`, `help` and `default` are optional, but set a `default` because the control shows it before the user makes a selection.
 
-A setting can also say when it applies. `enabledWhen` names other settings and the
-values that make this one usable; the control stays visible and greys out otherwise.
+A setting can also specify when it applies. `enabledWhen` names the other settings and values that enable this setting. The control stays visible but is gray when disabled.
 
 ```json
 {
@@ -369,22 +351,15 @@ values that make this one usable; the control stays visible and greys out otherw
 }
 ```
 
-The clock uses exactly that: 12 or 24 hours says nothing about a dial, so it greys
-while the face is analog. A key can accept several values (`{"face": ["digital",
-"dots"]}`), and all the keys named have to be satisfied at once. Values are compared
-as text, so `true` and `82` match without being quoted. A condition naming a setting
-the widget never declares is ignored, so a typo leaves the control usable rather than
-stuck.
+The clock uses this condition. The 12 or 24 hour setting does not apply to a dial, so the control is gray when the face is analog. A key can accept several values (`{"face": ["digital",
+"dots"]}`), and every named key must match. Values are compared
+as text, so `true` and `82` match without quotes. A condition that names an undeclared setting is ignored, so a typo leaves the control usable instead of stuck.
 
-`title` is separate from the settings and is the name the Widgets window shows,
-falling back to the widget id.
+`title` sets the name shown in the Widgets window. It is separate from the settings and falls back to the widget id.
 
 ### Dependencies
 
-A widget can say what it needs on the machine. Gailan checks each entry when the
-widget loads and, where something is missing, blurs the widget and writes across it
-which dependencies are not installed. The widget's command still runs, so a widget
-that can do something useful without one of them still does it.
+A widget can declare its machine dependencies. Gailan checks each dependency when the widget loads. If any are missing, Gailan blurs the widget and displays the missing dependencies over it. The widget command still runs and can do work that does not need the missing dependency.
 
 ```json
 {
@@ -401,37 +376,26 @@ that can do something useful without one of them still does it.
 
 | type | what it checks |
 |---|---|
-| `command` | on `PATH`, by `command -v` |
-| `node` | resolvable, from the widget's own `node_modules` or wherever else node looks |
+| `command` | found on `PATH`, using `command -v` |
+| `node` | resolvable from the widget's own `node_modules` or another location that Node checks |
 | `python` | importable by `python3` |
-| `ruby` | requirable by `ruby` |
+| `ruby` | can be required by `ruby` |
 | `brew` | installed under brew's prefix |
-| `shell` | whatever `test` says; a zero exit means present |
+| `shell` | `test` reports the result. A zero exit code means present |
 
-`name` is what gets named in the message, `hint` is optional, and `test` applies to
-`shell` only. An entry without a usable type and a name is ignored.
+`name` appears in the message. `hint` is optional. `test` applies only to
+`shell` entries. Gailan ignores entries without a usable type and name.
 
-Where the interpreter itself is absent, the message names the interpreter rather than
-the package: a widget asking for a python module on a Mac with no `python3` reads
+If the interpreter is absent, the message names it instead of the package. A widget that requests a Python module on a Mac without `python3` shows
 `python3` in the list.
 
-Answers are cached for as long as the app runs and shared between widgets, so ten
-widgets naming `ffmpeg` cost one check. Refreshing a widget checks again, which is
-what to do after installing something.
+The app caches results while it runs and shares them between widgets. Thus, ten widgets that name `ffmpeg` require one check. Refreshing a widget repeats the check, so refresh it after installing something.
 
-What you choose is written to `settings.json` in the widget's own folder, so the
-settings travel with the widget: copy the folder to another Mac and it looks the
-same. That file is not a widget, so saving one does not trigger a rebuild. Edit it
-by hand if you prefer; it is read when the widget loads.
+The app writes your choices to `settings.json` in the widget's folder, so the settings travel with the widget. The widget looks the same after you copy its folder to another Mac. Saving this file does not trigger a rebuild because it is not a widget. You can edit the file by hand. The widget reads it when it loads.
 
-Beside it, `settings.default.json` holds what each setting falls back to. Gailan
-writes it the first time it sees the widget, taking the `default` from each entry in
-the manifest, and then leaves it alone, so anything you change in it survives. Where
-it names a setting it stands in for the manifest's default, which means you can
-change what a widget falls back to without editing the widget. **Reset to Defaults**
-in the settings sheet puts every setting back to what that file says.
+The adjacent `settings.default.json` stores each setting's fallback. Gailan creates it when it first sees the widget and uses the `default` from each manifest entry. Gailan then leaves the file unchanged, so your edits remain. A setting in this file replaces the manifest default. Thus, you can change a widget's fallback without editing the widget. Reset to Defaults in the settings sheet restores each setting to this file's value.
 
-Widgets in their own folder are the tidy way to do this:
+Use a separate folder for each widget:
 
 ```
 ~/Library/Application Support/Gailan/widgets/
@@ -445,9 +409,9 @@ Widgets in their own folder are the tidy way to do this:
 
 ### updateState : event, previousState
 
-A **function(event : object, previousState : object)** implementing the state update behavior of this widget.
+A function(event: object, previousState: object) updates the widget state.
 
-When provided, this function must return the next state, which will be passed as `props` to your render function. The default function will return `output` and `error` from the event object.
+If you provide this function, it must return the next state. The render function receives this state as `props` when it runs. By default, the updateState function returns `output` and `error` from the event object.
 
 ```tsx
 export const updateState = (event, previousState) => {
@@ -461,9 +425,9 @@ export const updateState = (event, previousState) => {
   };
 }
 ```
-This will pass a props object containing `cpuPct` and `processName` to the render function. If an error occurred, it will pass the previous state plus a warning message.
+The example passes a props object with `cpuPct` and `processName` to the render function. If an error occurs, the example passes the previous state with a warning message.
 
-If your widget has more complex state logic, for example because it is fetching data from several different sources, it is a good idea to add a `type` property to your events. You can use this type to decide how to update your state. For example:
+For more complex state logic, such as fetching data from several sources, add a `type` property to your events. Use its value to select how to update the state. For example:
 
 ```tsx
 export const updateState = (event, previousState) => {
@@ -477,13 +441,13 @@ export const updateState = (event, previousState) => {
 }
 ```
 
-This example also shows that you can make use of functions to further break down your state update logic.
+The example separates each state update into a function.
 
 ### initialState
 
-An **object** with the initial state of your widget.
+This object contains the widget's initial state.
 
-If you provide a custom `updateState` function you might need to define the initial state that gets passed on the initial render of the widget, before any command has been run.
+If you provide a custom `updateState` function, you might need to define the widget state before its first render, which occurs before any command runs.
 
 ```tsx
 export const initialState = { output: 'fetching data...' };
@@ -493,7 +457,7 @@ The default initial state is `{ output: '' }`.
 
 ### init : dispatch
 
-A **function(dispatch : function)** that is called the first time your widget loads. Many widgets won't need this, but you can use this function to perform any initial setup for more advanced use cases. For example, instead of relying on periodic shell commands, you might want to open and listen to WebSocket events to update your widget.
+The init function takes a dispatch function and runs when the widget first loads. Many widgets do not need it. Use it for initial setup, such as opening a WebSocket to listen for events instead of periodically running shell commands.
 
 ```tsx
 export const init = (dispatch) => {
@@ -507,10 +471,10 @@ export const init = (dispatch) => {
 
 ## Styling widgets
 
-Gailan comes bundled with [Emotion](https://emotion.sh) (version 11). It exposes its `css` and `styled` functions via the `gailan` module, which also carries
-`run`, `request` (superagent) and `React`.
+Gailan includes [Emotion](https://emotion.sh) (version 11). Gailan exposes Emotion's `css` and `styled` functions through the `gailan` module. It also provides
+`run`, `request` (superagent), and `React`.
 
-As described above, you can use `className` to style and position the root node of your widget. For further styling you can do something like this:
+Use `className` to style and position the widget's root node. For other elements, use this pattern:
 
 ```tsx
 import { css } from "gailan"
@@ -557,7 +521,7 @@ export const render = ({ colors }) => {
 }
 ```
 
-Alternatively, you can also make use of Emotion's styled components:
+You can also use Emotion's styled components:
 
 ```tsx
 import { styled } from "gailan"
@@ -603,13 +567,13 @@ export const render = ({ colors }) => {
 }
 ```
 
-Finally, since you can also install and import any module you like, you can use your favorite styling library instead.
+You can install and import another styling library instead.
 
 ### Light and dark
 
-Preferences has an appearance setting (System, Light or Dark). Widgets see the result two
-ways: the standard `prefers-color-scheme` media query, and a `data-appearance` attribute
-on the root element, which is often easier to nest inside a styled component:
+Preferences offers a System, Light, or Dark appearance setting. Widgets read the selected setting in two
+ways: the standard `prefers-color-scheme` media query and the `data-appearance` attribute
+on the root element. The attribute is often easier to nest in a styled component:
 
 ```tsx
 export const className = `
@@ -621,15 +585,14 @@ export const className = `
 `
 ```
 
-Both follow Gailan's setting rather than the system's, so choosing Dark while macOS is in
+Both follow Gailan's setting, not the system setting. Choosing Dark while macOS uses
 Light mode gives widgets dark styling.
 
 ### Liquid Glass
 
-macOS draws the glass, so a widget marks the area it wants and the system frosts the
-wallpaper there. A page cannot reach what is behind its own window, which is why this is
-the app's job rather than CSS: the web view is transparent and composited over the desktop
-by the window server, and `backdrop-filter` only ever sees other page content.
+macOS draws the glass. A widget marks the target area, and macOS frosts the
+wallpaper behind it. CSS cannot access content behind its own window. The app draws the glass because
+the window server composites the transparent web view over the desktop. `backdrop-filter` only sees other page content.
 
 ```tsx
 export const render = ({output}) => (
@@ -639,18 +602,16 @@ export const render = ({output}) => (
 )
 ```
 
-`DesktopGlass` from the `gailan` module does the same thing if you prefer a component.
-Give the element an `id` and the same glass follows it as the widget re-renders.
+`DesktopGlass` from the `gailan` module provides the same behavior through a component.
+Give the element an `id` and the app moves the glass with the element when the widget renders again.
 
-Keep the widget's own background thin, or it covers the glass it asked for. The starter
-widget uses about 40% opacity, which reads the frost through it while keeping text
-legible.
+Keep the widget's background thin, or it covers the glass. The starter
+widget uses about 40% opacity, which keeps the text legible while showing the frost.
 
-A widget cannot tell whether it got any glass: the app draws it underneath the web view,
-and a page cannot see behind its own window. So the app says, in a `data-desktop-glass`
-attribute on the root element reading `on` or `off`. Widgets that thin their background
-for frost should carry themselves without it, or they read as washed out over a bare
-wallpaper rather than deliberate:
+The app draws the glass under the web view, where the page cannot detect it. The app reports the state through a `data-desktop-glass`
+attribute on the root element. Its value is `on` or `off`. Widgets that use a thin background
+for frost should also work without it. Otherwise, they look washed out over a plain
+wallpaper:
 
 ```tsx
 export const className = `
@@ -662,59 +623,43 @@ export const className = `
 `
 ```
 
-The bundled widgets all do this. It follows the setting rather than the system, so it says
-`off` on macOS 26 with Liquid Glass switched off exactly as it does on an older system with
-the frost switched off.
+All bundled widgets do this. The value follows the setting, not the system. Thus, it reads
+`off` on macOS 26 when the user switches off the effect. It reports the same value on older systems when frost is off.
 
-Preferences carries what macOS actually exposes. `Liquid Glass` turns it on or off, and it is on
-by default. On macOS 26 and later there is also a `Style` and
-an `Opacity`.
+Preferences includes the macOS controls. `Liquid Glass` controls whether the effect is active. It is on by default. On macOS 26 and later, Preferences also includes `Style` and
+`Opacity`.
 
-Before macOS 26 there is no Liquid Glass to draw, so the wallpaper is frosted with the
-vibrancy material AppKit has had for years. That lives under **Appearance** as `Frost
-Effect`, with the same on and off and the same opacity. There is one frost and no
-choice of how much: the lighter and heavier materials AppKit offers cannot be told apart
-over a wallpaper, under a widget's own background. How much is hidden is the material's to
-decide, since AppKit offers no blur radius to set.
+Before macOS 26, the system uses AppKit's vibrancy material. The control
+appears under Appearance as `Frost
+Effect`, with the same on/off state and opacity. Users cannot set the amount of frost. AppKit's lighter and heavier materials look the same over a wallpaper
+under the widget's background. AppKit selects the amount because it does not expose a blur radius.
 
-There is no tint setting. The tint is the wallpaper's own color, taken from the picture
-macOS is showing, and each display resolves its own since a Mac can show a different
-wallpaper on each one. It changes when the wallpaper does. Where macOS has been asked to
-tint window backgrounds less, which is the `Tint window background with wallpaper color`
-setting, Gailan leaves the glass untinted for the same reason.
+There is no tint color setting. The tint comes from the current wallpaper and changes with it. Each display
+resolves its own tint because a Mac can show a different wallpaper on each display. If macOS reduces window background tinting through the `Tint window background with wallpaper color`
+setting, Gailan also leaves the glass untinted.
 
-`Style` is `Follow system` by default, which reads the **Liquid Glass** setting in System
-Settings, Appearance, and matches it, so glass on the desktop agrees with the glass
-everywhere else. That setting arrived in macOS 26.1 with two choices, `Clear` and `Tinted`,
-and Gailan offers the same two plus following. Nothing in AppKit answers for it, so the
-value is read from `NSGlassDiffusionSetting`, where 0 is Clear and 1 is Tinted; absent
-means Clear, which is both the macOS default and how every system before 26.1 looks.
-Changing that setting takes effect as you change it: System Settings writes it from its own
-process and AppKit announces nothing, so Gailan watches the value itself. The other two
-hold what they say whatever the system does. `Clear` is glass with no tint, and `Tinted` is
-glass carrying the wallpaper's color, which is the difference between the two choices macOS
-offers.
+`Style` is `Follow system` by default. This option reads the Liquid Glass setting under System
+Settings, Appearance. Thus, desktop glass matches glass elsewhere. macOS 26.1 added that setting with two options, `Clear` and `Tinted`,
+and Gailan offers both and an option that follows the system. AppKit does not expose this setting, so Gailan
+reads the value from `NSGlassDiffusionSetting`. A value of 0 selects Clear, and 1 selects Tinted. If the value is
+absent, Gailan uses Clear. This matches the macOS default and the behavior on all systems before 26.1.
+Changes take effect when the user makes them. System Settings writes the value from another
+process, but AppKit does not announce changes. Thus, Gailan watches the value. The other two
+options ignore system changes. `Clear` uses glass without tint, and `Tinted` uses glass tinted with the wallpaper color.
 
-`Opacity` is a solid surface drawn over the glass, so it reads the same whether or not
-Gailan is the frontmost app. macOS draws Liquid Glass one way for the frontmost app and
-another for everybody else, and the difference cannot be turned off. Thinning the glass
-itself meant the setting also decided how much of that difference showed: full strength
-read as glass while Gailan was clicked and as a slab the rest of the time, and thinned it
-lost the refraction the setting was meant to be adjusting. With a surface over the top,
-full opacity covers the glass so both states are the same solid color, and low opacity
-leaves the glass fully drawn so both states are nearly the same glass. It defaults to 10%
-with `Clear`, which is the subtle style and wants almost no surface, and 82% with `Tinted`,
-which already carries the wallpaper's color. It stops at 10% rather than reaching nothing.
+`Opacity` adds a solid surface over the glass. Thus, Gailan looks the same whether it is frontmost or not. macOS draws Liquid Glass differently for the frontmost app, and this cannot be disabled. When the setting adjusted the glass itself, it also changed the visibility of this difference. At full strength, Gailan looked like glass when frontmost and like a slab otherwise. Thinning the glass removed the refraction that the setting was meant to adjust. The surface fixes both cases. Full opacity covers the glass, so both states have the same solid color. Low opacity leaves the glass fully drawn, so the states look nearly the same. It defaults to 10%
+with `Clear`, a subtle style that needs almost no surface, and 82% with `Tinted`,
+which already carries the wallpaper color. The minimum is 10%, not zero.
 
-Before macOS 26 the setting is the frost view's own alpha, since `NSVisualEffectView` can
-be told to keep its active appearance whatever the app is doing, so there is no difference
-between the two states to reconcile.
+Before macOS 26, the setting controls the frost view's alpha because `NSVisualEffectView` can
+be configured to keep its active appearance regardless of the app's state. Thus, both states look
+the same.
 
 ## Running shell commands
 
-If you need to run extra shell commands without using the [command](#command) property, you can import the `run` function from the `gailan` module.
+To run extra shell commands without the [command](#command) property, import the `run` function from the `gailan` module.
 
-It returns a Promise, which will resolve to the output of the command (stdout) or reject if an error occurred.
+The function returns a Promise that resolves with the command's stdout and rejects if an error occurs.
 
 ```tsx
 import { run } from 'gailan'
@@ -732,15 +677,13 @@ export const render = (props, dispatch) => {
   );
 }
 ```
-> Note that in order to receive click events, you need to configure an interaction shortcut and give Gailan accessibility access.
+> Note: To receive click events, configure an interaction shortcut and give Gailan accessibility access.
 
 ## Geolocation API
 
-`navigator.geolocation`, the standard browser API, cannot be used from a widget: a
-`WKWebView` hosted in an app has no way to prompt for location, so the standard API is
-present but never returns a position. Gailan therefore asks macOS for the location
-itself and hands it to widgets through `window.geolocation`, which mirrors the standard
-API as closely as it can. It covers the basics:
+`navigator.geolocation`, the standard browser API, does not work in a widget because a
+`WKWebView` hosted in an app cannot prompt for location. Thus, the API exists but never returns a position. Gailan asks macOS for the location and gives it to widgets through `window.geolocation`, which matches the standard
+API as closely as possible. It supports these basic methods:
 
 ```js
 geolocation.getCurrentPosition(callback)
@@ -754,9 +697,9 @@ geolocation.watchPosition(callback)
 geolocation.clearWatch(watchId)
 ```
 
-Check the [documentation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation) for details on how to use these methods. The main differences from the standard API are that none of them accept options (position accuracy is always set to the highest) and that error reporting has not been implemented yet.
+See the [documentation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation) for details. These methods do not accept options. Gailan always uses the highest position accuracy. Gailan does not report errors yet.
 
-In addition to the standard `Position` object, Gailan provides an extra `address` property with the following fields:
+In addition to the standard `Position` object, Gailan adds an `address` property with these fields:
 
   - Street
   - City
@@ -768,10 +711,9 @@ In addition to the standard `Position` object, Gailan provides an extra `address
 
 ## Built-in proxy server
 
-A widget is served from `http://127.0.0.1:41416`, so fetching anything else is a
-cross-origin request that the other end has to agree to. Most of the web does not,
-which is what the proxy is for. It listens on the port after the widget server's,
-`http://127.0.0.1:41417`, and the address you want follows the slash:
+A widget is served from `http://127.0.0.1:41416`, so all other fetches are cross-origin requests that the destination must allow. Most websites do not allow them,
+so the proxy handles them. The proxy listens on the port after the widget server,
+`http://127.0.0.1:41417`, and the destination address follows the slash:
 
 ```tsx
 export const command = async (dispatch) => {
@@ -781,82 +723,71 @@ export const command = async (dispatch) => {
 };
 ```
 
-`http` is assumed if you leave the scheme off. Anything else, `file:` or `data:`
-among them, is refused rather than read as a hostname.
+`http` is the default if you omit the scheme. The proxy rejects anything else, including `file:` or `data:`,
+instead of reading it as a hostname.
 
-It answers only for the widget page's own origin, which is the boundary that
-matters: another site can reach your loopback interface through your browser, but
-the browser sets `Origin`, so it cannot claim to be a widget. Cookies are stripped
-in both directions, redirects are followed with each hop checked as if it had been
-asked for directly, and link-local addresses are refused, since that is where a
-machine's metadata service lives. Your own network stays reachable, so a widget can
-read a router page or a NAS.
+The proxy responds only to requests from the widget page's origin. Another website can reach your loopback interface through the browser. However, the browser sets `Origin`, so another website cannot claim to be a widget. The proxy strips cookies from requests and responses. It follows redirects and checks each hop as a direct request. It refuses link-local addresses because a machine's metadata service uses them. Your local network remains reachable, so a widget can read a router page or NAS.
 
-Übersicht used [cors-anywhere](https://github.com/Rob--W/cors-anywhere) here. It is
-unmaintained and carries an advisory in every published version, so Gailan does this
-itself.
+Übersicht used [cors-anywhere](https://github.com/Rob--W/cors-anywhere) here. The project is unmaintained, and every published version has an advisory. Thus, Gailan implements the proxy itself.
 
 ## Shortcuts and Siri
 
-Gailan publishes ten actions to the Shortcuts app. Each one that takes a widget offers a
-picker listing what is actually on your desktop, so you choose a widget by name rather
-than typing an id.
+Gailan provides ten actions to the Shortcuts app. Actions that target one widget show a picker of the widgets on your desktop. Thus, you select a widget by name instead of typing its ID.
 
 | Action | What it does |
 |---|---|
 | Refresh Widget | Runs the widget's command again |
-| Refresh All Widgets | The same, for every widget |
-| Reload Widget | Rebuilds it from its file, for when you have changed it |
+| Refresh All Widgets | Runs every widget's command again |
+| Reload Widget | Rebuilds it from its file after you change it |
 | Show or Hide Widget | Hides one without deleting it |
-| Set Widget Layer | Behind your windows, or in front of them |
-| Choose Widget Screens | The main screen only, or every screen |
-| Change Widget Setting | Sets one of the widget's own settings by key |
-| Open Widget File | Opens it in whatever editor you use |
-| Keep Widgets in Front | Every widget above your other windows, or not |
-| Set Widget Appearance | Light, dark, or however the system is set |
+| Set Widget Layer | Places it behind or in front of your windows |
+| Choose Widget Screens | Uses the main screen or every screen |
+| Change Widget Setting | Sets one of the widget's settings by key |
+| Open Widget File | Opens it in your editor |
+| Keep Widgets in Front | Chooses whether every widget stays above your other windows |
+| Set Widget Appearance | Uses light, dark, or the system setting |
 
-`Change Widget Setting` takes the value as text, because a shortcut has no way of knowing
-what a given key expects. `true`, `yes` and `on` arrive as a boolean, as do their
-opposites, anything that parses as a number arrives as one, and everything else is passed
-through as it stands. The key is whatever the widget named in its `widget.json`.
+`Change Widget Setting` accepts the value as text because Shortcuts cannot know
+what each key expects. `true`, `yes` and `on` become booleans. Their opposites also become booleans. Values that parse as numbers become numbers. Gailan leaves every other value
+unchanged. The key is the name defined in the widget's `widget.json`.
 
-Siri answers "refresh Gailan widgets" without any setting up, and the rest appear in
-Spotlight once the app has run.
+Siri responds to "refresh Gailan widgets" without setup. The other actions appear in
+Spotlight after Gailan runs.
 
 ## Scripting support
 
-Gailan supports AppleScript. To get detailed information on what you can script, open the Script Editor and add Gailan to the Library (use Window -> Library to show). Here are a few examples of what you can do with AppleScript. (Note that the examples all use the application id instead of the app name):
+Gailan supports AppleScript. To see available commands, open Script Editor. Select Window > Library to display the Library, then add Gailan. These examples use the application ID instead of the app name:
 
     tell application id "com.kevster.Gailan" to refresh
 
-refreshes all widgets.
+Refreshes all widgets.
 
     tell application id "com.kevster.Gailan" to refresh widget id "my-widget"
 
-refreshes the widget with id "my-widget".
+Refreshes the widget with ID "my-widget".
 
     tell application id "com.kevster.Gailan" to every widget
 
-lists all widgets.
+Lists all widgets.
 
     tell application id "com.kevster.Gailan" to set hidden of widget id "top-cpu-js" to false
 
-shows the widget with id "top-cpu-js"
+Shows the widget with ID "top-cpu-js".
 
 
 ## Building Gailan
 
-To build Gailan you need Node.js and a few dependencies:
+To build Gailan, install Node.js and the server's dependencies:
 
-### setup
+### Setup
 
-Gailan bundles Node 24 into the app, and the server code expects it, so build with Node 24:
+Gailan's server requires Node 24, which the app bundles. Build with Node 24:
 
 ```
 brew install node@24
 ```
 
-Or `nvm install 24`. Then:
+Or `nvm install 24`. Then install the dependencies:
 
 ```
 cd server && npm install
@@ -864,43 +795,41 @@ cd server && npm install
 
 ### the bundled Node runtime
 
-The `node` binaries that ship inside `Gailan.app` are not checked into git, because a single darwin
-build is around 145MB, which is over GitHub's 100MB file limit. `scripts/fetch-node.sh`
-downloads them, verifies them against the SHA256 sums published by the Node project, and
-drops them in `server/release/`:
+The `node` binaries bundled in `Gailan.app` are not checked into Git because one Darwin build is around 145 MB, above GitHub's 100 MB file limit. `scripts/fetch-node.sh`
+downloads the binaries, verifies them against the SHA256 sums published by the Node.js project, and
+places them in `server/release/`:
 
 ```
 ./scripts/fetch-node.sh
 ```
 
-`npm run release` (and therefore an Xcode build) calls it for you. To move to a newer Node,
-change `NODE_VERSION` and the two checksums at the top of that script.
+`npm run release` runs the script for you. Xcode builds do the same. To use a newer Node version,
+change `NODE_VERSION` and the two checksums at the top of the script.
 
-### building
+### Building
 
-The codebase consists of two parts: a Cocoa app, and a Node.js app inside `server/`. To build the Node app separately, use `npm run release`. This happens automatically every time you build with Xcode.
+The codebase contains a Cocoa app and a Node.js app in `server/`. Build the Node.js app separately with `npm run release`. Xcode runs this command during every build.
 
-The Node app can be run standalone using
+Run the Node.js app separately with:
 
 ```
 cd server && node server.ts -d <path/to/widget/dir> -p <port>
 ```
 
-`-s` points at a settings directory and `--login-shell` runs widget commands through a
-login shell. `npm start` does the same with the defaults.
+`-s` specifies a settings directory, and `--login-shell` runs widget commands in a login shell. `npm start` runs the server with the default settings.
 
 # Building in Xcode
 
-The first time you open the project in Xcode, you might see this message when trying to build: "The run destination My Mac is not valid for Running the scheme 'Gailan'."
+When you first open the project, Xcode might show this build message: "The run destination My Mac is not valid for Running the scheme 'Gailan'."
 
-Click on `Gailan` in the project navigator and then select the menu `Editor > Validate Settings...` and click `Perform Changes`.
+Select `Gailan` in the project navigator. Select `Editor > Validate Settings...` and click `Perform Changes`.
 
-You can then attempt to build. If you are presented with code signing issues, click `Fix Issue` to continue.
+Build the project again. If Xcode reports code signing issues, click `Fix Issue` to continue.
 
-Now you need to remove the code signing shell script: select the `Gailan` target and, under `Build Phases`, empty out the phase called `Run Script`.
+Remove the code signing shell script. Select the `Gailan` target. Under `Build Phases`, empty out the phase named `Run Script`.
 
-You should now be able to build successfully. Nothing extra is needed to let the app talk
-to its own server over http: `NSAllowsArbitraryLoads` is already set in `Gailan-Info.plist`.
+The project should now build. The app needs no extra configuration to communicate with its own
+server over HTTP because `NSAllowsArbitraryLoads` is already configured in `Gailan-Info.plist`.
 
 # Legal
 
@@ -910,15 +839,13 @@ The source is released under the GNU General Public License as published by the 
 
 © 2026 Kevin Chen. Based on Übersicht, © 2019 Felix Hageloh.
 
-The app icon, menu bar icon and wordmark are built from the *window-dock* and *eyeglasses*
-icons of [Bootstrap Icons](https://github.com/twbs/icons), © 2019–2024 The Bootstrap Authors,
+The app icon, menu bar icon, and wordmark use the window-dock and eyeglasses
+icons from [Bootstrap Icons](https://github.com/twbs/icons), © 2019-2024 The Bootstrap Authors,
 [MIT licensed](licenses/bootstrap-icons.txt).
 
 ## Third-party assets
 
-The starter widget sets the Gailan name in [DotGothic16](https://github.com/fontworks-fonts/DotGothic16),
-the same typeface the website uses, so the name reads the same in both places. The app
-ships a 2KB subset holding only the letters of the name, rather than the 2MB full face
-with its Japanese coverage, and copies it beside the widget so the desktop never waits
-on the network to draw a word. It is used under the SIL Open Font License, which is in
-the app bundle as `gailan-wordmark-OFL.txt`.
+The starter widget renders the Gailan name in [DotGothic16](https://github.com/fontworks-fonts/DotGothic16), which the website also uses. The app ships a 2 KB subset with only the letters in the
+name instead of the full 2 MB font with Japanese coverage. It copies the subset beside
+the widget, so the desktop never waits on the network to draw the word. The app uses the
+font under the SIL Open Font License and includes the license in the app bundle as `gailan-wordmark-OFL.txt`.
