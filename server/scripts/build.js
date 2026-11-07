@@ -21,7 +21,7 @@ const root = path.join(__dirname, '..');
 
 // the oldest webkit we support, which is what macOS 13.5 ships
 const BROWSER_TARGET = 'safari16.6';
-const NODE_TARGET = 'node24';
+const NODE_TARGET = 'node26';
 
 async function buildClient() {
   const result = await esbuild.build({

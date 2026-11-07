@@ -58,12 +58,13 @@ Gailan is a separate application, not an in-place or backward-compatible Übersi
 has its own name, bundle ID, and support directory, so it installs beside Übersicht.
 Übersicht's updater will never offer Gailan, but widget code carries over because the widget API is
 the same. Settings and the widgets folder do not carry over, so you must move them by hand. Gailan
-also upgrades bundled Node from 16 to 24. Rebuild widgets if their commands depend on old Node
+also upgrades bundled Node from 16 to 26. Rebuild widgets if their commands depend on old Node
 behavior or include native modules built for Node 16. Upstream breaking changes: Node
 [18](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V18.md),
 [20](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V20.md),
 [22](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V22.md),
 [24](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V24.md),
+[26](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V26.md),
 [React 19](https://react.dev/blog/2024/04/25/react-19-upgrade-guide),
 [CoffeeScript 2](https://coffeescript.org/#breaking-changes),
 [Emotion 11](https://emotion.sh/docs/emotion-11),
@@ -111,7 +112,7 @@ The specifics:
   - Gailan requires macOS 13.5 or later because the bundled Node runtime and system APIs
     need it. The app does not launch on older versions
 
-Gailan uses Node 24, the current LTS. Git no longer stores the Node runtime. See [Building Gailan](#building-gailan).
+Gailan uses Node 26, the current LTS. Git no longer stores the Node runtime. See [Building Gailan](#building-gailan).
 
 ### Dependency versions
 
@@ -119,7 +120,7 @@ Compared with Übersicht 1.6.82, the latest release when Gailan was forked:
 
 | | Übersicht | Gailan |
 |---|---|---|
-| bundled Node | 16.1.0 | 24.20.0 |
+| bundled Node | 16.1.0 | 26.13.0 |
 | minimum macOS | 10.11 (Podfile), 12.0 (target) | 13.5 |
 | React | 16.13 | 19.2 |
 | CoffeeScript | `coffee-script` 1.12 for widgets and the server | removed, and the server uses TypeScript |
@@ -168,7 +169,7 @@ Gailan offers to quit Übersicht when it starts.
   - bash-specific command syntax may need changes. You can also change the shell in
     Preferences. Gailan uses zsh by default, while Übersicht used bash.
     Plain POSIX commands behave the same in both.
-  - Rebuild native modules bundled inside a widget against Node 24.
+  - Rebuild native modules bundled inside a widget against Node 26.
   - Review widget commands that depend on old Node behavior. See the
     breaking changes linked above.
 
@@ -781,13 +782,13 @@ To build Gailan, install Node.js and the server's dependencies:
 
 ### Setup
 
-Gailan's server requires Node 24, which the app bundles. Build with Node 24:
+Gailan's server requires Node 26, which the app bundles. Build with Node 26:
 
 ```
-brew install node@24
+brew install node@26
 ```
 
-Or `nvm install 24`. Then install the dependencies:
+Or `nvm install 26`. Then install the dependencies:
 
 ```
 cd server && npm install

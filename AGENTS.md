@@ -53,7 +53,7 @@ Xcode drives everything: the "Compile JS" build phase runs `npm run release` in
 The bundled node binaries are not in git (~145MB each, over GitHub's file limit).
 `scripts/fetch-node.sh` downloads them and checks them against the SHA256 sums
 published by the Node project. To move versions, edit `NODE_VERSION` and both
-checksums at the top of that script. Node 24 needs macOS 13.5, which is also the
+checksums at the top of that script. Node 26 needs macOS 13.5, which is also the
 project's deployment target, so keep the two in step.
 
 `scripts/build-icons.js` regenerates the app icon, status icon and wordmark from the
@@ -218,7 +218,7 @@ User defaults (registered in `GLPreferencesController`): `shell` (`zsh` default,
 via `prefers-color-scheme`), `loginShell`, `enableInteraction`, `widgetDirectory`. The
 shell reaches the node server as `--shell`; changing it restarts the server. fish gets
 commands via `-c` because it cannot read them from the stdin pipe node hands it; zsh and
-bash keep the stdin protocol. The deployment target is 13.5 (Node 24 requires it, so does
+bash keep the stdin protocol. The deployment target is 13.5 (Node 26 requires it, so does
 SMAppService), and `LSMinimumSystemVersion` enforces it at launch. Posting a widget-error
 notification uses UserNotifications, which asks the user for authorization once.
 
@@ -304,7 +304,7 @@ what matches:
   - `tracesOf.Uebersicht` in an AppleScript call becomes `com.kevster.Gailan`.
   - bash-only syntax in `command` (`shopt`, `[[ -o ...]]` idioms differing from zsh, bash
     arrays) either gets rewritten for zsh or the user switches the shell in Preferences.
-  - a vendored native module gets rebuilt against Node 24.
+  - a vendored native module gets rebuilt against Node 26.
   - `.jsx` still works, so do not convert a widget to `.tsx` unless asked; if converting,
     remember types are stripped and never checked, so a type error will not fail a build.
 

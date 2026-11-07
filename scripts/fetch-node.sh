@@ -5,11 +5,11 @@
 
 set -euo pipefail
 
-NODE_VERSION="24.20.0"
+NODE_VERSION="26.13.0"
 
 # from https://nodejs.org/dist/v${NODE_VERSION}/SHASUMS256.txt
-SHA256_X64="9e5b2644cf107befb6aefca676b96d3296bc10138096f022ed378d6233ed81f4"
-SHA256_ARM64="40e5607e5ecb3db9192723776da2d75d966260fc74a7a9e731c1bd67dda96bc8"
+SHA256_X64="525c9b29bb0263d687de60a4cec0e2a6db876a8eb032369e5795eca71e7c358e"
+SHA256_ARM64="d38bd5e5a2ddce6bbb5ce45e46e208337da4d51fffe611e567fd32073d6439f6"
 
 DEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/server/release"
 BASE_URL="https://nodejs.org/dist/v${NODE_VERSION}"
