@@ -26,6 +26,7 @@ final class GLPreferences: ObservableObject {
     @Published var appearanceTag: Int { didSet { controller.appearanceTag = appearanceTag } }
     @Published var shellTag: Int { didSet { controller.shellTag = shellTag } }
     @Published var loginShell: Bool { didSet { controller.loginShell = loginShell } }
+    @Published var useSystemNode: Bool { didSet { controller.useSystemNode = useSystemNode } }
     /* There is one frost, so this is on or off. The material list still holds the
        lighter and heavier ones, and a value set by hand is honoured, but they are not
        offered: over a wallpaper, and under a widget's own background, they could not be
@@ -56,6 +57,7 @@ final class GLPreferences: ObservableObject {
         appearanceTag = controller.appearanceTag
         shellTag = controller.shellTag
         loginShell = controller.loginShell
+        useSystemNode = controller.useSystemNode
         desktopGlassOn = controller.desktopGlassTag != 0
         desktopGlassStyleTag = controller.desktopGlassStyleTag
         desktopGlassOpacity = controller.desktopGlassOpacity * 100
@@ -195,7 +197,7 @@ struct GLPreferencesView: View {
         }
     }
 
-    private var shell: some View {
+    @ViewBuilder private var shell: some View {
         Section {
             Picker("Shell", selection: $prefs.shellTag) {
                 Text("zsh").tag(0)
@@ -204,6 +206,14 @@ struct GLPreferencesView: View {
             Toggle("Load shell env", isOn: $prefs.loginShell)
         } footer: {
             Text("Loading your shell's env keeps your locale and PATH. A misconfigured shell can stop widgets working.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+
+        Section {
+            Toggle("Use the system's Node.js when it is new enough", isOn: $prefs.useSystemNode)
+        } footer: {
+            Text("Gailan looks for node through your shell's login env. It must be an even release no older than the bundled one, otherwise the bundled Node.js runs.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }

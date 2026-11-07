@@ -114,6 +114,27 @@ The specifics:
 
 Gailan uses Node 26, the current LTS. Git no longer stores the Node runtime. See [Building Gailan](#building-gailan).
 
+### Running on the system's Node.js
+
+Preferences, Shell, has "Use the system's Node.js when it is new enough" (the
+`useSystemNode` user default). It is on by default; turn it off to always run the bundled
+Node. When it is on, each server start
+looks for `node` through a login shell of the configured shell, so a node installed by
+brew, nvm or volta is found when that shell's login env puts it on PATH. zsh reads
+`.zprofile` for a login shell but not `.zshrc`, so nvm set up only in `.zshrc` is not seen.
+
+Gailan accepts the system node only if its major version is even and at least the bundled
+major, and on the same major only if it is at least the bundled version. With 26.13.0
+bundled, 26.13.0, 26.14.0 and 28.0.0 are accepted, and 26.12.0, 24.x and 27.x are not. Odd
+majors never become LTS. The bundled version is the floor because the server runs its
+TypeScript directly through Node's type stripping and its bundles are built for Node 26, so
+an older Node may lack features the code relies on.
+
+In every other case, including no node found, a probe that fails or takes longer than
+3 seconds, or a refused version, Gailan uses the bundled runtime. Each start logs a
+`node runtime:` line to the system log saying which Node it chose and, on fallback, why.
+The bundled binaries still ship in the app either way.
+
 ### Dependency versions
 
 Compared with Übersicht 1.6.82, the latest release when Gailan was forked:
@@ -817,7 +838,9 @@ places them in `server/release/`:
 ```
 
 `npm run release` runs the script for you. Xcode builds do the same. To use a newer Node version,
-change `NODE_VERSION` and the two checksums at the top of the script.
+change `NODE_VERSION` and the two checksums at the top of the script. The script also writes
+`server/release/node-version`, which the app reads as the bundled version when deciding whether
+a system Node.js is new enough.
 
 ### Building
 

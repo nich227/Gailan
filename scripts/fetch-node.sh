@@ -67,3 +67,7 @@ fetch_arch() {
 
 fetch_arch x64 "$SHA256_X64"
 fetch_arch arm64 "$SHA256_ARM64"
+
+# what the app compares a system node against when useSystemNode is on, written on a
+# skip too so it always names the binaries that are actually there
+printf '%s\n' "$NODE_VERSION" > "${DEST_DIR}/node-version"

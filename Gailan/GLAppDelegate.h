@@ -49,6 +49,7 @@
 - (void)reloadWidget:(NSString*)widgetId;
 - (void)loginShellDidChange;
 - (void)shellDidChange;
+- (void)useSystemNodeDidChange;
 - (void)alwaysOnTopDidChange;
 - (void)desktopGlassDidChange;
 

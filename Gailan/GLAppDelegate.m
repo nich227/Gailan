@@ -20,6 +20,7 @@
 #import "GLWidgetsStore.h"
 #import "GLWebSocket.h"
 #import "GLWindowsController.h"
+#import "GLNodeRuntime.h"
 
 int const PORT = 41416;
 
@@ -544,7 +545,7 @@ static NSString* GLStatusItemPositionKey(void)
                        onExit:(void (^)(NSTask*))exitHandler
 {
     NSBundle* bundle     = [NSBundle mainBundle];
-    NSString* nodePath   = [bundle pathForResource:@"localnode" ofType:nil];
+    NSString* nodePath   = [GLNodeRuntime executablePath];
     NSString* serverPath = [bundle pathForResource:@"server" ofType:@"js"];
     BOOL loginShell = [[NSUserDefaults standardUserDefaults]
         boolForKey:@"loginShell"
@@ -656,6 +657,11 @@ static NSString* GLStatusItemPositionKey(void)
 }
 
 - (void)shellDidChange
+{
+    [self shutdown:true];
+}
+
+- (void)useSystemNodeDidChange
 {
     [self shutdown:true];
 }

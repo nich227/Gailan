@@ -66,6 +66,9 @@
 		DCCBDB992524638400FFAAE1 /* GLWindowsController.m in Sources */ = {isa = PBXBuildFile; fileRef = DCCBDB982524638400FFAAE1 /* GLWindowsController.m */; };
 		DCE7E3C11A376AD400A12516 /* GLLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = DCE7E3C01A376AD400A12516 /* GLLocation.m */; };
 		DCECA1C71893F23200C0CA32 /* localnode in Resources */ = {isa = PBXBuildFile; fileRef = DCECA1C51893F23200C0CA32 /* localnode */; };
+		ACD000B5E81FEC7A594C34D7 /* node-version in Resources */ = {isa = PBXBuildFile; fileRef = A722BCBE08BA666CA2C8C65A /* node-version */; };
+		2638FD0587FDD2DB18D98ACB /* GLNodeRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = ACE884851197C2879FA14161 /* GLNodeRuntime.m */; };
+		76FE224649B7B724AC0239D7 /* GLNodeRuntimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 62E716E6A009927EEBD3049C /* GLNodeRuntimeTests.m */; };
 		DCECA1C81893F23200C0CA32 /* server.js in Resources */ = {isa = PBXBuildFile; fileRef = DCECA1C61893F23200C0CA32 /* server.js */; };
 		DCECA1CA1893F4EF00C0CA32 /* public in Resources */ = {isa = PBXBuildFile; fileRef = DCECA1C91893F4EF00C0CA32 /* public */; };
 		DCECA1CE1893FE5500C0CA32 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = DCECA1CD1893FE5500C0CA32 /* node_modules */; };
@@ -183,6 +186,10 @@
 		DCE7E3BF1A376AD400A12516 /* GLLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLLocation.h; sourceTree = "<group>"; };
 		DCE7E3C01A376AD400A12516 /* GLLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLLocation.m; sourceTree = "<group>"; };
 		DCECA1C51893F23200C0CA32 /* localnode */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = localnode; path = server/release/localnode; sourceTree = "<group>"; };
+		A722BCBE08BA666CA2C8C65A /* node-version */ = {isa = PBXFileReference; lastKnownFileType = text; name = "node-version"; path = "server/release/node-version"; sourceTree = "<group>"; };
+		C34E8AC9A17A3DB35A1BC4EC /* GLNodeRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLNodeRuntime.h; sourceTree = "<group>"; };
+		ACE884851197C2879FA14161 /* GLNodeRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLNodeRuntime.m; sourceTree = "<group>"; };
+		62E716E6A009927EEBD3049C /* GLNodeRuntimeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLNodeRuntimeTests.m; sourceTree = "<group>"; };
 		DCECA1C61893F23200C0CA32 /* server.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = server.js; path = server/release/server.js; sourceTree = "<group>"; };
 		DCECA1C91893F4EF00C0CA32 /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; name = public; path = server/release/public; sourceTree = "<group>"; };
 		DCECA1CD1893FE5500C0CA32 /* node_modules */ = {isa = PBXFileReference; lastKnownFileType = folder; name = node_modules; path = server/release/node_modules; sourceTree = "<group>"; };
@@ -311,6 +318,8 @@
 				DC57ED2C18DB4EC900A24FDD /* GLPreferencesController.xib */,
 				DCE7E3BF1A376AD400A12516 /* GLLocation.h */,
 				DCE7E3C01A376AD400A12516 /* GLLocation.m */,
+				C34E8AC9A17A3DB35A1BC4EC /* GLNodeRuntime.h */,
+				ACE884851197C2879FA14161 /* GLNodeRuntime.m */,
 				DC314A1E1C0EE024000A56D2 /* GLWidgetsController.h */,
 				DC314A1F1C0EE024000A56D2 /* GLWidgetsController.m */,
 				DCC7B2F41C575BCE00F563C8 /* GLWidgetsStore.h */,
@@ -372,6 +381,7 @@
 				GL05000001000001 /* GLShortcutsTests.swift */,
 				GL09000001000001 /* GLWidgetUpdatesTests.swift */,
 				GL03000001000001 /* GLGlassLayerTests.m */,
+				62E716E6A009927EEBD3049C /* GLNodeRuntimeTests.m */,
 				DC43ADA917EC2D9500241CC2 /* GailanTests.m */,
 				DC43ADA417EC2D9500241CC2 /* Supporting Files */,
 			);
@@ -407,6 +417,7 @@
 				DCECA1CD1893FE5500C0CA32 /* node_modules */,
 				DCECA1C91893F4EF00C0CA32 /* public */,
 				DCECA1C51893F23200C0CA32 /* localnode */,
+				A722BCBE08BA666CA2C8C65A /* node-version */,
 				DCECA1C61893F23200C0CA32 /* server.js */,
 			);
 			name = server;
@@ -532,6 +543,7 @@
 				DCECA1CA1893F4EF00C0CA32 /* public in Resources */,
 				DC57ED2E18DB4EC900A24FDD /* GLPreferencesController.xib in Resources */,
 				DCECA1C71893F23200C0CA32 /* localnode in Resources */,
+				ACD000B5E81FEC7A594C34D7 /* node-version in Resources */,
 				DC404DF51D294B3100305CE2 /* geolocation.js in Resources */,
 				DCAAAF9618DF0B050097677F /* GettingStarted in Resources */,
 				DCECA1C81893F23200C0CA32 /* server.js in Resources */,
@@ -659,6 +671,7 @@
 				DCC74B26252AF6DA00C1D1E5 /* GLWindowGroup.m in Sources */,
 				DC9F7CE31C439CE50014E25B /* GLDispatcher.m in Sources */,
 				DCE7E3C11A376AD400A12516 /* GLLocation.m in Sources */,
+				2638FD0587FDD2DB18D98ACB /* GLNodeRuntime.m in Sources */,
 				DC43ADB517EC35A800241CC2 /* GLWindow.m in Sources */,
 				DCF9D9011E9D512600D27988 /* GLReloadCommand.m in Sources */,
 				DC314A201C0EE024000A56D2 /* GLWidgetsController.m in Sources */,
@@ -683,6 +696,7 @@
 			files = (
 				DC43ADAA17EC2D9500241CC2 /* GailanTests.m in Sources */,
 				GL03000001000002 /* GLGlassLayerTests.m in Sources */,
+				76FE224649B7B724AC0239D7 /* GLNodeRuntimeTests.m in Sources */,
 				GL05000001000002 /* GLShortcutsTests.swift in Sources */,
 				GL09000001000002 /* GLWidgetUpdatesTests.swift in Sources */,
 			);

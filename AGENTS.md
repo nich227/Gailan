@@ -215,12 +215,37 @@ Keychain; the output is the same ed25519 signature either way.
 
 User defaults (registered in `GLPreferencesController`): `shell` (`zsh` default, `fish`),
 `appearance` (`system`, `light`, `dark`, applied to `NSApp.appearance`, which widgets see
-via `prefers-color-scheme`), `loginShell`, `enableInteraction`, `widgetDirectory`. The
+via `prefers-color-scheme`), `loginShell`, `enableInteraction`, `widgetDirectory`,
+`useSystemNode`. The
 shell reaches the node server as `--shell`; changing it restarts the server. fish gets
 commands via `-c` because it cannot read them from the stdin pipe node hands it; zsh and
 bash keep the stdin protocol. The deployment target is 13.5 (Node 26 requires it, so does
 SMAppService), and `LSMinimumSystemVersion` enforces it at launch. Posting a widget-error
 notification uses UserNotifications, which asks the user for authorization once.
+
+`useSystemNode` (on by default) runs the server on an installed node instead of the
+bundled one. `GLNodeRuntime` decides on every server start, and both the launch in
+`GLAppDelegate` and the `process.argv` shim in `GLWebViewController` go through it; the
+shim takes `chosenPath`, so a page load does not probe again. It finds node by running
+the configured shell as a login shell, `-lc 'command -v node'` (zsh is `/bin/zsh`, fish is
+looked for on PATH then in brew's two prefixes), asks it `process.versions.node`, and
+gives each step 3 seconds. It accepts an even major no lower than the bundled major, and
+on the same major nothing older than the bundled version. The floor is the bundled
+version because the server is `.ts` run directly on node's type stripping and the bundles
+are built for `node26` (`NODE_TARGET` in `server/scripts/build.js`), so an older node may
+lack what the code assumes. Odd majors are refused because they never become LTS. Anything
+else, including a missing `node-version` resource, falls back to `localnode` and logs one
+`node runtime:` line saying why; the chosen runtime is logged too. A zsh login shell reads
+`.zprofile` and not `.zshrc`, so a node set up only in `.zshrc` (nvm's default) is not seen.
+The bundled binaries ship regardless, and `sign-nested.sh` is unchanged.
+
+`server/release/node-version` is written by `fetch-node.sh` on every run, install or skip,
+is tracked in git, and is copied into Resources like `localnode`. `GLNodeRuntime` reads it
+as the bundled version, so moving `NODE_VERSION` needs no second edit.
+
+The `killall -m node-` hammer at launch matches only `node-arm64` and `node-x64`, so a
+system node server orphaned by Xcode's stop button survives it. It moves the next server
+to another port rather than breaking it; kill it by hand.
 
 ## Widget settings and the Widgets window
 

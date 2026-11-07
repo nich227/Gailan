@@ -31,6 +31,7 @@
             @"widgetDirectory": defaultWidgetDir,
             @"enableInteraction": @YES,
             @"shell": @"zsh",
+            @"useSystemNode": @YES,
             @"appearance": @"system",
             @"alwaysOnTop": @NO,
             @"checkWidgetUpdates": @YES,
@@ -265,6 +266,20 @@
            forKey: @"shell"
     ];
     [(GLAppDelegate *)[NSApp delegate] shellDidChange];
+}
+
+// takes effect on the next server start, so changing it restarts the server
+- (BOOL)useSystemNode
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"useSystemNode"];
+}
+
+- (void)setUseSystemNode:(BOOL)flag
+{
+    [[NSUserDefaults standardUserDefaults]
+        setBool:flag forKey:@"useSystemNode"
+    ];
+    [(GLAppDelegate *)[NSApp delegate] useSystemNodeDidChange];
 }
 
 - (BOOL)alwaysOnTop

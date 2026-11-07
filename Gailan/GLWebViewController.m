@@ -13,6 +13,7 @@
 #import "GLWindow.h"
 #import "GLAppDelegate.h"
 #import "GLPreferencesController.h"
+#import "GLNodeRuntime.h"
 
 
 @implementation GLWebViewController {
@@ -148,7 +149,7 @@
     // hack to make old widgets relying on process.argv[0] work
     NSString* processArgvHack = [NSString
         stringWithFormat:@"process = {argv: ['%@'.replace(/ /g, '\\\\ ')]}",
-        [[NSBundle mainBundle] pathForResource:@"localnode" ofType:nil]
+        [GLNodeRuntime chosenPath]
     ];
     [ucController addUserScript:[[WKUserScript alloc]
         initWithSource: processArgvHack

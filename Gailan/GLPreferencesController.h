@@ -23,6 +23,7 @@
 @property BOOL loginShell;
 @property BOOL enableInteraction;
 @property NSInteger shellTag;
+@property BOOL useSystemNode;
 @property BOOL alwaysOnTop;
 @property NSInteger desktopGlassTag;
 @property NSInteger desktopGlassStyleTag;
