@@ -207,9 +207,9 @@ test('emotion styles are labeled with the component they came from', async (t) =
   t.end();
 });
 
-test('the legacy module name is labeled too', async (t) => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-labels-'));
-  const file = path.join(dir, 'old.tsx');
+test('importing the old module name fails the build', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-legacy-'));
+  const file = path.join(dir, 'old.jsx');
   fs.writeFileSync(
     file,
     [
@@ -219,11 +219,17 @@ test('the legacy module name is labeled too', async (t) => {
     ].join('\n') + '\n'
   );
 
-  const source = await bundle('old', file);
-  t.ok(
-    source.indexOf('label: "Legacy"') > -1,
-    'a widget written for Ubersicht gets the same labels'
-  );
+  try {
+    await bundle('old', file);
+    t.fail('it should not have bundled');
+  } catch (err) {
+    t.match(
+      err.message,
+      /Could not resolve "uebersicht"/,
+      'the error names the import, so the widget does not get undefined'
+    );
+    t.equal(err.line, 1, 'and points at it');
+  }
 
   fs.rmSync(dir, {recursive: true, force: true});
   t.end();

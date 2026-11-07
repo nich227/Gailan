@@ -13,7 +13,6 @@
 
 const test = require('tape');
 const gailan = require('../../src/gailan.ts');
-const uebersicht = require('../../src/legacyAlias.ts');
 
 // What a widget gets when it imports "gailan". Übersicht exported exactly run,
 // request, css, styled and React, and Gailan keeps that surface so widgets carry
@@ -29,15 +28,6 @@ test('the module a widget imports', (t) => {
   t.equal(typeof gailan.css, 'function', 'css comes from emotion');
   t.equal(typeof gailan.styled, 'function', 'so does styled');
   t.equal(typeof gailan.React.createElement, 'function', 'react is passed through');
-  t.end();
-});
-
-test('the old module name', (t) => {
-  t.equal(
-    uebersicht,
-    gailan,
-    'importing uebersicht gives the same module, so old widgets still work'
-  );
   t.end();
 });
 

@@ -21,14 +21,15 @@ const widgetify = require('./widgetify');
 // after the script tag loads.
 const REGISTRY = 'globalThis.__gailanWidgets';
 
-// gailan and uebersicht are already in the client bundle, which exposes
-// browserify's require globally. widgets borrow them from there instead of
-// bundling a second react.
+// gailan is already in the client bundle, and client.ts exposes it through
+// globalThis.require. widgets borrow it from there instead of bundling a
+// second react. nothing else resolves here, so a stale "uebersicht" import
+// fails the build by name rather than handing the widget undefined.
 function hostModules() {
   return {
     name: 'host-modules',
     setup(build) {
-      build.onResolve({filter: /^(gailan|uebersicht)$/}, (args) => ({
+      build.onResolve({filter: /^gailan$/}, (args) => ({
         path: args.path,
         namespace: 'gailan-host',
       }));
@@ -86,10 +87,7 @@ function emotionLabels() {
               autoLabel: 'always',
               labelFormat: '[local]',
               sourceMap: false,
-              importMap: {
-                gailan: EMOTION_IMPORTS,
-                uebersicht: EMOTION_IMPORTS,
-              },
+              importMap: {gailan: EMOTION_IMPORTS},
             },
           ];
         }

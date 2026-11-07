@@ -34,7 +34,7 @@ and prints the jsx and types back untouched; esbuild still compiles them. It
 costs about 55ms once for loading babel and 6ms a rebuild. Emotion's `sourceMap`
 option stays off: it copies the file's whole map into every styled call, which
 took the starter widget from 30KB to 302KB. Widgets import `styled` from
-`gailan`, so the plugin is pointed at it with `importMap`, `uebersicht` included.
+`gailan`, so the plugin is pointed at it with `importMap`.
 
 Bundles publish themselves into `globalThis.__gailanWidgets[id]`, which is what
 `client.ts` reads after the script tag loads. esbuild ships as a native binary per
@@ -294,13 +294,14 @@ the folder rather than its `index` file.
 
 ## Migrating a widget from Übersicht
 
-Asked to port a widget, the work is usually nothing. Check these in order and change only
+Asked to port a widget, the work is usually an import and a selector. Check these in order and change only
 what matches:
 
   - `#uebersicht` in a selector becomes `#gailan`. Check `main.css` in the widgets folder
-    too, not just the widget. This is the only change most widgets need.
-  - `from "uebersicht"` can stay. `server/src/legacyAlias.js` exposes the module under that
-    id as well, so rewriting the import is optional.
+    too, not just the widget.
+  - `from "uebersicht"` becomes `from "gailan"`, `require("uebersicht")` becomes
+    `require("gailan")`. Only `gailan` resolves, so the build fails with an
+    unresolved-import error until the import is rewritten.
   - `tracesOf.Uebersicht` in an AppleScript call becomes `com.kevster.Gailan`.
   - bash-only syntax in `command` (`shopt`, `[[ -o ...]]` idioms differing from zsh, bash
     arrays) either gets rewritten for zsh or the user switches the shell in Preferences.
@@ -326,8 +327,13 @@ offers to quit Übersicht at launch.
     `gailan` module (`server/src/gailan.js`), the widget properties documented in
     the README, and `window.$`/`window.html`. Breaking any of it breaks other
     people's widgets.
-  - `require('uebersicht')` still resolves, via `server/src/legacyAlias.js`. jQuery is
-    pinned to 3.x because classic widgets use APIs that jQuery 4 removed.
+  - Only `gailan` resolves from a widget; there is no `uebersicht` alias and no shim.
+    jQuery is 4.x. What a classic widget may trip on, and the replacement:
+    `$.trim(s)` → `s.trim()`, `$.isArray` → `Array.isArray`, `$.parseJSON` →
+    `JSON.parse`, `$.isFunction(f)` → `typeof f === 'function'`, `$.isNumeric` →
+    `Number.isFinite(+x)`, `$.now()` → `Date.now()`, `$.proxy(f, ctx)` →
+    `f.bind(ctx)`, `$.type` → `typeof` / `Array.isArray`, `deferred.pipe` →
+    `deferred.then`, `toggleClass(name, bool)` → `addClass`/`removeClass`.
   - The AppleScript dictionary (`Gailan/Gailan.sdef`) keeps upstream's four-character
     codes. They are opaque, and changing them buys nothing.
   - Settings live in `~/Library/Application Support/Gailan`, widgets in its `widgets`

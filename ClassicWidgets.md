@@ -116,7 +116,7 @@ update: (output, domEl) => {
 }
 ```
 
-This will set the height of .bar every time this widget refreshes. As you can see, jQuery is available.
+This will set the height of .bar every time this widget refreshes. As you can see, jQuery 4 is available.
 
 ## Widget Internals
 

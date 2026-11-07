@@ -74,8 +74,8 @@ The specifics:
 
   - Bundle ID: `com.kevster.Gailan` (AppleScript needs the new ID)
   - Widgets live in `~/Library/Application Support/Gailan/widgets`
-  - Import the widget API module as `gailan`; `uebersicht` still resolves, so existing
-    widgets keep working
+  - Import the widget API module as `gailan`. `uebersicht` no longer resolves, so a
+    widget importing it fails to build until the import is renamed
   - The container element is `#gailan`. User CSS that targets `#uebersicht` no longer matches, so update it
   - Widget commands use zsh by default. Preferences lets you select
     fish instead. Übersicht used bash. Plain POSIX commands work the same in both,
@@ -102,8 +102,8 @@ The specifics:
     remembers the setting
   - Open Widgets Hub in the menu opens the
     [widget gallery](https://gailanapp.pages.dev/hub), where each widget in
-    [GailanHub](https://github.com/nich227/GailanHub) downloads as a zip. Übersicht widgets still work, so you can also use that gallery
-    too
+    [GailanHub](https://github.com/nich227/GailanHub) downloads as a zip. Übersicht widgets work too, once their `uebersicht` import
+    is renamed to `gailan`, so you can also use that gallery
   - Check for Widget Updates compares the version in each widget's `widget.json`
     with the GailanHub version and lists outdated widgets. Each widget has a checkbox,
     so you can choose which updates to install. The check also runs once a day and
@@ -135,16 +135,16 @@ Compared with Übersicht 1.6.82, the latest release when Gailan was forked:
 | stylus | 0.54 | 0.64 |
 | tape | 4.13 | 5.10 |
 | through2 | 2.0 | replaced by Node streams |
-| jQuery | 3.5 | 3.7, deliberately not 4.x |
+| jQuery | 3.5 | 4.0 |
 | Sparkle API | `SUUpdater` (Sparkle 1, deprecated) | `SPUStandardUpdaterController` |
 
-jQuery remains on 3.x because 4.0 removes APIs used by classic widgets.
-All other dependencies use the current release in their version line.
+All dependencies use the current release in their version line. jQuery 4 removes
+some APIs that classic widgets used; see [Changes a widget might need](#changes-a-widget-might-need).
 
 ## Migrating from Übersicht
 
-Copy your widgets to Gailan, and they will run. Gailan uses the same widget API, so
-most widget files need no changes.
+Copy your widgets to Gailan. Gailan uses the same widget API under a new module name,
+so most widget files need at most the changes listed below.
 
     cp -R ~/Library/Application\ Support/Übersicht/widgets/* \
           ~/Library/Application\ Support/Gailan/widgets/
@@ -161,9 +161,10 @@ Gailan offers to quit Übersicht when it starts.
 
 ### Changes a widget might need
 
-  - `import {...} from "uebersicht"` still works. Gailan exposes the same module under both names, so no rewrite is
-    needed. However, `"gailan"` is the name to use.
-  - CSS that targets `#uebersicht` no longer works. The container element is `#gailan`. This is the change a widget most likely needs. It applies to `main.css` in the widgets folder and to widget styles.
+  - Rename the module import: `from "uebersicht"` becomes `from "gailan"`, and
+    `require("uebersicht")` becomes `require("gailan")`. Until you do, the widget fails
+    to build with an error saying `"uebersicht"` could not be resolved.
+  - CSS that targets `#uebersicht` no longer works. The container element is `#gailan`. It applies to `main.css` in the widgets folder and to widget styles.
   - AppleScript references to `application id "tracesOf.Uebersicht"` need
     `"com.kevster.Gailan"`.
   - bash-specific command syntax may need changes. You can also change the shell in
@@ -172,9 +173,20 @@ Gailan offers to quit Übersicht when it starts.
   - Rebuild native modules bundled inside a widget against Node 26.
   - Review widget commands that depend on old Node behavior. See the
     breaking changes linked above.
+  - `window.$` is jQuery 4, which removed these. Replace any a classic widget uses:
+      - `$.trim(s)` → `s.trim()`
+      - `$.isArray(a)` → `Array.isArray(a)`
+      - `$.parseJSON(s)` → `JSON.parse(s)`
+      - `$.isFunction(f)` → `typeof f === 'function'`
+      - `$.isNumeric(x)` → `Number.isFinite(+x)`
+      - `$.now()` → `Date.now()`
+      - `$.proxy(f, ctx)` → `f.bind(ctx)`
+      - `$.type(x)` → `typeof x`, or `Array.isArray(x)` for arrays
+      - `deferred.pipe(...)` → `deferred.then(...)`
+      - `toggleClass(name, bool)` → `addClass(name)` or `removeClass(name)`
 
 The remaining widget features are unchanged: `command`, `refreshFrequency`, `render`,
-`updateState`, `className`, classic object-literal widgets, `window.$`, and the
+`updateState`, `className`, classic object-literal widgets, `window.$` (now jQuery 4), and the
 `/run/` proxy.
 
 ## Writing widgets

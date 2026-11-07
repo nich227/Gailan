@@ -111,10 +111,10 @@ test('the module registry widgets resolve against', (t) => {
     require('../../src/gailan.ts'),
     'a widget asking for gailan gets the real module'
   );
-  t.equal(
-    globalThis.require('uebersicht'),
-    require('../../src/gailan.ts'),
-    'and the old name works too'
+  t.throws(
+    () => globalThis.require('uebersicht'),
+    /Cannot find module 'uebersicht'/,
+    'the old name is gone'
   );
   t.throws(
     () => globalThis.require('some-package'),
