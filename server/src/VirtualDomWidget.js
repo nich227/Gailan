@@ -2,6 +2,7 @@ const css = require('@emotion/css').css;
 const RenderLoop = require('./renderLoop');
 const Timer = require('./Timer');
 const runShellCommand = require('./runShellCommand');
+const pollingContext = require('./pollingContext');
 const {createRoot} = require('react-dom/client');
 const React = require('react');
 const html = React.createElement;
@@ -34,6 +35,7 @@ module.exports = function VirtualDomWidget(widgetObject) {
   let renderLoop;
   let root;
   let currentError;
+  let revision;
 
   // what the user chose in the widget's own settings, merged over whatever the
   // manifest said the defaults were
@@ -43,6 +45,7 @@ module.exports = function VirtualDomWidget(widgetObject) {
   let missing = [];
 
   function init(widget) {
+    revision = widget.mtime;
     currentError = widget.error ? JSON.parse(widget.error) : undefined;
     implementation = Object.create(defaults);
     Object.assign(implementation, widget.implementation || {}, {id: widget.id});
@@ -59,7 +62,9 @@ module.exports = function VirtualDomWidget(widgetObject) {
     /* A widget missing something still runs: it may do less rather than nothing, and
        an author who handles the absence should be allowed to. What changes is that
        Gailan says so over the top of whatever it draws. */
-    missing = (widget.dependencies || []).filter((dep) => dep.state !== 'present');
+    missing = (widget.dependencies || []).filter(
+      (dep) => dep.state !== 'present',
+    );
 
     return api;
   }
@@ -82,8 +87,8 @@ module.exports = function VirtualDomWidget(widgetObject) {
     if (!implementation.command) return;
     commandLoop = Timer()
       .start()
-      .map((done) => {
-        execWidgetCommand()
+      .map((done, forced) => {
+        execWidgetCommand(forced)
           .then(commandCompleted)
           .catch(commandErrored)
           .then(() => done(implementation.refreshFrequency));
@@ -106,12 +111,17 @@ module.exports = function VirtualDomWidget(widgetObject) {
     }
   };
 
-  function execWidgetCommand() {
-    const {command} = implementation;
-    if (typeof command === 'function')
-      return Promise.resolve(runCommandFunction(command));
-    else if (typeof command === 'string') return runShellCommand(command);
-    else return Promise.resolve();
+  function execWidgetCommand(forced) {
+    return pollingContext.run(
+      {id: implementation.id, revision, config, implementation, forced},
+      () => {
+        const {command} = implementation;
+        if (typeof command === 'function')
+          return Promise.resolve(runCommandFunction(command));
+        else if (typeof command === 'string') return runShellCommand(command);
+        else return Promise.resolve();
+      },
+    );
   }
 
   function dispatch(event) {
@@ -137,13 +147,13 @@ module.exports = function VirtualDomWidget(widgetObject) {
       // settings is reserved: a widget reads props.settings.<key>
       const drawn = implementation.render(
         Object.assign({}, state, {settings: config}),
-        dispatch
+        dispatch,
       );
 
       root.render(
         missing.length
           ? html(MissingDependencies, {missing: missing}, drawn)
-          : drawn
+          : drawn,
       );
     } catch (err) {
       handleError(err);

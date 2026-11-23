@@ -19,7 +19,7 @@ function get(port, done) {
 test('serving user css', (t) => {
   var dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-css-'));
   fs.writeFileSync(path.join(dir, 'main.css'), 'body { color: red; }');
-  var server = connect().use(serveCss(dir)).listen(0, () => {
+  var server = connect().use(serveCss(dir)).listen(0, '127.0.0.1', () => {
     get(server.address().port, (status, body) => {
       t.equal(body, 'body { color: red; }', 'it serves main.css');
       server.close(() => t.end());
@@ -29,7 +29,7 @@ test('serving user css', (t) => {
 
 test('no main.css', (t) => {
   var dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-css-'));
-  var server = connect().use(serveCss(dir)).listen(0, () => {
+  var server = connect().use(serveCss(dir)).listen(0, '127.0.0.1', () => {
     get(server.address().port, (status, body) => {
       t.equal(body, '', 'it serves an empty stylesheet');
       server.close(() => t.end());
@@ -42,7 +42,7 @@ test('no main.css', (t) => {
 test('an unreadable main.css', (t) => {
   var dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gailan-css-'));
   fs.mkdirSync(path.join(dir, 'main.css'));
-  var server = connect().use(serveCss(dir)).listen(0, () => {
+  var server = connect().use(serveCss(dir)).listen(0, '127.0.0.1', () => {
     get(server.address().port, (status, body) => {
       t.equal(body, '', 'it serves an empty stylesheet instead of crashing');
       server.close(() => t.end());

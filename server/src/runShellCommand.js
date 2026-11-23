@@ -1,4 +1,5 @@
 const post = require('superagent').post;
+const pollingContext = require('./pollingContext');
 
 function wrapError(err, res) {
   return err ? new Error((res || {}).text || 'error running command') : null;
@@ -9,9 +10,10 @@ function isKeepAliveError(err) {
 }
 
 module.exports = function runShellCommand(command, callback) {
-  const request = post('/run/')
-    .retry(2, isKeepAliveError)
-    .send(command);
+  const request = post('/run/').retry(2, isKeepAliveError).send(command);
+
+  const headers = pollingContext.headers();
+  if (headers) request.set(headers);
 
   if (!callback) {
     return request

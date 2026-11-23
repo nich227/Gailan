@@ -26,7 +26,7 @@ function isFree(port) {
     "s.once('error', function() { process.exit(1); });" +
     's.listen(' +
     port +
-    ', function() { s.close(function() { process.exit(0); }); });';
+    ", '127.0.0.1', function() { s.close(function() { process.exit(0); }); });";
 
   try {
     execFileSync(process.execPath, ['-e', probe], {stdio: 'ignore'});

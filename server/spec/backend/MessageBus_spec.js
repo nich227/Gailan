@@ -7,7 +7,7 @@ var MessageBus = require('../../src/MessageBus');
 // frame in must come back out as a text frame, not binary
 test('rebroadcasting preserves the frame type', (t) => {
   var port = testPort();
-  var bus = MessageBus({port: port});
+  var bus = MessageBus({port: port, host: '127.0.0.1'});
 
   var sender = new WebSocket('ws://localhost:' + port);
   var receiver = new WebSocket('ws://localhost:' + port);

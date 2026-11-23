@@ -24,7 +24,7 @@ var IS_LOGIN =
 
 var workingDir = path.resolve(__dirname, path.join('..', 'test_widgets'));
 var port = testPort();
-var server = connect().use(commandServer(workingDir, false, SHELL)).listen(port);
+var server = connect().use(commandServer(workingDir, false, SHELL)).listen(port, '127.0.0.1');
 
 var url = 'http://localhost:' + port + '/run/';
 
@@ -72,7 +72,7 @@ if (has('fish')) {
     var fishPort = testPort();
     var fishServer = connect()
       .use(commandServer(workingDir, false, 'fish'))
-      .listen(fishPort);
+      .listen(fishPort, '127.0.0.1');
 
     httpPost('http://localhost:' + fishPort + '/run/', 'status is-login; and echo on; or echo off', (res, body) => {
       t.equal(body, 'off\n', 'fish runs commands and is not a login shell');
@@ -117,7 +117,7 @@ test('stripping shell integration noise', (t) => {
   var noisyPort = testPort();
   var noisyServer = connect()
     .use(commandServer(workingDir, false, SHELL))
-    .listen(noisyPort);
+    .listen(noisyPort, '127.0.0.1');
 
   // what a shell integration emits around a command, which used to land in
   // front of the widget's own output
@@ -135,7 +135,7 @@ test('using a login shell', (t) => {
   var loginPort = testPort();
   var loginServer = connect()
     .use(commandServer(workingDir, true, SHELL))
-    .listen(loginPort);
+    .listen(loginPort, '127.0.0.1');
 
   httpPost('http://localhost:' + loginPort + '/run/', IS_LOGIN, (res, body) => {
     const lines = body.trim().split('\n');

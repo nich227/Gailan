@@ -346,6 +346,33 @@ the widget files, and have to be redone through the status bar menu. Do not try 
 Do not suggest running both apps at once. Each renders every widget, and the app already
 offers to quit Übersicht at launch.
 
+## Shared scheduled shell reads
+
+1. Share only scheduled shell reads. Direct `gailan.run()` calls and forced refreshes must execute independently.
+2. Keep widget ID, revision, configuration, exact command, interval and server working directory isolated.
+3. A polling scope exists only during synchronous command invocation. Never retain it across promise callbacks or user interaction.
+4. `commandScope: 'screen'` opts out. One-shot commands and invalid or oversized metadata also use ordinary execution.
+5. Keep token, host and origin validation before `command_server.ts`. Polling headers never authorize a command.
+6. Expire cached results from execution start. Do not retain errors or results larger than 1MiB.
+
+| Path | Responsibility |
+|---|---|
+| `server/src/pollingContext.js` | Synchronous invocation scope and polling headers |
+| `server/src/runShellCommand.js` | Header attachment without changing the public `run()` API |
+| `server/src/commandPool.ts` | Server-local in-flight sharing, expiry and invalidation |
+| `server/src/command_server.ts` | Unchanged shell execution behind the sharing boundary |
+| `server/spec/{backend,frontend,integration}/shared_polling_spec.js` | Real command sharing, view tagging and authenticated requests |
+
+| Change | Also check |
+|---|---|
+| Polling metadata or expiry | `commandPool_spec.js`, frontend scope tests and README |
+| Scheduled invocation | `ClassicWidget.ts`, `VirtualDomWidget.js`, `runCommand.js` and `Timer.js` |
+| Manual refresh or direct `run()` | Cache invalidation and polling-context escape tests |
+
+Verification from `server/`: `npm test`, `npm run typecheck`, `npm run coverage`,
+`npm run coverage:new`, then `npm run release`. Do not launch XCTest or install
+the resulting app as part of Node-only validation.
+
 ## Compatibility to keep in mind
 
   - Widgets are user-written and live outside the repo. The public surface is the

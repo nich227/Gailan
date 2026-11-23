@@ -266,6 +266,30 @@ export const refreshFrequency = 1000; // widget will run command once a second
 
 The default is 1000 milliseconds (1 second). Setting the value to `false` disables automatic refresh.
 
+### Scheduled shell reads across displays
+
+Display copies of a widget share scheduled shell readings. Gailan groups reads by
+widget ID, file revision, settings, exact command and refresh interval. Each server
+keeps its own readings, so different widget directories do not share output.
+
+This applies to string commands and `run()` calls made synchronously inside a
+command function. JavaScript command functions still run in each view. Later
+promise callbacks, click actions and explicit refreshes execute independently.
+An explicit read invalidates an older scheduled reading of the same command.
+
+A reading expires one refresh interval after execution starts. Waiting views
+receive the same output or error. Gailan does not retain failed readings or
+readings larger than 1MiB. One-shot commands (`refreshFrequency = false`) execute
+normally.
+
+For commands that must execute separately on each display, opt out:
+
+```tsx
+export const commandScope = 'screen';
+```
+
+Classic widgets can use `commandScope: 'screen'` in their widget object.
+
 ### className
 
 An object or string that defines the CSS rules for the widget's root.

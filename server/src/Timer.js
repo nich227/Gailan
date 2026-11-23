@@ -41,7 +41,7 @@ module.exports = function Timer() {
   };
 
   api.forceTick = function tick() {
-    callback(() => {});
+    callback(() => {}, true);
     return api;
   };
 

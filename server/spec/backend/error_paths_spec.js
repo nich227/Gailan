@@ -149,7 +149,7 @@ test('a command that cannot be run', (t) => {
   const port = testPort();
   const server = connect()
     .use(commandServer('/tmp', false, 'no-such-shell-anywhere'))
-    .listen(port, () => {
+    .listen(port, '127.0.0.1', () => {
       const request = http.request(
         {port: port, path: '/run/', method: 'POST', agent: false},
         (res) => {
@@ -185,7 +185,7 @@ test('a widget bundle that cannot be read while being served', (t) => {
   const port = testPort();
   const server = connect()
     .use(serveWidgets({get: () => source}, dir))
-    .listen(port, () => {
+    .listen(port, '127.0.0.1', () => {
       http.get(
         {port: port, path: '/widgets/gone?line=1&column=0', agent: false},
         (res) => {

@@ -68,12 +68,24 @@ module.exports = function ClassicWidget(widgetObject: any) {
       if (!implementation[key]) implementation[key] = value;
     });
 
-    commandLoop = Timer().map((done: (wait: number | false) => void) => {
-      runCommand(implementation, (err: WidgetError, output: any) => {
-        redraw(err, output);
-        done(implementation.refreshFrequency);
-      });
-    });
+    commandLoop = Timer().map(
+      (done: (wait: number | false) => void, forced?: boolean) => {
+        runCommand(
+          implementation,
+          (err: WidgetError, output: any) => {
+            redraw(err, output);
+            done(implementation.refreshFrequency);
+          },
+          {
+            id: widget.id || implementation.id,
+            revision: widget.mtime,
+            config: widget.config,
+            implementation,
+            forced,
+          },
+        );
+      },
+    );
 
     return api;
   }

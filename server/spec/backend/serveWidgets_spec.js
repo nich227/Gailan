@@ -35,7 +35,7 @@ function serve(bundler, widgetDir, urlPath, callback) {
       res.writeHead(418);
       res.end('fell through');
     })
-    .listen(0, () => {
+    .listen(0, '127.0.0.1', () => {
       http.get(
         {port: server.address().port, path: urlPath, agent: false},
         (res) => {

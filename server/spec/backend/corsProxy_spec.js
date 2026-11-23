@@ -495,8 +495,8 @@ test('asking for nothing in particular is a bad request', (t) => {
 test('a target that has to be resolved is proxied', (t) => {
   const upstream = http.createServer((req, res) => res.end(`resolved ${req.url}`));
 
-  // no host given, so it answers on whichever family localhost resolves to
-  upstream.listen(0, () => {
+  // use the same loopback family the target hostname resolves to
+  upstream.listen(0, 'localhost', () => {
     const port = upstream.address().port;
     const proxy = corsProxy.createServer({origin: ORIGIN});
 

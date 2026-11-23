@@ -15,6 +15,7 @@
 'use strict';
 
 const {spawn} = require('child_process');
+const commandPool = require('./commandPool.ts');
 
 // Shell integrations (Kiro, iTerm2, Warp) announce themselves with OSC escape
 // sequences when a login shell starts, and those land in front of a widget's
@@ -31,6 +32,7 @@ function stripControlSequences(chunk: Buffer): Buffer {
 type Request = {
   method: string;
   url: string;
+  headers?: Record<string, string | string[] | undefined>;
   on: (event: string, handler: (chunk?: Buffer) => void) => void;
 };
 
@@ -38,15 +40,19 @@ type Response = {
   writeHead: (status: number) => void;
   write: (chunk: Buffer | string) => void;
   end: () => void;
+  setHeader?: (name: string, value: string) => void;
+  destroyed?: boolean;
+  writableEnded?: boolean;
 };
 
 module.exports = function commandServer(
   workingDir: string,
   useLoginShell?: boolean,
-  shellName?: string
+  shellName?: string,
 ) {
   const args = useLoginShell ? ['-l'] : [];
   const shellCommand = shellName ?? 'zsh';
+  const share = commandPool();
 
   // the Connect middleware
   return function (req: Request, res: Response, next: () => void): void {
@@ -58,6 +64,11 @@ module.exports = function commandServer(
     });
 
     req.on('end', () => {
+      res.setHeader?.('Cache-Control', 'no-store');
+      share(req.headers, command, res, execute);
+    });
+
+    function execute(target: Response) {
       // fish cannot read commands from the socketpair node hands it as stdin,
       // so it gets them as an argument; zsh and bash keep the stdin protocol
       const shell =
@@ -66,28 +77,28 @@ module.exports = function commandServer(
           : spawn(shellCommand, args, {cwd: workingDir});
 
       let setStatusOnce = (status: number): void => {
-        res.writeHead(status);
+        target.writeHead(status);
         setStatusOnce = () => {};
       };
 
       shell.stderr.on('data', (d: Buffer) => {
         setStatusOnce(500);
-        res.write(stripControlSequences(d));
+        target.write(stripControlSequences(d));
       });
 
       shell.stdout.on('data', (d: Buffer) => {
         setStatusOnce(200);
-        res.write(stripControlSequences(d));
+        target.write(stripControlSequences(d));
       });
 
       shell.on('error', (err: Error) => {
         setStatusOnce(500);
-        res.write(err.message);
+        target.write(err.message);
       });
 
       shell.on('close', () => {
         setStatusOnce(200);
-        res.end();
+        target.end();
       });
 
       if (shellCommand !== 'fish') {
@@ -95,6 +106,6 @@ module.exports = function commandServer(
         shell.stdin.write('\n');
         shell.stdin.end();
       }
-    });
+    }
   };
 };

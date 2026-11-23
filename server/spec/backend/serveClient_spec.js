@@ -11,7 +11,7 @@ test('serving the client page', (t) => {
   var html = '<!doctype html><html><body><div id="gailan"></div></body></html>';
   fs.writeFileSync(path.join(dir, 'index.html'), html);
 
-  var server = connect().use(serveClient(dir)).listen(0, () => {
+var server = connect().use(serveClient(dir)).listen(0, '127.0.0.1', () => {
     http.get({port: server.address().port, path: '/0/foreground', agent: false}, (res) => {
       var body = '';
       res.on('data', (c) => (body += c));
